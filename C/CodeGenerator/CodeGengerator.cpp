@@ -21,16 +21,20 @@ void CommaCheck()
 	int flag = 0;
 	for (int i = 0; i < 3; i++)
 	{
+		flag = 0;
 		for (int j = 0; j < sizeof(rBuf[i]); j++)
 		{
-			if (rBuf[i][j] == ',')
+			if (rBuf[i][j] == ',' || rBuf[i][j] == '\0')
 			{
+				int l = 0;
 				for (int k = flag; k < j; k++)
 				{
-					szBuf[szCount][k] = rBuf[i][k];
+					szBuf[szCount][l++] = rBuf[i][k];
 				}
 				szCount++;
-				flag = j;
+				flag = j + 1;
+				if (rBuf[i][j] == '\0')
+					break;
 			}
 		}
 	}
@@ -38,43 +42,14 @@ void CommaCheck()
 
 void Parsing()
 {
-	MyGetLine(2);
-
 	outFile << "struct data" << endl;
 	outFile << "{" << endl;
-
-	//for (int i = 0; i < sizeof(szBuf); i++)
-	//{
-	//	if (szBuf[i] == ',')
-	//	{
-	//		for (int j = 0; j < i; j++)
-	//		{
-	//			//rBuf[j] = szBuf[j];
-	//		}
-	//		outFile << rBuf << " ";
-	//		break;
-	//	}
-	//}
-
-	//ifstream inFile("data.csv");
-	//MyGetLine(1);
-
-	//for (int i = 0; i < sizeof(szBuf); i++)
-	//{
-	//	if (szBuf[i] == ',')
-	//	{
-	//		for (int j = 0; j < i; j++)
-	//		{
-	//			//rBuf[j] = szBuf[j];
-	//		}
-	//		outFile << rBuf << " ";
-	//		break;
-	//	}
-	//}
-
-	/*outFile << "struct data" << endl;
-	outFile << "{" << endl;
-	outFile << rBuf << " ";*/
+	outFile << '\t' << szBuf[5] << " " << szBuf[0] << " " << "//" << szBuf[10] << endl;
+	outFile << '\t' << szBuf[6] << " " << szBuf[1] << " " << "//" << szBuf[11] << endl;
+	outFile << '\t' << szBuf[7] << " " << szBuf[2] << " " << "//" << szBuf[12] << endl;
+	outFile << '\t' << szBuf[7] << " " << szBuf[3] << " " << "//" << szBuf[13] << endl;
+	outFile << '\t' << szBuf[7] << " " << szBuf[4] << " " << "//" << szBuf[14] << endl;
+	outFile << "}" << endl;
 }
 
 int main()
@@ -85,7 +60,12 @@ int main()
 
 	MyGetLine(3);
 	CommaCheck();
-	cout << szBuf[1];
+	Parsing();
+
+	/*for (int i = 0; i < 15; i++)
+	{
+		cout << szBuf[i] << " ";
+	}*/
 
 	return 0;
 }
