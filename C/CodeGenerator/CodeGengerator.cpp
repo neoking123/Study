@@ -4,22 +4,26 @@ using namespace std;
 
 char szBuf[256][256];
 char rBuf[256][256];
-int szCount = 0;
+int szCount = 0;	
+int colCount = 0;
 ifstream inFile("data.csv");
 ofstream outFile("CodeGengerator.h");
 
-void MyGetLine(int num)
+// 한줄씩 읽어서 배열에 저장
+void MyGetLine(int lineCount)
 {
-	for (int i = 0; i < num; i++)
+	for (int i = 0; i < lineCount; i++)
 	{
 		inFile.getline(rBuf[i], 256);
 	}
 }
 
-void CommaCheck()
+// 콤마 단위로 끊어서 배열에 저장, 행의 원소 수 리턴
+int CommaCheck(int lineCount)
 {
 	int flag = 0;
-	for (int i = 0; i < 3; i++)
+	colCount = 0;
+	for (int i = 0; i < lineCount; i++)
 	{
 		flag = 0;
 		for (int j = 0; j < sizeof(rBuf[i]); j++)
@@ -38,34 +42,35 @@ void CommaCheck()
 			}
 		}
 	}
+
+	return colCount = szCount / lineCount;
 }
 
+// 문자 파싱
 void Parsing()
 {
 	outFile << "struct data" << endl;
 	outFile << "{" << endl;
-	outFile << '\t' << szBuf[5] << " " << szBuf[0] << " " << "//" << szBuf[10] << endl;
+
+	for (int i = 0; i < colCount; i++)
+	{
+		outFile << '\t' << szBuf[i + colCount] << " " << szBuf[i] << " " << "//" << szBuf[i + colCount * 2] << endl;
+	}
+
+	/*outFile << '\t' << szBuf[5] << " " << szBuf[0] << " " << "//" << szBuf[10] << endl;
 	outFile << '\t' << szBuf[6] << " " << szBuf[1] << " " << "//" << szBuf[11] << endl;
 	outFile << '\t' << szBuf[7] << " " << szBuf[2] << " " << "//" << szBuf[12] << endl;
-	outFile << '\t' << szBuf[7] << " " << szBuf[3] << " " << "//" << szBuf[13] << endl;
-	outFile << '\t' << szBuf[7] << " " << szBuf[4] << " " << "//" << szBuf[14] << endl;
+	outFile << '\t' << szBuf[8] << " " << szBuf[3] << " " << "//" << szBuf[13] << endl;
+	outFile << '\t' << szBuf[9] << " " << szBuf[4] << " " << "//" << szBuf[14] << endl;*/
+
 	outFile << "}" << endl;
 }
 
 int main()
 {
-	//MyGetLine(2);
-	//CommaCheck();
-	//Parsing();
-
 	MyGetLine(3);
-	CommaCheck();
+	CommaCheck(3);
 	Parsing();
-
-	/*for (int i = 0; i < 15; i++)
-	{
-		cout << szBuf[i] << " ";
-	}*/
 
 	return 0;
 }

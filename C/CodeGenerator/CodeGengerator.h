@@ -4,5 +4,5 @@ struct data
 	char Name //이름
 	int Attack //공격력
 	int Defence //방어력
-	int Speed //이동속도
+	float Speed //이동속도
 }
