@@ -66,11 +66,13 @@ void Parsing()
 	outFile << "}" << endl;
 }
 
+
+
 int main()
 {
 	MyGetLine(3);
 	CommaCheck(3);
 	Parsing();
-
+	
 	return 0;
 }
