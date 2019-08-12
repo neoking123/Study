@@ -1,15 +1,17 @@
 #pragma once
 #include <iostream>
+#include <time.h>
 using namespace std;
 
-#define WIDTH 20
+#define WIDTH 40
 #define HEIGHT 20
 
 enum mapState
 {
-	EMPTY,
 	WALL,
+	EMPTY,
 	PLAYER,
+	BODY,
 	ENEMY
 };
 
@@ -23,5 +25,7 @@ public:
 
 	void Init();
 	void Draw();
+	void SetMap();
+	void SpawnEnemy();
 };
 

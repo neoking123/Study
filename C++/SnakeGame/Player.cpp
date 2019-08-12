@@ -1,12 +1,11 @@
 #include "Player.h"
-#include <conio.h>
+
+int Player::nodeCount = 0;
 
 Player::Player()
 {
-	Node* playerNode = new Node();
-	head = playerNode;
-	tail = playerNode;
-	nodeCount = 0;
+	head = new Node;
+	tail = head;
 }
 
 Player::~Player()
@@ -14,87 +13,205 @@ Player::~Player()
 	delete head;
 }
 
+// 초기화
+void Player::Init(Map& map)
+{
+	head->x = WIDTH / 2;
+	head->y = HEIGHT / 2;
+	input = 'a';
+	map.arrMap[head->y][head->x] = PLAYER;
+	nodeCount = 1;
+	death = false;
+}
+
 // 플레이어 이동
 void Player::MoveHead(Map& map)
 {
-	char input = getch(); // <conio.h>
+	//char input = _getch(); // <conio.h>
 
-	if (input == 'w' && map.arrMap[head->y][head->x] != mapState::WALL)
+	if (input == 'w' && map.arrMap[head->y - 1][head->x] != WALL && map.arrMap[head->y - 1][head->x] != BODY)
 	{
-		head->y--;
-		map.arrMap[head->y - 1][head->x] == mapState::PLAYER;
-		map.arrMap[head->y][head->x] == mapState::EMPTY;
-		head->prevDirection = Direction::FORWARD;
+		if (map.arrMap[head->y - 1][head->x] == ENEMY)
+		{
+			head->prevX = head->x;
+			head->prevY = head->y;
+			map.arrMap[head->y--][head->x] = EMPTY;
+			map.arrMap[head->y][head->x] = PLAYER;
+
+			InsertNode(map);
+			TrailNode(map);
+			map.SpawnEnemy();
+		}
+		else 
+		{
+			head->prevX = head->x;
+			head->prevY = head->y;
+			map.arrMap[head->y--][head->x] = EMPTY;
+			map.arrMap[head->y][head->x] = PLAYER;
+
+			TrailNode(map);
+		}
 	}
-	else if (input == 's' && map.arrMap[head->y + 1][head->x] != mapState::WALL)
+	else if (input == 's' && map.arrMap[head->y + 1][head->x] != WALL && map.arrMap[head->y + 1][head->x] != BODY)
 	{
-		head->y++;
-		map.arrMap[head->y + 1][head->x] == mapState::PLAYER;
-		map.arrMap[head->y][head->x] == mapState::EMPTY;
-		head->prevDirection = Direction::BACKWARD;
+		if (map.arrMap[head->y + 1][head->x] == ENEMY)
+		{
+			head->prevX = head->x;
+			head->prevY = head->y;
+			map.arrMap[head->y++][head->x] = EMPTY;
+			map.arrMap[head->y][head->x] = PLAYER;
+
+			InsertNode(map);
+			TrailNode(map);
+			map.SpawnEnemy();
+		}
+		else
+		{
+			head->prevX = head->x;
+			head->prevY = head->y;
+			map.arrMap[head->y++][head->x] = EMPTY;
+			map.arrMap[head->y][head->x] = PLAYER;
+
+			TrailNode(map);
+		}
 	}
-	else if (input == 'a' && map.arrMap[head->y][head->x - 1] != mapState::WALL)
+	else if (input == 'a' && map.arrMap[head->y][head->x - 1] != WALL && map.arrMap[head->y][head->x - 1] != BODY)
 	{
-		head->x - 1;
-		map.arrMap[head->y][head->x - 1] == mapState::PLAYER;
-		map.arrMap[head->y][head->x] == mapState::EMPTY;
-		head->prevDirection = Direction::LEFT;
+		if (map.arrMap[head->y][head->x - 1] == ENEMY)
+		{
+			head->prevX = head->x;
+			head->prevY = head->y;
+			map.arrMap[head->y][head->x--] = EMPTY;
+			map.arrMap[head->y][head->x] = PLAYER;	
+
+			InsertNode(map);
+			TrailNode(map);
+			map.SpawnEnemy();
+		}
+		else
+		{
+			head->prevX = head->x;
+			head->prevY = head->y;
+			map.arrMap[head->y][head->x--] = EMPTY;
+			map.arrMap[head->y][head->x] = PLAYER;
+
+			TrailNode(map);
+		}
 	}
-	else if (input == 'd' && map.arrMap[head->y][head->x + 1] != mapState::WALL)
+	else if (input == 'd' && map.arrMap[head->y][head->x + 1] != WALL && map.arrMap[head->y][head->x + 1] != BODY)
 	{
-		head->x + 1;
-		map.arrMap[head->y][head->x + 1] == mapState::PLAYER;
-		map.arrMap[head->y][head->x] == mapState::EMPTY;
-		head->prevDirection = Direction::RIGHT;
+		if (map.arrMap[head->y][head->x + 1] == ENEMY)
+		{
+			head->prevX = head->x;
+			head->prevY = head->y;
+			map.arrMap[head->y][head->x++] = EMPTY;
+			map.arrMap[head->y][head->x] = PLAYER;
+
+			InsertNode(map);
+			TrailNode(map);
+			map.SpawnEnemy();
+		}
+		else
+		{
+			head->prevX = head->x;
+			head->prevY = head->y;
+			map.arrMap[head->y][head->x++] = EMPTY;
+			map.arrMap[head->y][head->x] = PLAYER;
+
+			TrailNode(map);
+		}
 	}
+}
+
+// 자동이동
+void Player::MoveDirection(Map& map)
+{
+	if (_kbhit())
+	{
+		char newInput = _getch();
+		if (input == 'w' && newInput != 's')
+		{
+			input = newInput;
+		}
+		else if (input == 's' && newInput != 'w')
+		{
+			input = newInput;
+		}
+		else if (input == 'a' && newInput != 'd')
+		{
+			input = newInput;
+		}
+		else if (input == 'd' && newInput != 'a')
+		{
+			input = newInput;
+		}
+	}
+
+	CheckColision(map);
+	MoveHead(map);
 }
 
 // 노드 이동
-void Player::MoveNode(Map& map, Node* newNode, Direction direction)
+void Player::MoveNode(Node* node, Map& map)
 {
-	if (Direction::FORWARD)
-	{
-		map.arrMap[newNode->y][newNode->x] = mapState::EMPTY;
-		map.arrMap[newNode->y - 1][newNode->x] = mapState::PLAYER;
-		newNode->prevDirection = Direction::FORWARD;
-	}
-	else if (Direction::BACKWARD)
-	{
-		map.arrMap[newNode->y][newNode->x] = mapState::EMPTY;
-		map.arrMap[newNode->y + 1][newNode->x] = mapState::PLAYER;
-		newNode->prevDirection = Direction::BACKWARD;
-	}
-	else if (Direction::RIGHT)
-	{
-		map.arrMap[newNode->y][newNode->x] = mapState::EMPTY;
-		map.arrMap[newNode->y][newNode->x + 1] = mapState::PLAYER;
-		newNode->prevDirection = Direction::RIGHT;
-	}
-	else if (Direction::LEFT)
-	{
-		map.arrMap[newNode->y][newNode->x] = mapState::EMPTY;
-		map.arrMap[newNode->y][newNode->x - 1] = mapState::PLAYER;
-		newNode->prevDirection = Direction::RIGHT;
-	}
+	map.arrMap[node->y][node->x] = EMPTY;
+	node->prevX = node->x;
+	node->prevY = node->y;
+	node->x = node->prev->prevX;
+	node->y = node->prev->prevY;
+	map.arrMap[node->y][node->x] = BODY;
 }
 
 // 맨 뒤에 노드 추가
-void Player::InsertNode(Node * tail, Node * newNode, Map & map)
+void Player::InsertNode(Map & map)
 {
+	Node* newNode = new Node;
 	tail->next = newNode;
-	map.arrMap[tail->next->y][tail->next->x] = mapState::PLAYER;
+	newNode->prev = tail;
+	tail = newNode;
 
+	tail->x = tail->prev->prevX;
+	tail->y = tail->prev->prevY;
+
+	map.arrMap[tail->y][tail->x] = BODY;
 	nodeCount++;
 }
 
 // 앞 노드들 따라가기
 void Player::TrailNode(Map& map)
 {
-	Node* scan = head;
+	Node* scan = head->next;
 
-	for (int i = 0; i < nodeCount; i++)
+	while (scan != nullptr)
 	{
-		// 모든 노드들 이동시키기
+		MoveNode(scan, map);
+		scan = scan->next;
 	}
+}
+
+// 충돌 체크
+void Player::CheckColision(Map & map)
+{
+	if (input == 'w' && (map.arrMap[head->y - 1][head->x] == WALL || map.arrMap[head->y - 1][head->x] == BODY))
+	{
+		death = true;
+	}
+	else if (input == 's' && (map.arrMap[head->y + 1][head->x] == WALL || map.arrMap[head->y + 1][head->x] == BODY))
+	{
+		death = true;
+	}
+	else if (input == 'a' && (map.arrMap[head->y][head->x - 1] == WALL || map.arrMap[head->y][head->x - 1] == BODY))
+	{
+		death = true;
+	}
+	else if (input == 'd' && (map.arrMap[head->y][head->x + 1] == WALL || map.arrMap[head->y][head->x + 1] == BODY))
+	{
+		death = true;
+	}
+}
+
+int Player::PrintNodeCount()
+{
+	return nodeCount;
 }
 
