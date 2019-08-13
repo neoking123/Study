@@ -1,8 +1,9 @@
 #include "Student.h"
 
-Student::Student(int _number, string _name, int _kor, int _eng, int _math)
+Student::Student(int _number, int _studentType, string _name, int _kor, int _eng, int _math)
 {
 	number = _number;
+	studentType = _studentType; // 0이면 이과, 1이면 문과
 	name.reserve(256);
 	name = _name;
 	kor = _kor;

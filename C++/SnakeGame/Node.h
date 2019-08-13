@@ -12,7 +12,5 @@ public:
 
 	Node();
 	~Node();
-
-	void SelfDelete();
 };
 

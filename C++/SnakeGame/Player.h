@@ -11,8 +11,12 @@ class Player
 	Node* tail;
 	static int nodeCount;
 	char input;
+	int score;
+	int scoreCount;
+	int scoreCheck;
 
 public:
+	int baseScore;
 	bool death;
 
 	Player();
@@ -25,6 +29,8 @@ public:
 	void InsertNode(Map& map);
 	void TrailNode(Map& map);
 	void CheckColision(Map& map);
-	static int PrintNodeCount(); // 정적멤버함수
+	int GetScore();
+	int SetScore();
+	static int GetNodeCount(); // 정적멤버함수
 };
 

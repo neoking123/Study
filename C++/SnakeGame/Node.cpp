@@ -11,9 +11,3 @@ Node::Node()
 Node::~Node()
 {
 }
-
-void Node::SelfDelete()
-{
-	prev->next = next;
-	next->prev = prev;
-}

@@ -25,6 +25,8 @@ void Map::Init()
 void Map::Draw()
 {
 	system("cls");
+	//COORD pos = { 0, 0 };
+	//SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 
 	for (int y = 0; y < HEIGHT; y++)
 	{
@@ -91,8 +93,10 @@ void Map::SetMap()
 	}
 }
 
+// Enemy ·£´ý½ºÆù
 void Map::SpawnEnemy()
 {
+	srand(time(nullptr));
 	int randX = rand() % WIDTH + 1;
 	int randY = rand() % HEIGHT + 1;
 

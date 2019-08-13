@@ -10,7 +10,14 @@ Player::Player()
 
 Player::~Player()
 {
-	delete head;
+	Node* scan = head->next;
+	Node* temp;
+	while (scan != nullptr)
+	{
+		temp = scan->next;
+		delete scan;
+		scan = temp;
+	}
 }
 
 // 초기화
@@ -21,6 +28,10 @@ void Player::Init(Map& map)
 	input = 'a';
 	map.arrMap[head->y][head->x] = PLAYER;
 	nodeCount = 1;
+	baseScore = 100;
+	scoreCheck = nodeCount;
+	score = 0;
+	scoreCount = baseScore;
 	death = false;
 }
 
@@ -123,7 +134,7 @@ void Player::MoveHead(Map& map)
 	}
 }
 
-// 자동이동
+// 자동 이동
 void Player::MoveDirection(Map& map)
 {
 	if (_kbhit())
@@ -210,8 +221,29 @@ void Player::CheckColision(Map & map)
 	}
 }
 
-int Player::PrintNodeCount()
+int Player::GetNodeCount()
 {
 	return nodeCount;
+}
+
+int Player::GetScore()
+{
+	return score;
+}
+
+int Player::SetScore()
+{
+	if (scoreCheck < nodeCount)
+	{
+		score += scoreCount;
+		scoreCheck = nodeCount;
+		scoreCount = baseScore;
+	}
+	else
+	{
+		scoreCount--;
+	}
+
+	return score;
 }
 

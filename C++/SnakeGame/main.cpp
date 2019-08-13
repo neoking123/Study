@@ -1,10 +1,10 @@
 #include "Player.h"
 
-#define FPS 30
-
 int main()
 {
-	int enemyCount = 5;
+	int enemyCount = 1;
+	int Speed = 1;
+	int fps = 60;
 	Map map;
 	map.Init();
 	map.SetMap();
@@ -21,12 +21,19 @@ int main()
 	{
 		map.Draw();
 		player.MoveDirection(map);
-		_sleep(1000 / FPS);
+		player.SetScore();
+		cout << endl;
+		cout << "\t\t\t\tScore : " << player.GetScore() << endl;
+		//_sleep(1000 / fps);
 	}
 
 	cout << endl;
 	cout << "\t\t\t\t¡ØGAME OVER¡Ø" << endl;
-	cout << "\t\t\t\tScore : " << player.PrintNodeCount() << endl;
+
+	while (_getch() != 'q')
+	{
+
+	}
 
 	return 0;
 }

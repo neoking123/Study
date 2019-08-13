@@ -11,10 +11,10 @@ public:
 	int kor;
 	int eng;
 	int math;
+	int studentType;
 
-	Student(int _number = 0, string _name = "", int _kor = 0, int _eng = 0, int _math = 0); // 헤더에서 디폴튿값 설정
+	Student(int _number = 0, int _studentType = -1, string _name = "", int _kor = 0, int _eng = 0, int _math = 0); // 헤더에서 디폴튿값 설정
 	~Student();
 
-	void SetScore(int _kor, int _eng, int _math);
+	virtual void SetScore(int _kor, int _eng, int _math);
 };
-

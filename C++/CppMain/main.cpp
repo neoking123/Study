@@ -1,22 +1,33 @@
 #include <iostream>
+#include <assert.h>
 #include "Map.h"
 #include "Player.h"
 using namespace std;
 
+class POINT
+{
+public:
+	int x;
+	int y;
+
+	POINT operator+(POINT& right)
+	{
+		x += right.x;
+		y += right.y;
+		return *this;
+	}
+};
+
 int main()
 {
-	Player player;
-	Map map;
+	POINT a, b;
+	POINT c = a + b;
 
-	map.Init();
-	player.Init(map);
-	map.Draw();
+	//__FILE__
+	//__LINE__
 
-	while (true)
-	{
-		player.input(map);
-		map.Draw();
-	}
+	//assert(a == 10);
+
 
 	return 0;
 }
