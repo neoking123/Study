@@ -48,7 +48,7 @@ int main()
 	for (vector<parent*>::iterator iter = vec.begin(); iter != vec.end(); iter++)
 	{
 		//child2* pCh = (child2*)(*iter);
-		child2* pCh = dynamic_cast<child2*>(*iter); // 다이나믹 캐스팅, 다운 캐스팅
+		child2* pCh = dynamic_cast<child2*>(*iter); // 다이나믹 캐스팅, 다운 캐스팅 (부모에 virtual 함수가 있어야만 가능)
 		
 		if (pCh)
 		{

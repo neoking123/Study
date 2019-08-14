@@ -5,8 +5,8 @@ int main()
 	StudentManager manager;
 
 	ScienceStudent st(0, 0, "현다열", 70, 80, 90, 100);
-	ScienceStudent st1(1, 1, "문송함", 60, 50, 10, 90);
-	ScienceStudent st2(2, 1, "문과임", 30, 40, 20, 80);
+	HumanityStudent st1(1, 1, "문송함", 60, 50, 10, 90);
+	HumanityStudent st2(2, 1, "문과임", 30, 40, 20, 80);
 	ScienceStudent st3(3, 0, "이과임", 60, 70, 80, 90);
 
 	manager.insertStudent(&st);

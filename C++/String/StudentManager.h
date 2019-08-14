@@ -3,6 +3,7 @@
 #include "ScienceStudent.h"
 #include "HumanityStudent.h"
 #include <vector>
+#include <assert.h>
 
 class Student;
 
