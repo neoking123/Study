@@ -1,12 +1,87 @@
 #include "Map.h"
 
+Map map;
+int mapWidth = 0;
+int mapHeight = 0;
+
+void SaveFile()
+{
+	string fileName;
+	cout << endl;
+	cout << "저장할 파일명을 입력하세요 : ";
+	cin >> fileName;
+	ofstream outFile(fileName + ".txt");
+
+	outFile << mapWidth << endl;
+	outFile << mapHeight << endl;
+
+	for (int i = 0; i < mapHeight; i++)
+	{
+		for (int j = 0; j < mapWidth; j++)
+		{
+			outFile << map.GetMapState(j, i) << ",";
+		}
+		outFile << endl;
+	}
+
+	cout << "저장 완료" << endl;
+}
+
+bool LoadFile()
+{
+	system("cls");
+	cout << endl;
+	cout << "불러올 파일명을 입력하세요 : ";
+	string fileName;
+	cin >> fileName;
+
+	ifstream inFile(fileName + ".txt");
+	if (inFile)
+	{
+		string readString;
+		stringstream ss;
+
+		getline(inFile, readString);
+		ss.str(readString);
+		ss >> mapWidth;
+		ss.clear();
+
+		getline(inFile, readString);
+		ss.str(readString);
+		ss >> mapHeight;
+
+		map.Init(mapWidth, mapHeight);
+		map.CreateCursor();
+
+		char* tok = nullptr;
+
+		for (int i = 0; i < mapHeight; i++)
+		{
+			getline(inFile, readString);
+			tok = strtok((char*)readString.c_str(), ",");
+			while (tok != nullptr)
+			{
+				for (int j = 0; j < mapWidth; j++)
+				{
+					map.EditMap(j, i, (EMapState)atoi(tok));
+					tok = strtok(nullptr, ",");
+				}
+			}
+		}
+
+		return true;
+	}
+	else
+	{
+		cout << "파일이 존재하지 않습니다. 파일명을 확인해 주세요." << endl;
+		return false;
+	}
+}
+
 int main()
 {
-	Map map;
-	int mapWidth = 0;
-	int mapHeight = 0;
 	int menuInput = 0;
-	char cursorInput = 0;
+	char cursorInput;
 
 	while (true)
 	{
@@ -14,6 +89,7 @@ int main()
 		cout << "\n\n\n\t\t\t\t1. 새로 만들기" << endl;
 		cout << "\n\n\n\t\t\t\t2. 불러오기" << endl;
 		cout << "\n\n\n\t\t\t\t3. 종료" << endl;
+		cursorInput = 0;
 
 		cin >> menuInput;
 		if (menuInput == 1)
@@ -37,33 +113,34 @@ int main()
 
 				if (cursorInput == 'o')
 				{
-					string fileName;
-					cout << endl;
-					cout << "저장할 파일명을 입력하세요 : ";
-					cin >> fileName;
-					ofstream outFile(fileName + ".txt");
-
-					for (int i = 0; i < mapHeight; i++)
-					{
-						for (int j = 0; j < mapWidth; j++)
-						{
-							outFile << map.GetMapState(j, i) << ",";
-						}
-						outFile << endl;
-					}
-
-					cout << "저장 완료" << endl;
+					SaveFile();
+				}
+				else if (cursorInput == 'p')
+				{
+					map.DeleteCursor();
 				}
 			}
 		}
 		else if (menuInput == 2)
 		{
-			system("cls");
-			cout << endl;
-			cout << "저장할 파일명을 입력하세요 : ";
+			if (LoadFile())
+			{
+				while (cursorInput != 'p')
+				{
+					map.Draw();
+					map.PrintMenu();
+					cursorInput = map.InputCursor();
 
-			string fileName;
-			ifstream inFile("data.csv");
+					if (cursorInput == 'o')
+					{
+						SaveFile();
+					}
+					else if (cursorInput == 'p')
+					{
+						map.DeleteCursor();
+					}
+				}
+			}
 		}
 		else if (menuInput == 3)
 		{

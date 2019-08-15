@@ -88,6 +88,11 @@ void Map::CreateCursor()
 	cursor->bCursor = true;
 }
 
+void Map::DeleteCursor()
+{
+	cursor->bCursor = false;
+}
+
 char Map::InputCursor()
 {
 	char input = _getch();
@@ -138,7 +143,7 @@ char Map::InputCursor()
 
 void Map::EditMap(int x, int y, EMapState mapState)
 {
-	map[y][x].mapState = mapState;
+	map[x + mapWidth * y]->mapState = mapState;
 }
 
 EMapState Map::GetMapState(int x, int y)

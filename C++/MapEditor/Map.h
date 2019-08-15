@@ -4,6 +4,7 @@
 #include <fstream>
 #include <conio.h>
 #include <string>
+#include <sstream>
 using namespace std;
 
 enum EMapState
@@ -59,6 +60,7 @@ public:
 	void Draw();
 	void PrintMenu();
 	void CreateCursor();
+	void DeleteCursor();
 	char InputCursor();
 	void EditMap(int x, int y, EMapState mapState);
 	EMapState GetMapState(int x, int y);
