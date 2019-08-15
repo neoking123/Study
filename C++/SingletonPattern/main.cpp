@@ -3,7 +3,7 @@
 using namespace std;
 
 // 싱글톤 패턴 : 전역변수용으로 많이 쓰임
-//int map[20];
+//int currentMap[20];
 
 int main()
 {

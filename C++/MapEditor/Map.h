@@ -5,18 +5,33 @@
 #include <conio.h>
 #include <string>
 #include <sstream>
+#include <Windows.h>
 using namespace std;
+
+enum EKey
+{
+	UP = 0x48,
+	LEFT = 0x4B,
+	RIGHT = 0x4D,
+	DOWN = 0x50,
+	SPACE = 0x20,
+	CONFIRM = 'x',
+	CANCLE = 'z'
+};
 
 enum EMapState
 {
 	EMPTY,
 	WALL,
-	DOOR,
+	PLAYER,
 	LOOF,
 	BRICK,
-	PLAYER,
 	MONSTER,
 	BOSS,
+	PO_VIL_BA,
+	PO_BA_VIL,
+	PO_BA_BO,
+	PO_BO_BA
 };
 
 class Position
@@ -25,6 +40,9 @@ public:
 	int x;
 	int y;
 	bool bCursor;
+	bool bPlayer;
+	bool bMonster;
+	bool bBoss;
 	EMapState mapState;
 	
 public:
@@ -35,6 +53,9 @@ public:
 		y = 0;
 		mapState = EMPTY;
 		bCursor = false;
+		bPlayer = false;
+		bMonster = false;
+		bBoss = false;
 	}
 
 	Position(int x, int y) : Position()
@@ -49,6 +70,7 @@ class Map
 private:
 	int mapWidth;
 	int mapHeight;
+
 	vector<Position*> map;
 	Position* cursor;
 
@@ -57,6 +79,8 @@ public:
 	~Map();
 
 	void Init(int width, int height);
+	int GetMapWidth();
+	int GetMapHeight();
 	void Draw();
 	void PrintMenu();
 	void CreateCursor();
@@ -64,5 +88,6 @@ public:
 	char InputCursor();
 	void EditMap(int x, int y, EMapState mapState);
 	EMapState GetMapState(int x, int y);
+	Position* GetPosition(int x, int y);
 };
 

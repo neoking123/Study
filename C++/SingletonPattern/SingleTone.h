@@ -1,6 +1,6 @@
 #pragma once
 
-//extern int map[20];
+//extern int currentMap[20];
 
 class SingleTone
 {

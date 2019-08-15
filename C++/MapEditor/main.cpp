@@ -25,6 +25,7 @@ void SaveFile()
 	}
 
 	cout << "저장 완료" << endl;
+	_getch();
 }
 
 bool LoadFile()
@@ -58,7 +59,7 @@ bool LoadFile()
 		for (int i = 0; i < mapHeight; i++)
 		{
 			getline(inFile, readString);
-			tok = strtok((char*)readString.c_str(), ",");
+			tok = strtok((char*)readString.c_str(), ","); // ","를 제외하고 읽어들임
 			while (tok != nullptr)
 			{
 				for (int j = 0; j < mapWidth; j++)
@@ -105,17 +106,19 @@ int main()
 			map.Init(mapWidth, mapHeight);
 			map.CreateCursor();
 
-			while (cursorInput != 'p')
+			while (cursorInput != 'q')
 			{
 				map.Draw();
 				map.PrintMenu();
 				cursorInput = map.InputCursor();
 
-				if (cursorInput == 'o')
+				if (cursorInput == 'w')
 				{
 					SaveFile();
+					map.DeleteCursor();
+					break;
 				}
-				else if (cursorInput == 'p')
+				else if (cursorInput == 'q')
 				{
 					map.DeleteCursor();
 				}
@@ -125,17 +128,19 @@ int main()
 		{
 			if (LoadFile())
 			{
-				while (cursorInput != 'p')
+				while (cursorInput != 'q')
 				{
 					map.Draw();
 					map.PrintMenu();
 					cursorInput = map.InputCursor();
 
-					if (cursorInput == 'o')
+					if (cursorInput == 'w')
 					{
 						SaveFile();
+						map.DeleteCursor();
+						break;
 					}
-					else if (cursorInput == 'p')
+					else if (cursorInput == 'q')
 					{
 						map.DeleteCursor();
 					}
