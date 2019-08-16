@@ -5,7 +5,7 @@ using namespace std;
 
 class Player
 {
-private:
+public:
 	string name;
 	int hp;
 	int mp;
@@ -34,5 +34,7 @@ public:
 	void SetMp(int newMp);
 	EKey Input();
 	void ChangeMap(Map* map, EMap currentMapName);
+	int Attack(Monster& monster);
+	int MagicAttck(Monster& monster);
 };
 

@@ -1,8 +1,10 @@
 #include "SceneManager.h"
+#include "Monster.h"
 
 SceneManager::SceneManager()
 {
 	currentScene = ESceneType::NONE;
+	prevtScene = ESceneType::NONE;
 	player = nullptr;
 }
 
@@ -43,6 +45,11 @@ void SceneManager::SetPlayer(Player* player)
 void SceneManager::SetMonster(Monster * monster)
 {
 	this->monster = monster;
+}
+
+void SceneManager::SetBoss(Boss * boss)
+{
+	this->boss = boss;
 }
 
 Player* SceneManager::GetPlayer()
@@ -87,8 +94,27 @@ void SceneManager::CheckPlayerPosition(Player& player)
 	}
 	else if (player.position->bMonster)
 	{
+		prevtScene = currentScene;
 		currentScene = ESceneType::BATTLE;
 		scenes[currentScene]->monster = monster;
 		scenes[currentScene]->player = this->player;
+	}
+	else if (player.position->bBoss)
+	{
+		prevtScene = currentScene;
+		currentScene = ESceneType::BATTLE;
+		scenes[currentScene]->monster = monster;
+		scenes[currentScene]->boss = boss;
+		scenes[currentScene]->player = this->player;
+	}
+}
+
+void SceneManager::CheckSceneType()
+{
+	if (scenes[currentScene]->sceneType == ESceneType::NONE)
+	{
+		scenes[currentScene]->sceneType = ESceneType::BATTLE;
+		currentScene = ESceneType::FIELD;
+		monster->position->bMonster = false;
 	}
 }

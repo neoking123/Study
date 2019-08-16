@@ -1,4 +1,5 @@
 #include "Monster.h"
+#include "Player.h"
 
 Monster::Monster()
 {
@@ -25,4 +26,13 @@ void Monster::Init(string name, int hp, int atk, int def, int rewardExp, Map* ma
 
 Monster::~Monster()
 {
+}
+
+int Monster::Attack(Player & player)
+{
+	int acc = rand() % player.def - (atk - player.def);
+	int damage = atk - player.def + acc;
+	player.hp -= damage;
+
+	return damage;
 }

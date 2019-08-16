@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Monster.h"
 
 Player::Player()
 {
@@ -133,4 +134,26 @@ void Player::ChangeMap(Map * map, EMap currentMapName)
 {
 	currentMap = map;
 	this->currentMapName = currentMapName;
+}
+
+int Player::Attack(Monster & monster)
+{
+	int acc = rand() % monster.def - (atk - monster.def);
+	int damage = atk - monster.def + acc;
+	monster.hp -= damage;
+
+	return damage;
+}
+
+int Player::MagicAttck(Monster & monster)
+{
+	if (mp >= 25)
+	{
+		int acc = rand() % 10 - 10;
+		int damage = 15 + acc;
+		monster.hp -= damage;
+
+		return damage;
+	}
+	return 0;
 }

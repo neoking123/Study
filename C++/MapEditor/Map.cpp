@@ -64,6 +64,10 @@ void Map::Draw()
 			{
 				cout << "¢»";
 			}
+			else if (map[i + j]->bBoss)
+			{
+				cout << "¢¿";
+			}
 			else if (map[i + j]->mapState == EMapState::EMPTY)
 			{	
 				cout << "  ";

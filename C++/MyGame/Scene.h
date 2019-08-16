@@ -3,6 +3,7 @@
 
 class Player;
 class Monster;
+class Boss;
 
 enum EMap
 {
@@ -26,19 +27,20 @@ enum ESceneType
 class Scene
 {
 private:
-	
-	ESceneType sceneType;
 	int mapWidth;
 	int mapHeight;
 
-	void printTitle();
-	void printIntro();
-	void printEnd();
-	void printMenu();
-	void printField();
-	void printPlayerMenu();
-	void printBattleStart(); // 전투 시작 씬
-	void printBattleIng(); // 전투 상태 씬
+	void printTitle();		  // 타이틀
+	void printIntro();		  // 인트로
+	void printEnd();		  // 엔딩
+	void printMenu();		  // 게임 메뉴
+	void printField();	  	  // 필드
+	void printPlayerMenu();	  // 플레이어 메뉴
+	//void printBattleStart()	; // 전투 시작
+	void printBattleLog(string newBattleLog); // 전투 로그
+	void printBattleMenu();	  // 전투 메뉴
+	void printBattleIng();	  // 전투 상태
+	void printBattleEnd();	  // 전투 종료
 
 public:
 	Scene();
@@ -47,10 +49,13 @@ public:
 
 	Player* player;
 	Monster* monster;
+	Boss* boss;
 	vector<Map*> maps;
 	EMap currentMapName;
+	ESceneType sceneType;
 
 	void Draw();
 	bool LoadMap(string fileName);
+
 };
 

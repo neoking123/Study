@@ -5,9 +5,11 @@
 void Scene::printTitle()
 {
 	system("cls");
-	cout << "\n\n\n\n\n\t\t\t\t■■■■■■■■";
-	cout << "\n\t\t\t\t■용사의  모험■";
-	cout << "\n\t\t\t\t■■■■■■■■";
+	cout << "\n\n\n\n\n\t\t\t\t■■■■■■■■■■";
+	cout << "\n\t\t\t\t■                ■";
+	cout << "\n\t\t\t\t■  용사의  모험  ■";
+	cout << "\n\t\t\t\t■                ■";
+	cout << "\n\t\t\t\t■■■■■■■■■■";
 	cout << "\n\n\n\n\n\n\n\t\t\t계속하려면 아무키나 누르세요.";
 	_getch();
 	//system("pause");
@@ -74,17 +76,51 @@ void Scene::printPlayerMenu()
 	cout << "\n\n\t  입력 : ";
 }
 
-void Scene::printBattleStart()
+//void Scene::printBattleStart()
+//{
+//	string battleLog = monster->name + "(이)가 싸움을 걸어왔다!";
+//	system("cls");
+//	cout << "\n\n\t" << "NAME : " << monster->name << "  HP : " << monster->hp << "  ATK : " << monster->atk << "  DEF : " << monster->def;
+//	cout <<	"\n\n\n\n\n\n\n\n\n";
+//	cout << "\n\n\t" << "NAME : " << player->GetName() << "  HP : " << player->GetHp() << "  ATK : " << player->GetAtk() << "  DEF : " << player->GetDef();
+//	cout <<	"\n\n";
+//	cout << "□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n";
+//	cout << "□\n";
+//	cout << "□" << "\t" << battleLog << endl;
+//	cout << "□\n";
+//	cout << "□\n";
+//	cout << "□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n";
+//	_getch();
+//}
+
+void Scene::printBattleLog(string newBattleLog)
 {
-	string battleLog = monster->name + "(이)가 싸움을 걸어왔다!";
+	string battleLog = newBattleLog;
 	system("cls");
 	cout << "\n\n\t" << "NAME : " << monster->name << "  HP : " << monster->hp << "  ATK : " << monster->atk << "  DEF : " << monster->def;
-	cout <<	"\n\n\n\n\n\n\n\n\n";
+	cout << "\n\n\n\n\n\n\n\n\n";
 	cout << "\n\n\t" << "NAME : " << player->GetName() << "  HP : " << player->GetHp() << "  ATK : " << player->GetAtk() << "  DEF : " << player->GetDef();
-	cout <<	"\n\n";
+	cout << "\n\n";
 	cout << "□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n";
 	cout << "□\n";
 	cout << "□" << "\t" << battleLog << endl;
+	cout << "□\n";
+	cout << "□\n";
+	cout << "□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n";
+	_getch();
+	_getch();
+}
+
+void Scene::printBattleMenu()
+{
+	system("cls");
+	cout << "\n\n\t" << "NAME : " << monster->name << "  HP : " << monster->hp << "  ATK : " << monster->atk << "  DEF : " << monster->def;
+	cout << "\n\n\n\n\n\n\n\n\n";
+	cout << "\n\n\t" << "NAME : " << player->GetName() << "  HP : " << player->GetHp() << "  ATK : " << player->GetAtk() << "  DEF : " << player->GetDef();
+	cout << "\n\n";
+	cout << "□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n";
+	cout << "□\n";
+	cout << "□" << "\t1. 일반 공격\t\t2. 마법\t\t3. 아이템" << endl;
 	cout << "□\n";
 	cout << "□\n";
 	cout << "□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n";
@@ -93,21 +129,68 @@ void Scene::printBattleStart()
 void Scene::printBattleIng()
 {
 	string battleLog;
+	int battleMenuInput;
 
 	while (true)
 	{
-		system("cls");
-		cout << "\n\n\t" << "NAME : " << monster->name << "  HP : " << monster->hp << "  ATK : " << monster->atk << "  DEF : " << monster->def;
-		cout << "\n\n\n\n\n\n\n\n\n";
-		cout << "\n\n\t" << "NAME : " << player->GetName() << "  HP : " << player->GetHp() << "  ATK : " << player->GetAtk() << "  DEF : " << player->GetDef();
-		cout << "\n\n";
-		cout << "□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n";
-		cout << "□\n";
-		cout << "□" << "\t1. 일반 공격" << endl;
-		cout << "□\n";
-		cout << "□\n";
-		cout << "□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n";
+		printBattleMenu();
+		cout << "\n입력 : ";
+		cin >> battleMenuInput;
+
+		// 일반 공격
+		if (battleMenuInput == 1)
+		{
+			printBattleLog( to_string(player->Attack(*monster)) + "의 데미지를 주었다.");
+			if (monster->hp <= 0)
+			{
+				break;
+			}
+
+			printBattleLog(to_string(monster->Attack(*player)) + "의 데미지를 받았다.");
+			if (player->hp <= 0)
+			{
+				break;
+			}
+
+		}
+		// 마법
+		else if (battleMenuInput == 2)
+		{
+			printBattleLog(to_string(player->MagicAttck(*monster)) + "의 데미지를 주었다.");
+			if (monster->hp <= 0)
+			{
+				break;
+			}
+
+			printBattleLog(to_string(monster->Attack(*player)) + "의 데미지를 받았다.");
+			if (player->hp <= 0)
+			{
+				break;
+			}
+		}
+		// 아이템
+		else if (battleMenuInput == 3)
+		{
+
+		}
 	}
+}
+
+void Scene::printBattleEnd()
+{
+	string battleLog = "전투 종료!";
+	system("cls");
+	cout << "\n\n\t" << "NAME : " << monster->name << "  HP : " << monster->hp << "  ATK : " << monster->atk << "  DEF : " << monster->def;
+	cout << "\n\n\n\n\n\n\n\n\n";
+	cout << "\n\n\t" << "NAME : " << player->GetName() << "  HP : " << player->GetHp() << "  ATK : " << player->GetAtk() << "  DEF : " << player->GetDef();
+	cout << "\n\n";
+	cout << "□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n";
+	cout << "□\n";
+	cout << "□" << "\t" << battleLog << endl;
+	cout << "□\n";
+	cout << "□\n";
+	cout << "□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□\n";
+	_getch();
 }
 
 bool Scene::LoadMap(string fileName)
@@ -167,6 +250,8 @@ Scene::Scene()
 	mapHeight = 0;
 	maps.reserve(10);
 	player = nullptr;
+	monster = nullptr;
+	boss = nullptr;
 }
 
 Scene::Scene(ESceneType sceneType) : Scene()
@@ -202,8 +287,10 @@ void Scene::Draw()
 			printField();
 			break;
 		case ESceneType::BATTLE:
-			printBattleStart();
+			printBattleLog(monster->name + "(이)가 싸움을 걸어왔다!");
 			printBattleIng();
+			printBattleEnd();
+			sceneType = ESceneType::NONE;
 			break;
 		case ESceneType::PLAYERMENU:
 			printPlayerMenu();

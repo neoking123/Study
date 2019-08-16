@@ -2,9 +2,12 @@
 #include "SceneManager.h"
 #include "Player.h"
 #include "Monster.h"
+#include "Boss.h"
+#include <time.h>
 
 int main()
 {
+	srand(time(nullptr));
 	/*SceneManager sceneManager;
 	sceneManager.Init();
 	int menuInput = -1;*/
@@ -44,21 +47,28 @@ int main()
 			string playerName;
 			cout << "\t\t\t용사님의 이름을 입력하세요 : ";
 			cin >> playerName;
-			player->Init(playerName, 100, 100, 1, 1, 0, 1, sceneManager.scenes[ESceneType::FIELD]->maps[EMap::VILLAGE]);
+			player->Init(playerName, 100, 100, 20, 10, 0, 1, sceneManager.scenes[ESceneType::FIELD]->maps[EMap::VILLAGE]);
 			sceneManager.SetPlayer(player);
 
 			// 몬스터 생성
 			Monster* monster = new Monster();
-			monster->Init("해골", 30, 10, 10,10, sceneManager.scenes[ESceneType::FIELD]->maps[EMap::BATTLEZONE]);
+			monster->Init("해골", 50, 30, 10,10, sceneManager.scenes[ESceneType::FIELD]->maps[EMap::BATTLEZONE]);
 			sceneManager.SetMonster(monster);
+
+			// 보스 생성
+			Boss* boss = new Boss();
+			boss->Init("보스", 200, 50, 15, 100, sceneManager.scenes[ESceneType::FIELD]->maps[EMap::BOSSROOM]);
+			sceneManager.SetBoss(boss);
 
 			// In Game Update
 			while (true)
 			{
+				sceneManager.CheckSceneType();
 				sceneManager.DrawScene();
+
 				if (player->Input() == EKey::CANCLE)
 				{
-					ESceneType prevScene = sceneManager.currentScene;
+					sceneManager.prevtScene = sceneManager.currentScene;
 					sceneManager.currentScene = ESceneType::PLAYERMENU;
 					sceneManager.scenes[ESceneType::PLAYERMENU]->player = sceneManager.GetPlayer();
 					sceneManager.DrawScene();
@@ -85,7 +95,7 @@ int main()
 					// 돌아가기
 					else if (playerMenuInput == 4)
 					{
-						sceneManager.currentScene = prevScene;
+						sceneManager.currentScene = sceneManager.prevtScene;
 						sceneManager.DrawScene();
 					}
 				}

@@ -16,7 +16,9 @@ public:
 	
 public:
 	Monster();
-	void Init(string name, int hp, int atk, int def, int rewardExp, Map* map);
+	virtual void Init(string name, int hp, int atk, int def, int rewardExp, Map* map);
 	~Monster();
+
+	int Attack(Player& player);
 };
 
