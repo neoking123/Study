@@ -1,11 +1,11 @@
 #pragma once
-#include "Scene.h"
 #include "Player.h"
 
 class SceneManager
 {
 private:
 	Player* player;
+	Monster* monster;
 
 public:
 	SceneManager();
@@ -16,6 +16,9 @@ public:
 
 	void Init();
 	void DrawScene();
+	void SetPlayer(Player* player);
+	void SetMonster(Monster* monster);
+	Player* GetPlayer();
 	void CheckPlayerPosition(Player& player);
 };
 

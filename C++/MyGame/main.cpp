@@ -1,21 +1,27 @@
 #include <iostream>
 #include "SceneManager.h"
 #include "Player.h"
+#include "Monster.h"
 
 int main()
 {
-	SceneManager sceneManager;
+	/*SceneManager sceneManager;
 	sceneManager.Init();
-	int menuInput = -1;
+	int menuInput = -1;*/
 
 	while (true)
 	{
+		SceneManager sceneManager;
+		sceneManager.Init();
+		int menuInput = -1;
+
 		sceneManager.currentScene = ESceneType::TITLE;
 		sceneManager.DrawScene();
 
 		sceneManager.currentScene = ESceneType::MENU;
 		sceneManager.DrawScene();
-
+		
+		cout << "\n\n\t\t\t\t입력 : ";
 		cin >> menuInput;
 
 		// 새로하기
@@ -23,27 +29,70 @@ int main()
 		{
 			sceneManager.currentScene = ESceneType::INTRO;
 			sceneManager.DrawScene();
-			system("cls");
+			//system("cls");
 
 			// 맵 로딩
 			if (sceneManager.scenes[ESceneType::FIELD]->LoadMap("village.txt")
-				&& sceneManager.scenes[ESceneType::FIELD]->LoadMap("battlezone.txt"))
+				&& sceneManager.scenes[ESceneType::FIELD]->LoadMap("battlezone.txt")
+				&& sceneManager.scenes[ESceneType::FIELD]->LoadMap("bossroom.txt"))
 			{
 				sceneManager.currentScene = ESceneType::FIELD;
-				
 			}
 			
 			// 캐릭터 생성
-			Player player;
-			player.Init(100, 100, 1, 1, 0, 1, sceneManager.scenes[ESceneType::FIELD]->maps[EMap::VILLAGE]);
+			Player* player = new Player();
+			string playerName;
+			cout << "\t\t\t용사님의 이름을 입력하세요 : ";
+			cin >> playerName;
+			player->Init(playerName, 100, 100, 1, 1, 0, 1, sceneManager.scenes[ESceneType::FIELD]->maps[EMap::VILLAGE]);
+			sceneManager.SetPlayer(player);
+
+			// 몬스터 생성
+			Monster* monster = new Monster();
+			monster->Init("해골", 30, 10, 10,10, sceneManager.scenes[ESceneType::FIELD]->maps[EMap::BATTLEZONE]);
+			sceneManager.SetMonster(monster);
 
 			// In Game Update
 			while (true)
 			{
 				sceneManager.DrawScene();
-				player.Input();
-				sceneManager.CheckPlayerPosition(player);
+				if (player->Input() == EKey::CANCLE)
+				{
+					ESceneType prevScene = sceneManager.currentScene;
+					sceneManager.currentScene = ESceneType::PLAYERMENU;
+					sceneManager.scenes[ESceneType::PLAYERMENU]->player = sceneManager.GetPlayer();
+					sceneManager.DrawScene();
 
+					//_getch();
+					int playerMenuInput;
+					cin >> playerMenuInput;
+
+					// 타이틀
+					if (playerMenuInput == 1)
+					{
+						break;
+					}
+					// 저장
+					else if (playerMenuInput == 2)
+					{
+
+					}
+					// 종료
+					else if (playerMenuInput == 3)
+					{
+						return 0;
+					}
+					// 돌아가기
+					else if (playerMenuInput == 4)
+					{
+						sceneManager.currentScene = prevScene;
+						sceneManager.DrawScene();
+					}
+				}
+				else
+				{
+					sceneManager.CheckPlayerPosition(*player);
+				}
 			}
 		}
 		// 불러오기

@@ -14,8 +14,9 @@ Player::~Player()
 {
 }
 
-void Player::Init(int hp, int mp, int atk, int def, int exp, int level, Map* map)
+void Player::Init(string name, int hp, int mp, int atk, int def, int exp, int level, Map* map)
 {
+	this->name = name;
 	this->hp = hp;
 	this->mp = mp;
 	this->atk = atk;
@@ -30,6 +31,11 @@ void Player::Init(int hp, int mp, int atk, int def, int exp, int level, Map* map
 	position->bPlayer = true;
 }
 
+string Player::GetName()
+{
+	return name;
+}
+
 int Player::GetHp()
 {
 	return hp;
@@ -38,6 +44,26 @@ int Player::GetHp()
 int Player::GetMp()
 {
 	return mp;
+}
+
+int Player::GetAtk()
+{
+	return atk;
+}
+
+int Player::GetDef()
+{
+	return def;
+}
+
+int Player::GetExp()
+{
+	return exp;
+}
+
+int Player::GetLevel()
+{
+	return level;
 }
 
 void Player::SetHp(int newHp)
@@ -50,7 +76,7 @@ void Player::SetMp(int newMp)
 	mp = newMp;
 }
 
-void Player::Input()
+EKey Player::Input()
 {
 	char input = _getch();
 
@@ -91,14 +117,16 @@ void Player::Input()
 		position = currentMap->GetPosition(position->x + 1, position->y);
 		position->bPlayer = true;
 	}
-	else if (input == EKey::CONFIRM)
+	else if (input == EKey::CONFIRM) // 'x'Ű
 	{
 
 	}
-	else if (input == EKey::CANCLE)
+	else if (input == EKey::CANCLE) // 'z'Ű
 	{
 
 	}
+
+	return (EKey)input;
 }
 
 void Player::ChangeMap(Map * map, EMap currentMapName)

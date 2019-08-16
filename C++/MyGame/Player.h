@@ -22,12 +22,17 @@ public:
 	EMap currentMapName;
 	Position* position;
 
-	void Init(int hp, int mp, int atk, int def, int exp, int level, Map* map);
+	void Init(string name, int hp, int mp, int atk, int def, int exp, int level, Map* map);
+	string GetName();
 	int GetHp();
 	int GetMp();
+	int GetAtk();
+	int GetDef();
+	int GetExp();
+	int GetLevel();
 	void SetHp(int newHp);
 	void SetMp(int newMp);
-	void Input();
+	EKey Input();
 	void ChangeMap(Map* map, EMap currentMapName);
 };
 

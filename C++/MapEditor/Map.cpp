@@ -16,6 +16,7 @@ void Map::Init(int width, int height)
 {
 	mapWidth = width;
 	mapHeight = height;
+	map.reserve(mapWidth * mapHeight);
 
 	for (int i = 0; i < mapHeight; i++)
 	{
@@ -43,9 +44,9 @@ int Map::GetMapHeight()
 
 void Map::Draw()
 {
-	//system("cls");
-	COORD Cur = { 0, 0 };
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Cur);
+	system("cls");
+	//COORD Cur = { 0, 0 };
+	//SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Cur);
 
 	for (int i = 0; i < mapHeight * mapWidth; i += mapWidth)
 	{
@@ -58,6 +59,10 @@ void Map::Draw()
 			else if (map[i + j]->bPlayer)
 			{
 				cout << "¡Ù";
+			}
+			else if (map[i + j]->bMonster)
+			{
+				cout << "¢»";
 			}
 			else if (map[i + j]->mapState == EMapState::EMPTY)
 			{	

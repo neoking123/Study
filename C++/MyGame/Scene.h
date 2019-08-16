@@ -1,6 +1,9 @@
 #pragma once
 #include "..\MapEditor\Map.h"
 
+class Player;
+class Monster;
+
 enum EMap
 {
 	VILLAGE,
@@ -23,6 +26,7 @@ enum ESceneType
 class Scene
 {
 private:
+	
 	ESceneType sceneType;
 	int mapWidth;
 	int mapHeight;
@@ -32,12 +36,17 @@ private:
 	void printEnd();
 	void printMenu();
 	void printField();
+	void printPlayerMenu();
+	void printBattleStart(); // 전투 시작 씬
+	void printBattleIng(); // 전투 상태 씬
 
 public:
 	Scene();
 	Scene(ESceneType sceneType);
 	~Scene();
 
+	Player* player;
+	Monster* monster;
 	vector<Map*> maps;
 	EMap currentMapName;
 

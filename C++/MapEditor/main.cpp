@@ -10,7 +10,7 @@ void SaveFile()
 	cout << endl;
 	cout << "저장할 파일명을 입력하세요 : ";
 	cin >> fileName;
-	ofstream outFile(fileName + ".txt");
+	ofstream outFile("..\\MyGame\\" + fileName + ".txt");
 
 	outFile << mapWidth << endl;
 	outFile << mapHeight << endl;
@@ -36,7 +36,7 @@ bool LoadFile()
 	string fileName;
 	cin >> fileName;
 
-	ifstream inFile(fileName + ".txt");
+	ifstream inFile("..\\MyGame\\" + fileName + ".txt");
 	if (inFile)
 	{
 		string readString;
