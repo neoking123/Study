@@ -1,93 +1,33 @@
 #include <iostream>
-#include <assert.h>
-#include <vector>
-#include "Map.h"
-#include "Player.h"
 using namespace std;
 
-class Animal
+class Point
 {
-protected:
-	int a;
+	int x;
+	int y;
 
 public:
-	Animal()
+	Point(int _x = 0, int _y = 0) :x(_x), y(_y){ }
+	void Print() const 
+	{ 
+		cout << x << ',' << y << endl;
+	}
+	void operator+(Point arg)
 	{
-
+		cout << "operator() 함수 호출" << endl;
 	}
 
-	~Animal()
-	{
-
-	}
-
-	Animal(int _a)
-	{
-		a = _a;
-		//cout << "Animal 생성자 : " << a << endl;
-	}
-
-	virtual void print()
-	{
-		cout << a << endl;
-	}
-};
-
-class Tiger : public Animal
-{
-	int b;
-
-public:
-	Tiger(int _a, int _b) : Animal(_a)
-	{
-		b = _b;
-		//cout << "Tiger 생성자 : " << a << " " << b << endl;
-	}
-
-	Tiger()
-	{
-
-	}
-	
-	~Tiger()
-	{
-
-	}
-
-	virtual void print()
-	{
-		cout << a << " " << b << endl;
-	}
-
-	int GetA()
-	{
-		return a;
-	}
-
-	int GetB()
-	{
-		return b;
-	}
 };
 
 int main()
 {
-	vector<Animal*> Animals;
-	Animals.reserve(10);
+	Point p1(2, 3), p2(5, 5);
 
-	Tiger tiger(1, 2);
-
-	Animals.push_back(&tiger);
-
-	for (vector<Animal*>::iterator iter = Animals.begin(); iter != Animals.end(); iter++)
-	{
-		Tiger* TempTiger = dynamic_cast<Tiger*>(*iter);
-		if(TempTiger)
-		{
-			TempTiger->print();
-		}
-	}
-
+	p1 + p2;
+	p1 * p2;
+	p1 = p2;
+	p1 == p2;
+	p1 += p2;
 
 	return 0;
 }
