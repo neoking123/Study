@@ -9,10 +9,15 @@ int main()
 	HumanityStudent st2(2, 1, "문과임", 30, 40, 20, 80);
 	ScienceStudent st3(3, 0, "이과임", 60, 70, 80, 90);
 
-	manager.insertStudent(&st);
-	manager.insertStudent(&st1);
-	manager.insertStudent(&st2);
-	manager.insertStudent(&st3);
+	manager.insertStudent(st);
+	manager.insertStudent(st1);
+	manager.insertStudent(st2);
+	manager.insertStudent(st3);
+	manager.printScoreBoard();
+
+	manager.SortStudent();
+
+	cout << endl << endl;
 	manager.printScoreBoard();
 
 	/*Student st(1, 0, "현다열", 90, 70, 80);

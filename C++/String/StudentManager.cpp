@@ -12,10 +12,10 @@ StudentManager::~StudentManager()
 {
 }
 
-void StudentManager::insertStudent(Student* student)
+void StudentManager::insertStudent(Student& student)
 {
 	//students[studentCount] = student;
-	students.push_back(student);
+	students.push_back(make_shared<Student>(student));
 	studentCount++;
 }
 
@@ -38,19 +38,25 @@ void StudentManager::printScoreBoard()
 		cout << students[i].number << "\t" << students[i].name << "\t" << students[i].kor << "\t" << students[i].eng << "\t" << students[i].math << "\t" << CalAverage(i) << "\t" << CalSum(i) << endl;
 	}*/
 
-	for (vector<Student*>::iterator iter = students.begin(); iter != students.end(); iter++)
+	for (vector<shared_ptr<Student>>::iterator iter = students.begin(); iter != students.end(); iter++)
 	{
 		if ((*iter)->studentType == 0)
 		{
-			ScienceStudent* pCh = dynamic_cast<ScienceStudent*>(*iter);
+			
+			ScienceStudent* pCh = dynamic_cast<ScienceStudent*>(iter->get());
 			if(pCh)
 				cout << (*iter)->number << "\t" << (*iter)->name << "\t" << (*iter)->kor << "\t" << (*iter)->eng << "\t" << (*iter)->math << "\t" << pCh->math2 << "\t" << 0 << "\t" << ((*iter)->kor + (*iter)->eng + (*iter)->math + pCh->math2) / 4 << "\t" << (*iter)->kor + (*iter)->eng + (*iter)->math + pCh->math2 << "\t이과" << endl;
 		}
 		else if ((*iter)->studentType == 1)
 		{
-			HumanityStudent* pCh = dynamic_cast<HumanityStudent*>(*iter);
+			HumanityStudent* pCh = dynamic_cast<HumanityStudent*>(iter->get());
 			if (pCh)
 				cout << (*iter)->number << "\t" << (*iter)->name << "\t" << (*iter)->kor << "\t" << (*iter)->eng << "\t" << (*iter)->math << "\t" << 0 << "\t" << pCh->history << "\t" << ((*iter)->kor + (*iter)->eng + (*iter)->math + pCh->history) / 4 << "\t" << (*iter)->kor + (*iter)->eng + (*iter)->math + pCh->history << "\t문과" << endl;
 		}
 	}
+}
+
+void StudentManager::SortStudent()
+{
+	sort(students.begin(), students.end(), [](shared_ptr<Student> stu1, shared_ptr<Student> stu2)->bool{ return stu1->kor > stu2->kor; });
 }
