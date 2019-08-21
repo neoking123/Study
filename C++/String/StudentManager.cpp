@@ -19,6 +19,17 @@ void StudentManager::insertStudent(Student& student)
 	studentCount++;
 }
 
+void StudentManager::NewStudent(int _studentType, string _name, int _kor, int _eng, int _math)
+{
+	if (_studentType == 0)
+	{
+		int _math2;
+		cin >> _math2;
+		students.push_back(make_shared<ScienceStudent>(new ScienceStudent(studentCount, _studentType, _name, _kor, _eng, _math, _math2)));
+		studentCount++;
+	}
+}
+
 int StudentManager::CalAverage(int studentNum)
 {
 	

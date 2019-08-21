@@ -37,10 +37,10 @@ namespace neoking
 
 		void update() override
 		{
-			/*rotate(time * -90.0f);
+			rotate(time * -90.0f);
 			drawFilledStar(Colors::gold, 0.4f, 0.25f);
 
-			time += getTimeStep();*/
+			time += getTimeStep();
 			
 		}
 	};

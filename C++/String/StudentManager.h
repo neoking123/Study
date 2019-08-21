@@ -21,6 +21,7 @@ public:
 	~StudentManager();
 
 	void insertStudent(Student& student);
+	void NewStudent(int _studentType, string _name, int _kor, int _eng, int _math);
 	int CalAverage(int studentNum);
 	int CalSum(int stuentNum);
 	void printScoreBoard();
