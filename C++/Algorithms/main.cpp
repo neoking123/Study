@@ -31,6 +31,16 @@ public:
 	}
 };
 
+bool Pred(int n)
+{
+	return 35 < n;
+}
+
+void Print(int n)
+{
+	cout << n << " ";
+}
+
 int main()
 {
 	vector<int> v;
@@ -42,18 +52,37 @@ int main()
 	v.push_back(30);
 
 	sort(v.begin(), v.end(), [](int& l, int& r)->bool { return l < r; }); //람다식
+
+	for_each(v.begin(), v.begin() + 2, Print);
+	cout << endl;
+
+	for_each(v.begin(), v.begin() + 4, Print);
+	cout << endl;
+
+	for_each(v.begin(), v.end(), Print);
+	cout << endl;
+
+
 	for (vector<int>::iterator iter = v.begin(); iter != v.end(); iter++)
 	{
 		cout << *iter << " ";
 	}
 	cout << endl;
 
-	sort(v.begin(), v.end(), Greater<int>());
-	for (vector<int>::iterator iter = v.begin(); iter != v.end(); iter++)
+	vector<int>::iterator iter;
+	iter = find(v.begin(), v.end(), 20);
+
+	if(iter != v.end())
 	{
-		cout << *iter << " ";
+		cout << *iter << "를 찾았다!" << endl;
 	}
-	cout << endl;
+
+	iter = find_if(v.begin(), v.end(), Pred);
+	if (iter != v.end())
+	{
+		cout << "순차열에서 35보다 큰 첫 번째 원소 : " << *iter << endl;
+	}
+
 
 	return 0;
 }

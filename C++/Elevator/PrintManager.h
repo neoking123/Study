@@ -1,7 +1,9 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <conio.h>
 #include "ElevatorManager.h"
+#include "PassengerManager.h"
 using namespace std;
 
 #define WIDTH 20
@@ -17,9 +19,9 @@ enum EmapType
 class PrintManager
 {
 public:
-	//int building[HEIGHT][WIDTH];
 	vector<int> building;
-	ElevatorManager elevatorManager;
+	ElevatorManager* elevatorManager;
+	PassengerManager* passengerManager;
 
 public:
 	PrintManager();

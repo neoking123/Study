@@ -1,14 +1,13 @@
 #include "PrintManager.h"
 
-
-
 PrintManager::PrintManager()
 {
 	building.reserve(1000);
 	building.assign(400, 0);
-	elevatorManager.Init();
+	elevatorManager = new ElevatorManager();
+	passengerManager = new PassengerManager();
+	passengerManager->elevatorManager = elevatorManager;
 }
-
 
 PrintManager::~PrintManager()
 {
@@ -16,24 +15,8 @@ PrintManager::~PrintManager()
 
 void PrintManager::Print()
 {
+	system("cls");
 	int floorCount = 20;
-	//for (vector<int>::iterator iter = building.begin(); iter != building.end(); iter++)
-	//{
-	//	if (*iter == EmapType::WALL)
-	//	{
-	//		cout << "¢É";
-	//	}
-	//	else if (*iter == EmapType::ELEVATOR)
-	//	{
-	//		cout << "¡â";
-	//	}
-	//	else if (*iter == EmapType::PASSENGER)
-	//	{
-	//		cout << "¢»";
-	//	}
-
-	//	//cout << floorCount << "Ãþ"
-	//}
 
 	for (int i = 0; i < HEIGHT * WIDTH; i += WIDTH)
 	{
@@ -43,25 +26,48 @@ void PrintManager::Print()
 			{
 				cout << "¢É";
 			}
-			else if (building[i + j] == EmapType::ELEVATOR)
-			{
-				cout << "¡â";
-			}
-			else if (building[i + j] == EmapType::PASSENGER)
-			{
-				cout << "¢»";
-			}
 		}
 
-		for (vector<Elevator*>::iterator iter = elevatorManager.elevators.begin(); iter != elevatorManager.elevators.end(); iter++)
+		for (list<Passenger*>::iterator iter = passengerManager->passengers.begin(); iter != passengerManager->passengers.end(); iter++)
 		{
 			if ((*iter)->floor == floorCount)
 			{
-				cout << "¡â";
+				cout << "¿Ê";
+			}
+			else
+			{
+				cout << "  ";
+			}
+		}
+
+		for (vector<Elevator*>::iterator iter = elevatorManager->elevators.begin(); iter != elevatorManager->elevators.end(); iter++)
+		{
+			if ((*iter)->floor == floorCount)
+			{
+				cout << "¡á";
+			}
+			else
+			{
+				cout << "  ";
 			}
 		}
 
 		floorCount--;
 		cout << endl;
+	}
+
+	cout << endl;
+	cout << "¿¤¸®º£ÀÌÅÍ" << endl;
+	for (vector<Elevator*>::iterator iter = elevatorManager->elevators.begin(); iter != elevatorManager->elevators.end(); iter++)
+	{
+		cout << (*iter)->num << "¹ø, ÇöÀçÃþ : " << (*iter)->floor << ", ¸ñÇ¥Ãþ : " << (*iter)->targetFloor << endl;
+	}
+
+	cout << endl;
+	cout << "Å¾½ÂÀÚ" << endl;
+	for (list<Passenger*>::iterator iter = passengerManager->passengers.begin(); iter != passengerManager->passengers.end(); iter++)
+	{
+		cout << "ÇöÀçÃþ : " << (*iter)->floor << ", ¸ñÇ¥Ãþ : " << (*iter)->targetFloor << endl;
+		cout << (*iter)->elevatorNum << "¹ø ¿¤¸®º£ÀÌÅÍ Å¾½Â" << endl;
 	}
 }
