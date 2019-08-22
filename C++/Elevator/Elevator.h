@@ -22,8 +22,12 @@ public:
 	int weightMax;
 	int passengerMax;
 	int targetFloor;
+	int nextTargetFloor;
 	bool isMove;
+	int CurrentPasssengerCount;
+	int CurrentWeight;
 
+	// Å¸°ÙÃşÀ¸·Î ÀÌµ¿
 	void MoveTargetFloor();
 };
 

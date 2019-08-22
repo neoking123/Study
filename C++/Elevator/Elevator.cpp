@@ -7,6 +7,9 @@ Elevator::Elevator()
 	weightMax = 0;
 	passengerMax = 0;
 	targetFloor = 0;
+	CurrentPasssengerCount = 0;
+	CurrentWeight = 0;
+	nextTargetFloor = 0;
 	isMove = false;
 	direction = EDirection::Stop;
 }
@@ -18,10 +21,12 @@ Elevator::Elevator(int _num, int _floor, int _weightMax, int _passengerMax, int 
 	weightMax = _weightMax;
 	passengerMax = _passengerMax;
 	targetFloor = _targetFloor;
+	CurrentPasssengerCount = 0;
+	CurrentWeight = 0;
+	nextTargetFloor = 0;
 	isMove = false;
 	direction = EDirection::Stop;
 }
-
 
 Elevator::~Elevator()
 {
@@ -29,6 +34,16 @@ Elevator::~Elevator()
 
 void Elevator::MoveTargetFloor()
 {
+	if (direction == EDirection::Stop && nextTargetFloor != 0)
+	{
+		targetFloor = nextTargetFloor;
+	}
+
+	if (floor == nextTargetFloor)
+	{
+		nextTargetFloor = 0;
+	}
+
 	if (floor < targetFloor)
 	{
 		floor++;
@@ -40,5 +55,10 @@ void Elevator::MoveTargetFloor()
 		floor--;
 		isMove = true;
 		direction = EDirection::Down;
+	}
+	else
+	{
+		isMove = false;
+		direction = EDirection::Stop;
 	}
 }

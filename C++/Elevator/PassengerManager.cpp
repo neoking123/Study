@@ -1,13 +1,24 @@
 #include "PassengerManager.h"
 
+bool Pred(Passenger* passenger)
+{
+	return passenger->floor == passenger->targetFloor;
+}
+
 PassengerManager::PassengerManager()
 {
 	srand(time(nullptr));
 }
 
-
 PassengerManager::~PassengerManager()
 {
+	list<Passenger*>::iterator titer;
+	for (list<Passenger*>::iterator iter = passengers.begin(); iter != passengers.end(); iter++)
+	{
+		titer = iter;
+		delete *iter;
+		iter = titer;
+	}
 }
 
 void PassengerManager::RandomSpawn()
@@ -25,19 +36,17 @@ void PassengerManager::RandomSpawn()
 
 void PassengerManager::UpdatePassengers()
 {
-	list<Passenger*>::iterator checkGetOffIter;
-	//vector<list<Passenger*>::iterator> checkGetOffIter;
 	for(list<Passenger*>::iterator iter = passengers.begin(); iter != passengers.end(); iter++)
 	{
 		(*iter)->CallElevator();
+		(*iter)->Waitting();
 		CheckCanBoard(*iter, (*iter)->closerElevatorIter->num - 1);
 		CarryPassenger(*iter);
-		checkGetOffIter = CheckGetOff(iter, (*iter)->closerElevatorIter->num - 1);
-		//checkGetOffIter.push_back(CheckGetOff(iter, (*iter)->closerElevatorIter->num - 1));
-		GetOffPassenger(checkGetOffIter);
+		CheckGetOff(iter, (*iter)->closerElevatorIter->num - 1);
 	}
 
-	
+	// 하차한 탑승자 제거
+	passengers.remove_if(Pred);
 }
 
 void PassengerManager::CheckCanBoard(Passenger* _passenger, int _elevatorNum)
@@ -45,19 +54,28 @@ void PassengerManager::CheckCanBoard(Passenger* _passenger, int _elevatorNum)
 	if (_passenger->floor == elevatorManager->elevators[_elevatorNum]->floor)
 	{
 		OffButtion(_passenger, _elevatorNum);
-		elevatorManager->elevators[_elevatorNum]->targetFloor = _passenger->targetFloor;
+
+		// 방향이 같은 경우
+		if (_passenger->direction == EDirection::UP && _passenger->direction == elevatorManager->elevators[_elevatorNum]->direction
+			&& _passenger->targetFloor > elevatorManager->elevators[_elevatorNum]->targetFloor)
+		{
+			elevatorManager->elevators[_elevatorNum]->targetFloor = _passenger->targetFloor;
+		}
+		else if (_passenger->direction == EDirection::Down && _passenger->direction == elevatorManager->elevators[_elevatorNum]->direction
+			&& _passenger->targetFloor < elevatorManager->elevators[_elevatorNum]->targetFloor)
+		{
+			elevatorManager->elevators[_elevatorNum]->targetFloor = _passenger->targetFloor;
+		}
+		// 방향이 다른 경우
+		else if (_passenger->direction != elevatorManager->elevators[_elevatorNum]->direction)
+		{
+			elevatorManager->elevators[_elevatorNum]->nextTargetFloor = _passenger->targetFloor;
+		}
+
 		_passenger->isBoard = true;
 		_passenger->elevatorNum = elevatorManager->elevators[_elevatorNum]->num;
 	}
 }
-
-void PassengerManager::GetOffPassenger(list<Passenger*>::iterator _passenger)
-{
-	if (_passenger != passengers.end())
-	{
-		passengers.erase(_passenger);
-	}
-}	
 
 list<Passenger*>::iterator PassengerManager::CheckGetOff(list<Passenger*>::iterator _passenger, int _elevatorNum)
 {

@@ -16,27 +16,28 @@ PrintManager::~PrintManager()
 void PrintManager::Print()
 {
 	system("cls");
+	/*COORD Cur;
+	Cur.X = 0;
+	Cur.Y = 0;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Cur);*/
+
 	int floorCount = 20;
 
 	for (int i = 0; i < HEIGHT * WIDTH; i += WIDTH)
 	{
+		if (floorCount >= 10)
+		{
+			cout << "¢É " << floorCount << "Ãþ ¢É  ";
+		}
+		else
+		{
+			cout << "¢É  " << floorCount << "Ãþ ¢É  ";
+		}
 		for (int j = 0; j < WIDTH; j++)
 		{
 			if (building[i + j] == EmapType::WALL)
 			{
-				cout << "¢É";
-			}
-		}
-
-		for (list<Passenger*>::iterator iter = passengerManager->passengers.begin(); iter != passengerManager->passengers.end(); iter++)
-		{
-			if ((*iter)->floor == floorCount)
-			{
-				cout << "¿Ê";
-			}
-			else
-			{
-				cout << "  ";
+				cout << "";
 			}
 		}
 
@@ -44,11 +45,52 @@ void PrintManager::Print()
 		{
 			if ((*iter)->floor == floorCount)
 			{
-				cout << "¡á";
+				if ((*iter)->num == 1)
+				{
+					cout << "[¨ç";
+				}
+				else if ((*iter)->num == 2)
+				{
+					cout << "[¨è";
+				}
+				else if ((*iter)->num == 3)
+				{
+					cout << "[¨é";
+				}
+				else if ((*iter)->num == 4)
+				{
+					cout << "[¨ê";
+				}
+
+				if ((*iter)->direction == EDirection::Stop)
+				{
+					cout << "¢Á]";
+				}
+				else if ((*iter)->direction == EDirection::UP)
+				{
+					cout << "¡è]";
+				}
+				else if ((*iter)->direction == EDirection::Down)
+				{
+					cout << "¡é]";
+				}
 			}
 			else
 			{
-				cout << "  ";
+				cout << "      ";
+			}
+		}
+		cout << "  ";
+
+		for (list<Passenger*>::iterator iter = passengerManager->passengers.begin(); iter != passengerManager->passengers.end(); iter++)
+		{
+			if ((*iter)->floor == floorCount)
+			{
+				cout << "[¿Ê" << (*iter)->waitTime << "]  ";
+			}
+			else
+			{
+				cout << "\t    ";
 			}
 		}
 
@@ -68,6 +110,13 @@ void PrintManager::Print()
 	for (list<Passenger*>::iterator iter = passengerManager->passengers.begin(); iter != passengerManager->passengers.end(); iter++)
 	{
 		cout << "ÇöÀçÃþ : " << (*iter)->floor << ", ¸ñÇ¥Ãþ : " << (*iter)->targetFloor << endl;
-		cout << (*iter)->elevatorNum << "¹ø ¿¤¸®º£ÀÌÅÍ Å¾½Â" << endl;
+		if ((*iter)->elevatorNum > 0)
+		{
+			cout << (*iter)->elevatorNum << "¹ø ¿¤¸®º£ÀÌÅÍ Å¾½Â" << endl << endl;
+		}
+		else
+		{
+			cout << endl << endl;
+		}
 	}
 }

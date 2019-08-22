@@ -3,20 +3,20 @@
 #include <conio.h>
 
 PrintManager printManager;
-int fps = 10;
+int fps = 5;
 
 void Init()
 {
 	printManager.elevatorManager->Init();
 	printManager.passengerManager->RandomSpawn();
-
 }
 
 void Update()
 {
 	int spawnCount = rand() % 5 + 1;
 	printManager.Print();
-	while (true)
+
+	while (!_kbhit())
 	{
 		printManager.passengerManager->UpdatePassengers();
 		printManager.elevatorManager->CheckButtons();
@@ -26,11 +26,16 @@ void Update()
 
 		if (spawnCount == 0)
 		{
+			/*for (int i = 0; i < rand() % 3 + 1; i++)
+			{
+				printManager.passengerManager->RandomSpawn();
+			}*/
 			printManager.passengerManager->RandomSpawn();
 			spawnCount = rand() % 5 + 1;
 		}
+
 		spawnCount--;
-		_sleep(1000 / fps);
+		//_sleep(1000 / fps);
 		//_getch();
 	}
 }

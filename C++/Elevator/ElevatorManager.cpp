@@ -9,6 +9,13 @@ ElevatorManager::ElevatorManager()
 
 ElevatorManager::~ElevatorManager()
 {
+	vector<Elevator*>::iterator titer;
+	for (vector<Elevator*>::iterator iter = elevators.begin(); iter != elevators.end(); iter++)
+	{
+		titer = iter;
+		delete *iter;
+		iter = titer;
+	}
 }
 
 void ElevatorManager::push_back(int _floor, int _weightMax, int _passengerMax)
@@ -27,11 +34,6 @@ void ElevatorManager::Init()
 	buttons.assign(21, Button());
 }
 
-void ElevatorManager::SetTargetFloor(Elevator * _elevator, int _targetFloor)
-{
-	_elevator->targetFloor = _targetFloor;
-}
-
 void ElevatorManager::UpdateElevators()
 {
 	for (vector<Elevator*>::iterator iter = elevators.begin(); iter != elevators.end(); iter++)
@@ -44,8 +46,6 @@ void ElevatorManager::CheckButtons()
 {
 	for (int i = 0; i < buttons.size(); i++)
 	{
-		// 1번 엘리베이터 버튼 체크
-
 		if (buttons[i].btn1.up || buttons[i].btn1.down)
 		{
 			elevators[0]->targetFloor = i;

@@ -40,7 +40,6 @@ public:
 
 	void push_back(int _floor = 0, int _weightMax = 0, int _passengerMax = 0);
 	void Init();
-	void SetTargetFloor(Elevator* _elevator, int _targetFloor);
 	void UpdateElevators();
 	void CheckButtons();
 };
