@@ -5,26 +5,10 @@
 #include "Elevator.h"
 using namespace std;
 
-class ButtonType
-{
-public:
-	ButtonType()
-	{
-		up = false;
-		down = false;
-	}
-
-	bool up;
-	bool down;
-};
-
 class Button
 {
 public:
-	ButtonType btn1;
-	ButtonType btn2;
-	ButtonType btn3;
-	ButtonType btn4;
+	ButtonType btn;
 };
 
 class ElevatorManager
@@ -42,5 +26,9 @@ public:
 	void Init();
 	void UpdateElevators();
 	void CheckButtons();
+	//층에서 가까운 엘리베이터 탐색
+	Elevator* FindElevator(int _floor);
+	//층에서 가까운 엘리베이터를 제외한 다음으로 가까운 엘리베이터 탐색
+	Elevator* FindElevatorAnother(int _floor, Elevator* _anotherCloserElevator);
 };
 

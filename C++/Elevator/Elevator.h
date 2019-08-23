@@ -2,6 +2,20 @@
 #include <iostream>
 using namespace std;
 
+class ButtonType
+{
+public:
+	ButtonType()
+	{
+		up = false;
+		down = false;
+	}
+
+	bool up;
+	bool down;
+};
+
+
 enum EDirection
 {
 	Stop,
@@ -22,7 +36,6 @@ public:
 	int weightMax;
 	int passengerMax;
 	int targetFloor;
-	int nextTargetFloor;
 	bool isMove;
 	int CurrentPasssengerCount;
 	int CurrentWeight;

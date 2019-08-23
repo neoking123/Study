@@ -8,6 +8,9 @@ bool Pred(Passenger* passenger)
 PassengerManager::PassengerManager()
 {
 	srand(time(nullptr));
+	passengerNum = 0;
+	exitPassengerCount = 0;
+	sumBoardTime = 0;
 }
 
 PassengerManager::~PassengerManager()
@@ -40,53 +43,99 @@ void PassengerManager::UpdatePassengers()
 	{
 		(*iter)->CallElevator();
 		(*iter)->Waitting();
-		CheckCanBoard(*iter, (*iter)->closerElevatorIter->num - 1);
+		CheckCanBoard(*iter);
 		CarryPassenger(*iter);
-		CheckGetOff(iter, (*iter)->closerElevatorIter->num - 1);
+		CheckGetOff(iter, (*iter)->elevatorNum);
 	}
 
 	// 하차한 탑승자 제거
 	passengers.remove_if(Pred);
 }
 
-void PassengerManager::CheckCanBoard(Passenger* _passenger, int _elevatorNum)
+void PassengerManager::CheckCanBoard(Passenger* _passenger)
 {
-	if (_passenger->floor == elevatorManager->elevators[_elevatorNum]->floor)
+	for (vector<Elevator*>::iterator iter = elevatorManager->elevators.begin(); iter != elevatorManager->elevators.end(); iter++)
 	{
-		OffButtion(_passenger, _elevatorNum);
+		if (_passenger->floor == (*iter)->floor && !_passenger->isBoard 
+			&& (*iter)->weightMax >= (*iter)->CurrentWeight + _passenger->weight
+			&& (*iter)->passengerMax >= (*iter)->CurrentPasssengerCount)
+		{
+			// 방향이 같은 경우
+			if (_passenger->direction == EDirection::UP
+				&& (_passenger->direction == (*iter)->direction || (*iter)->direction == EDirection::Stop))
+			{
+				if (_passenger->targetFloor > (*iter)->targetFloor)
+				{
+					(*iter)->targetFloor = _passenger->targetFloor;
+				}
 
-		// 방향이 같은 경우
-		if (_passenger->direction == EDirection::UP && _passenger->direction == elevatorManager->elevators[_elevatorNum]->direction
-			&& _passenger->targetFloor > elevatorManager->elevators[_elevatorNum]->targetFloor)
-		{
-			elevatorManager->elevators[_elevatorNum]->targetFloor = _passenger->targetFloor;
-		}
-		else if (_passenger->direction == EDirection::Down && _passenger->direction == elevatorManager->elevators[_elevatorNum]->direction
-			&& _passenger->targetFloor < elevatorManager->elevators[_elevatorNum]->targetFloor)
-		{
-			elevatorManager->elevators[_elevatorNum]->targetFloor = _passenger->targetFloor;
-		}
-		// 방향이 다른 경우
-		else if (_passenger->direction != elevatorManager->elevators[_elevatorNum]->direction)
-		{
-			elevatorManager->elevators[_elevatorNum]->nextTargetFloor = _passenger->targetFloor;
-		}
+				BoardElevator(_passenger, iter);
+			}
+			else if (_passenger->direction == EDirection::Down
+				&& (_passenger->direction == (*iter)->direction || (*iter)->direction == EDirection::Stop))
+			{
+				if (_passenger->targetFloor < (*iter)->targetFloor)
+				{
+					(*iter)->targetFloor = _passenger->targetFloor;
+				}
 
-		_passenger->isBoard = true;
-		_passenger->elevatorNum = elevatorManager->elevators[_elevatorNum]->num;
+				BoardElevator(_passenger, iter);
+			}
+			// 방향이 다른 경우
+			else if (_passenger->direction == EDirection::UP
+				&&_passenger->direction != (*iter)->direction 
+				&& _passenger->floor == (*iter)->targetFloor
+				&& _passenger->targetFloor > (*iter)->targetFloor)
+			{
+				if (_passenger->targetFloor > (*iter)->targetFloor)
+				{
+					(*iter)->targetFloor = _passenger->targetFloor;
+				}
+
+				BoardElevator(_passenger, iter);
+			}
+			else if (_passenger->direction == EDirection::Down
+				&&_passenger->direction != (*iter)->direction
+				&& _passenger->floor == (*iter)->targetFloor
+				&& _passenger->targetFloor < (*iter)->targetFloor)
+			{
+				if (_passenger->targetFloor < (*iter)->targetFloor)
+				{
+					(*iter)->targetFloor = _passenger->targetFloor;
+				}
+
+				BoardElevator(_passenger, iter);
+			}
+		}
 	}
+}
+
+void PassengerManager::BoardElevator(Passenger * _passenger, vector<Elevator*>::iterator iter)
+{
+	OffButtion(_passenger);
+	_passenger->isBoard = true;
+	_passenger->elevatorNum = (*iter)->num;
+	(*iter)->CurrentPasssengerCount++;
+	(*iter)->CurrentWeight += _passenger->weight;
 }
 
 list<Passenger*>::iterator PassengerManager::CheckGetOff(list<Passenger*>::iterator _passenger, int _elevatorNum)
 {
-	if ((*_passenger)->targetFloor == (*_passenger)->floor)
+	if ((*_passenger) != nullptr)
 	{
-		(*_passenger)->isBoard = false;
-		return _passenger;
-	}
-	else
-	{
-		return passengers.end();
+		if ((*_passenger)->targetFloor == (*_passenger)->floor)
+		{
+			(*_passenger)->isBoard = false;
+			elevatorManager->elevators[_elevatorNum - 1]->CurrentPasssengerCount--;
+			elevatorManager->elevators[_elevatorNum - 1]->CurrentWeight -= (*_passenger)->weight;
+			sumBoardTime += (*_passenger)->waitTime;
+			exitPassengerCount++;
+			return _passenger;
+		}
+		else
+		{
+			return passengers.end();
+		}
 	}
 }
 
@@ -98,27 +147,20 @@ void PassengerManager::CarryPassenger(Passenger * _passenger)
 	}
 }
 
-void PassengerManager::OffButtion(Passenger* _passenger, int _elevatorNum)
+void PassengerManager::OffButtion(Passenger* _passenger)
 {
-	if (_elevatorNum == 0)
+	if (_passenger->direction == EDirection::UP)
 	{
-		elevatorManager->buttons[_passenger->floor].btn1.up = false;
-		elevatorManager->buttons[_passenger->floor].btn1.down = false;
+		elevatorManager->buttons[_passenger->floor].btn.up = false;
 	}
-	else if (_elevatorNum == 1)
+	else if (_passenger->direction == EDirection::Down)
 	{
-		elevatorManager->buttons[_passenger->floor].btn2.up = false;
-		elevatorManager->buttons[_passenger->floor].btn2.down = false;
+		elevatorManager->buttons[_passenger->floor].btn.down = false;
 	}
-	else if (_elevatorNum == 2)
-	{
-		elevatorManager->buttons[_passenger->floor].btn3.up = false;
-		elevatorManager->buttons[_passenger->floor].btn3.down = false;
-	}
-	else if (_elevatorNum == 3)
-	{
-		elevatorManager->buttons[_passenger->floor].btn4.up = false;
-		elevatorManager->buttons[_passenger->floor].btn4.down = false;
-	}
+}
+
+float PassengerManager::GetAvgWaitTime()
+{
+	return (float)sumBoardTime / exitPassengerCount;
 }
 

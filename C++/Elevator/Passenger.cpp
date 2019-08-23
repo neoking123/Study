@@ -43,61 +43,22 @@ void Passenger::CallElevator()
 {
 	if (!pressBtn)
 	{
-		closerElevatorIter = FindCloserElevator();
-		PressButton(closerElevatorIter);
+		//closerElevatorIter = FindCloserElevator();
+		PressButton();
 	}
 }
 
-void Passenger::PressButton(Elevator* _closerElevator)
+void Passenger::PressButton()
 {
-	if (_closerElevator->num == 1)
+	if (direction == EDirection::UP)
 	{
-		if (direction == EDirection::UP)
-		{
-			elevatorManager->buttons[floor].btn1.up = true;
-		}
-		else if (direction == EDirection::Down)
-		{
-			elevatorManager->buttons[floor].btn1.down = true;
-		}
-		pressBtn = true;
+		elevatorManager->buttons[floor].btn.up = true;
 	}
-	else if (_closerElevator->num == 2)
+	else if (direction == EDirection::Down)
 	{
-		if (direction == EDirection::UP)
-		{
-			elevatorManager->buttons[floor].btn2.up = true;
-		}
-		else if (direction == EDirection::Down)
-		{
-			elevatorManager->buttons[floor].btn2.down = true;
-		}
-		pressBtn = true;
+		elevatorManager->buttons[floor].btn.down = true;
 	}
-	else if (_closerElevator->num == 3)
-	{
-		if (direction == EDirection::UP)
-		{
-			elevatorManager->buttons[floor].btn3.up = true;
-		}
-		else if (direction == EDirection::Down)
-		{
-			elevatorManager->buttons[floor].btn3.down = true;
-		}
-		pressBtn = true;
-	}
-	else if (_closerElevator->num == 4)
-	{
-		if (direction == EDirection::UP)
-		{
-			elevatorManager->buttons[floor].btn4.up = true;
-		}
-		else if (direction == EDirection::Down)
-		{
-			elevatorManager->buttons[floor].btn4.down = true;
-		}
-		pressBtn = true;
-	}
+	pressBtn = true;
 }
 
 void Passenger::Waitting()
@@ -108,61 +69,32 @@ void Passenger::Waitting()
 	}
 }
 
-Elevator* Passenger::FindCloserElevator()
-{
-	int closerElevatorDistance = 100;
-	int elevatorDistance;
-	vector<pair<Elevator*, int>> elevatorsDistanceVec;
-	elevatorsDistanceVec.reserve(10);
-
-	// 엘리베이터 거리 계산
-	for (vector<Elevator*>::iterator iter = elevatorManager->elevators.begin(); iter != elevatorManager->elevators.end(); iter++)
-	{
-		elevatorDistance = abs((*iter)->floor - floor);
-		elevatorsDistanceVec.push_back(make_pair(*iter, elevatorDistance));
-	}
-
-	// 정지 or 같은 방향 엘리베이터 탐색
-	for (vector<pair<Elevator*, int>>::iterator iter = elevatorsDistanceVec.begin(); iter != elevatorsDistanceVec.end(); iter++)
-	{
-		if ((*iter).first->direction == EDirection::Stop || (*iter).first->direction == direction)
-		{
-			if (closerElevatorDistance > (*iter).second)
-			{
-				closerElevatorDistance = (*iter).second;
-				closerElevatorIter = (*iter).first;
-			}
-		}
-	}
-
-	if (closerElevatorIter != nullptr)
-	{
-		return closerElevatorIter;
-	}
-	else
-	{
-		for (vector<pair<Elevator*, int>>::iterator iter = elevatorsDistanceVec.begin(); iter != elevatorsDistanceVec.end(); iter++)
-		{
-			if ((*iter).first->direction != EDirection::Stop || (*iter).first->direction != direction)
-			{
-				if (closerElevatorDistance > (*iter).second)
-				{
-					closerElevatorDistance = (*iter).second;
-					closerElevatorIter = (*iter).first;
-				}
-			}
-		}
-	}
-
-	/*for (vector<Elevator*>::iterator iter = elevatorManager->elevators.begin(); iter != elevatorManager->elevators.end(); iter++)
-	{
-		elevatorDistance = abs((*iter)->floor - floor);
-
-		if (closerElevatorDistance > elevatorDistance)
-		{
-			closerElevatorDistance = elevatorDistance;
-			closerElevatorIter = *iter;
-		}
-	}*/
-	return closerElevatorIter;
-}
+//Elevator* Passenger::FindCloserElevator()
+//{
+//	int closerElevatorDistance = 100;
+//	int elevatorDistance;
+//	vector<pair<Elevator*, int>> elevatorsDistanceVec;
+//	elevatorsDistanceVec.reserve(10);
+//
+//	// 엘리베이터 거리 계산
+//	for (vector<Elevator*>::iterator iter = elevatorManager->elevators.begin(); iter != elevatorManager->elevators.end(); iter++)
+//	{
+//		elevatorDistance = abs((*iter)->floor - floor);
+//		elevatorsDistanceVec.push_back(make_pair(*iter, elevatorDistance));
+//	}
+//
+//	// 정지 or 같은 방향 엘리베이터 탐색
+//	for (vector<pair<Elevator*, int>>::iterator iter = elevatorsDistanceVec.begin(); iter != elevatorsDistanceVec.end(); iter++)
+//	{
+//		if ((*iter).first->direction == EDirection::Stop || (*iter).first->direction == direction)
+//		{
+//			if (closerElevatorDistance > (*iter).second)
+//			{
+//				closerElevatorDistance = (*iter).second;
+//				closerElevatorIter = (*iter).first;
+//			}
+//		}
+//	}
+//	
+//	return closerElevatorIter;
+//}

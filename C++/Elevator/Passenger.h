@@ -25,10 +25,10 @@ public:
 	// 엘리베이터 콜
 	void CallElevator();
 	// 버튼 누르기
-	void PressButton(Elevator* _closerElevator);
+	void PressButton();
 	// 대기 시간 카운트
 	void Waitting();
 	// 가장 가까운 엘리베이터 찾기
-	Elevator* FindCloserElevator();
+	//Elevator* FindCloserElevator();
 };
 

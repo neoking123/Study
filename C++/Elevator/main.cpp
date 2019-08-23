@@ -3,7 +3,7 @@
 #include <conio.h>
 
 PrintManager printManager;
-int fps = 5;
+int fps = 30;
 
 void Init()
 {
@@ -13,30 +13,75 @@ void Init()
 
 void Update()
 {
-	int spawnCount = rand() % 5 + 1;
-	printManager.Print();
-
-	while (!_kbhit())
+	int num = 0;
+	while (num != 3)
 	{
-		printManager.passengerManager->UpdatePassengers();
-		printManager.elevatorManager->CheckButtons();
-		
-		printManager.Print();
-		printManager.elevatorManager->UpdateElevators();
+		system("cls");
+		cout << "1 : 자동모드" << endl;
+		cout << "2 : 수동모드" << endl;
+		cout << "3 : 종료" << endl;
+		cin >> num;
 
-		if (spawnCount == 0)
+		if (num == 1)
 		{
-			/*for (int i = 0; i < rand() % 3 + 1; i++)
-			{
-				printManager.passengerManager->RandomSpawn();
-			}*/
-			printManager.passengerManager->RandomSpawn();
-			spawnCount = rand() % 5 + 1;
-		}
+			int spawnCount = rand() % 5 + 1;
+			printManager.Print();
 
-		spawnCount--;
-		//_sleep(1000 / fps);
-		//_getch();
+			while (!_kbhit())
+			{
+				//!_kbhit()
+				printManager.passengerManager->UpdatePassengers();
+				printManager.elevatorManager->CheckButtons();
+
+				printManager.Print();
+				printManager.elevatorManager->UpdateElevators();
+
+				if (spawnCount == 0)
+				{
+					for (int i = 0; i < rand() % 3 + 1; i++)
+					{
+						printManager.passengerManager->RandomSpawn();
+					}
+					printManager.passengerManager->RandomSpawn();
+					spawnCount = rand() % 5 + 1;
+					spawnCount = 5;
+				}
+
+				spawnCount--;
+				_sleep(1000 / fps);
+				//_getch();
+			}
+		}
+		else if (num == 2)
+		{
+			int spawnCount = rand() % 5 + 1;
+			printManager.Print();
+
+			while (_getch())
+			{
+				//!_kbhit()
+				printManager.passengerManager->UpdatePassengers();
+				printManager.elevatorManager->CheckButtons();
+
+				printManager.Print();
+				printManager.elevatorManager->UpdateElevators();
+
+				if (spawnCount == 0)
+				{
+					for (int i = 0; i < rand() % 3 + 1; i++)
+					{
+						printManager.passengerManager->RandomSpawn();
+					}
+					printManager.passengerManager->RandomSpawn();
+					spawnCount = rand() % 5 + 1;
+					spawnCount = 5;
+				}
+
+				spawnCount--;
+				_sleep(1000 / fps);
+				_getch();
+			}
+		}
 	}
 }
 
