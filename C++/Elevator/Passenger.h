@@ -16,7 +16,8 @@ public:
 	EDirection direction;
 	ElevatorManager* elevatorManager;
 	Elevator* closerElevatorIter;
-
+	
+	
 public:
 	Passenger();
 	Passenger(int _weight = 0, int _floor = 0, int _targetFloor = 0, ElevatorManager* _elevatorManager = nullptr);

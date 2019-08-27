@@ -87,7 +87,8 @@ void Update()
 
 int main()
 {
+	
 	Init();
 	Update();
 	return 0;
-}
+} 

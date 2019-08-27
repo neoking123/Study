@@ -18,18 +18,18 @@ ElevatorManager::~ElevatorManager()
 	}
 }
 
-void ElevatorManager::push_back(int _floor, int _weightMax, int _passengerMax)
+void ElevatorManager::PushBack(int _floor, int _weightMax, int _passengerMax)
 {
 	elevatorCount++;
-	elevators.push_back(new Elevator(elevatorCount, _floor, _weightMax, _passengerMax));
+	elevators.push_back(new Elevator(elevatorCount,  _floor, _weightMax, _passengerMax));
 }
 
 void ElevatorManager::Init()
 {
-	push_back(1, 500, 5);
-	push_back(1, 500, 5);
-	push_back(1, 500, 5);
-	push_back(1, 500, 5);
+	PushBack(1, 500, 5);
+	PushBack(1, 500, 5);
+	PushBack(1, 500, 5);
+	PushBack(1, 500, 5);
 
 	buttons.assign(21, Button());
 }

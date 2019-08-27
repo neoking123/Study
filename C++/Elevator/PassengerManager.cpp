@@ -163,4 +163,3 @@ float PassengerManager::GetAvgWaitTime()
 {
 	return (float)sumBoardTime / exitPassengerCount;
 }
-

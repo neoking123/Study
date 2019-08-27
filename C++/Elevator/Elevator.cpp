@@ -50,3 +50,6 @@ void Elevator::MoveTargetFloor()
 		direction = EDirection::Stop;
 	}
 }
+
+
+

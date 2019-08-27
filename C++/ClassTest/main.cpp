@@ -9,8 +9,8 @@ int main()
 
 
 	str = "slkdjfsak";
-
-
+	
+	
 
 	cout << str[2];
 
