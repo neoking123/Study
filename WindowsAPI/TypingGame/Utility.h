@@ -5,10 +5,17 @@
 #include <queue>
 #include <fstream>
 #include <sstream>
+#include <time.h>
 using namespace std;
 
 namespace Utility
 {
+	struct Position
+	{
+		int x = 0;
+		int y = 0;
+	};
+
 	//typedef basic_string<TCHAR> tstring;
 	TCHAR* StringToTCHAR(string& s)
 	{

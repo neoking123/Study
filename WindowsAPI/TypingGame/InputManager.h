@@ -5,6 +5,8 @@ class InputManager
 {
 private:
 	string inputString;
+	Utility::Position position;
+	int maxInputNum;
 
 public:
 	InputManager();
@@ -14,6 +16,8 @@ public:
 	void PrintInputString(HDC hdc);
 	void InputBackSpace();
 	void ClearInputString();
-	string* GetInputString();
+	void DrawInputBox(HDC hdc);
+	void SetPosition(int _x, int _y);
+	string GetInputString();
 };
 

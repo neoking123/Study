@@ -6,8 +6,10 @@ TypingGame* TypingGame::pInstance = nullptr;
 
 InputManager::InputManager()
 {
+	position.x = 0;
+	position.y = 0;
+	maxInputNum = 24;
 }
-
 
 InputManager::~InputManager()
 {
@@ -26,13 +28,16 @@ void InputManager::Input(WPARAM wParam)
 	}
 	else
 	{
-		inputString += wParam;
+		if (inputString.length() < maxInputNum)
+		{
+			inputString += wParam;
+		}
 	}
 }
 
 void InputManager::PrintInputString(HDC hdc)
 {
-	TextOut(hdc, 800, 700, Utility::StringToTCHAR(inputString), inputString.length());
+	TextOut(hdc, position.x, position.y, Utility::StringToTCHAR(inputString), inputString.length());
 }
 
 void InputManager::InputBackSpace()
@@ -48,7 +53,18 @@ void InputManager::ClearInputString()
 	inputString.clear();
 }
 
-string* InputManager::GetInputString()
+void InputManager::DrawInputBox(HDC hdc)
 {
-	return &inputString;
+	Rectangle(hdc, position.x - 10, position.y - 10, position.x + 200, position.y + 30);
+}
+
+void InputManager::SetPosition(int _x, int _y)
+{
+	position.x = _x;
+	position.y = _y;
+}
+
+string InputManager::GetInputString()
+{
+	return inputString;
 }

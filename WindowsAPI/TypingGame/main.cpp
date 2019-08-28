@@ -44,13 +44,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 {
 	HDC hdc;
 	PAINTSTRUCT ps;
-	SYSTEMTIME st;
 
 	switch (iMessage)
 	{
 	case WM_CREATE:
-		SetTimer(hWnd, 1, 1000, NULL);
-		TypingGame::GetInstance()->Init();
+		TypingGame::GetInstance()->Init(hWnd);
+		SetTimer(hWnd, 1, TypingGame::GetInstance()->GetGameSpeed(), NULL);
 		return 0;
 
 	case WM_TIMER:
