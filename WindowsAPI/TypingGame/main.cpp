@@ -36,12 +36,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	return (int)Message.wParam;
 }
 
-// 핸들, 메세지 타입, 파라미터
+// 핸들, 메세지 타입, 파라미터 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 {
 	HDC hdc;
 	PAINTSTRUCT ps;
 	SYSTEMTIME st;
+	int test;
 
 	static WordManager* wordManager = new WordManager();
 
