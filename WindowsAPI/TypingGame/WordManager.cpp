@@ -1,16 +1,5 @@
 #include "WordManager.h"
 
-TCHAR* StringToTCHAR(string& s)
-{
-	//tstring tstr;
-	const char* all = s.c_str();
-	int len = 1 + strlen(all);
-	wchar_t* t = new wchar_t[len];
-	if (NULL == t) throw std::bad_alloc();
-	mbstowcs(t, all, len);
-	return (TCHAR*)t;
-}
-
 WordManager::WordManager()
 {
 }
@@ -51,8 +40,11 @@ void WordManager::LoadingFile(string _fileName)
 
 void WordManager::SpawnWord(int _x, int _y)
 {
-	createdWords.push_back(new Word(loadedWords.front(),_x, _y));
-	loadedWords.pop();
+	if (!loadedWords.empty())
+	{
+		createdWords.push_back(new Word(loadedWords.front(), _x, _y));
+		loadedWords.pop();
+	}
 }
 
 void WordManager::PrintWord(HDC hdc)
@@ -60,7 +52,7 @@ void WordManager::PrintWord(HDC hdc)
 	RECT rt = { 100, 100, 400, 300 };
 	if (!createdWords.empty())
 	{
-		DrawText(hdc, StringToTCHAR(*(createdWords.back()->GetWord())), -1, &rt, DT_CENTER);
+		DrawText(hdc, Utility::StringToTCHAR(*(createdWords.back()->GetWord())), -1, &rt, DT_CENTER);
 	}
 }
 

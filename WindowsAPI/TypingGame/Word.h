@@ -1,6 +1,5 @@
 #pragma once
-#include <string>
-using namespace std;
+#include "Utility.h"
 
 struct Position
 {
@@ -11,12 +10,12 @@ struct Position
 class Word
 {
 private:
-	string word;
+	std::string word;
 	Position position;
 
 public:
 	Word();
-	Word(string* _word ,int _x, int _y);
+	Word(std::string* _word ,int _x, int _y);
 	~Word();
 
 	string* GetWord();

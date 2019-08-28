@@ -1,4 +1,6 @@
+#pragma once
 #include "WordManager.h"
+#include "InputManager.h"
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hlnst;
@@ -42,16 +44,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 	HDC hdc;
 	PAINTSTRUCT ps;
 	SYSTEMTIME st;
-	int test;
 
 	static WordManager* wordManager = new WordManager();
+	static InputManager* inputManager = new InputManager();
 
 	switch (iMessage)
 	{
 	case WM_CREATE:
 		SetTimer(hWnd, 1, 1000, NULL);
 		wordManager->Init();
-		//wordManager->SpawnWord(LOWORD(IParam), HIWORD(IParam));
 
 		return 0;
 
@@ -63,14 +64,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 
 	case WM_LBUTTONDOWN:
 		wordManager->SpawnWord(LOWORD(IParam), HIWORD(IParam));
-		InvalidateRect(hWnd, NULL, TRUE);
 
+		InvalidateRect(hWnd, NULL, TRUE);
+		return 0;
+
+	/*case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_BACK:
+			inputManager->InputBackSpace();
+			break;
+		}
+
+		InvalidateRect(hWnd, NULL, TRUE);
+		return 0;*/
+
+	case WM_CHAR:
+
+		inputManager->Input(wParam);
+
+		InvalidateRect(hWnd, NULL, TRUE);
 		return 0;
 
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 
 		wordManager->PrintWord(hdc);
+		inputManager->PrintInputString(hdc);
 
 		EndPaint(hWnd, &ps);
 		return 0;

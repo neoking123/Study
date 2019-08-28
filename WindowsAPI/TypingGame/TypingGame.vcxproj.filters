@@ -24,12 +24,18 @@
     <ClCompile Include="WordManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Word.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="WordManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Utility.h">

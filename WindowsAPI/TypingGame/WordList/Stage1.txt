@@ -1,5 +1,11 @@
-5
-Apple
-Hi
-Red
-Green
+10
+culture
+experience
+education
+symbol
+effect
+liberty
+affair
+comfort
+tradition
+subject

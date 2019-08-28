@@ -4,7 +4,7 @@ Word::Word()
 {
 }
 
-Word::Word(string* _word, int _x, int _y)
+Word::Word(std::string* _word, int _x, int _y)
 {
 	word = *_word;
 	position.x = _x;
