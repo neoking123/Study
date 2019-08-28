@@ -1,7 +1,4 @@
 #include <Windows.h>
-#include <vector>
-#include <utility>
-using namespace std;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hlnst;
@@ -23,7 +20,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	WndClass.lpfnWndProc = WndProc; // 프로시저 함수 포인터
 	WndClass.lpszClassName = lpszClass; // 이름
 	WndClass.lpszMenuName = NULL; // 메뉴
-	WndClass.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+	WndClass.style = CS_HREDRAW | CS_VREDRAW;
 	RegisterClass(&WndClass); // 클래스 등록
 
 	// 클래스네임, 타이틀, 윈도우스타일, 창 시작 위치, 넓이, 높이, 계층구조, 메뉴, 인스턴스, 파라미터
@@ -44,45 +41,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 {
 	HDC hdc;
 	PAINTSTRUCT ps;
-	static int x;
-	static int y;
-	static BOOL bNowDraw = FALSE;
-	static vector<pair<int, int>> mouseTrack;
+	SYSTEMTIME st;
+	static TCHAR sTime[128];
 
 	switch (iMessage)
 	{
-	case WM_LBUTTONDOWN:
-		x = LOWORD(IParam);
-		y = HIWORD(IParam);
-		bNowDraw = TRUE;
-		return 0;
-	
-	case WM_MOUSEMOVE:
-		if (bNowDraw == TRUE)
-		{
-			hdc = GetDC(hWnd);
-			MoveToEx(hdc, x, y, NULL);
-
-			x = LOWORD(IParam);
-			y = HIWORD(IParam);
-			LineTo(hdc, x, y);
-			mouseTrack.push_back(make_pair(x, y));
-			
-			ReleaseDC(hWnd, hdc);
-		}
+	case WM_CREATE: //윈도우 생성시 호출, 초기화 하기 좋은곳
+		SetTimer(hWnd, 1, 1000, NULL);
 		return 0;
 
-	case WM_LBUTTONUP:
-		bNowDraw = FALSE;
+	case WM_TIMER:
+		GetLocalTime(&st);
+		wsprintf(sTime, TEXT("지금 시간은 %d:%d:%d입니다."), st.wHour, st.wMinute, st.wSecond);
+		InvalidateRect(hWnd, NULL, TRUE);
 		return 0;
 
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
-
+		TextOut(hdc, 100, 100, sTime, lstrlen(sTime));
 		EndPaint(hWnd, &ps);
 		return 0;
 
 	case WM_DESTROY:
+		KillTimer(hWnd, 1);
 		PostQuitMessage(0);
 		return 0;
 	}

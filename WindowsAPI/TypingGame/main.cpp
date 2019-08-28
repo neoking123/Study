@@ -1,11 +1,8 @@
-#include <Windows.h>
-#include <vector>
-#include <utility>
-using namespace std;
+#include "WordManager.h"
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hlnst;
-LPCTSTR lpszClass = TEXT("Neoking");
+LPCTSTR lpszClass = TEXT("타자 게임");
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
@@ -23,7 +20,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	WndClass.lpfnWndProc = WndProc; // 프로시저 함수 포인터
 	WndClass.lpszClassName = lpszClass; // 이름
 	WndClass.lpszMenuName = NULL; // 메뉴
-	WndClass.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+	WndClass.style = CS_HREDRAW | CS_VREDRAW;
 	RegisterClass(&WndClass); // 클래스 등록
 
 	// 클래스네임, 타이틀, 윈도우스타일, 창 시작 위치, 넓이, 높이, 계층구조, 메뉴, 인스턴스, 파라미터
@@ -44,40 +41,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 {
 	HDC hdc;
 	PAINTSTRUCT ps;
-	static int x;
-	static int y;
-	static BOOL bNowDraw = FALSE;
-	static vector<pair<int, int>> mouseTrack;
+	SYSTEMTIME st;
+
+	static WordManager* wordManager = new WordManager();
 
 	switch (iMessage)
 	{
+	case WM_CREATE:
+		SetTimer(hWnd, 1, 1000, NULL);
+		wordManager->Init();
+		//wordManager->SpawnWord(LOWORD(IParam), HIWORD(IParam));
+
+		return 0;
+
+	case WM_TIMER:
+
+
+		InvalidateRect(hWnd, NULL, TRUE);
+		return 0;
+
 	case WM_LBUTTONDOWN:
-		x = LOWORD(IParam);
-		y = HIWORD(IParam);
-		bNowDraw = TRUE;
-		return 0;
-	
-	case WM_MOUSEMOVE:
-		if (bNowDraw == TRUE)
-		{
-			hdc = GetDC(hWnd);
-			MoveToEx(hdc, x, y, NULL);
+		wordManager->SpawnWord(LOWORD(IParam), HIWORD(IParam));
+		InvalidateRect(hWnd, NULL, TRUE);
 
-			x = LOWORD(IParam);
-			y = HIWORD(IParam);
-			LineTo(hdc, x, y);
-			mouseTrack.push_back(make_pair(x, y));
-			
-			ReleaseDC(hWnd, hdc);
-		}
-		return 0;
-
-	case WM_LBUTTONUP:
-		bNowDraw = FALSE;
 		return 0;
 
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
+
+		wordManager->PrintWord(hdc);
 
 		EndPaint(hWnd, &ps);
 		return 0;
