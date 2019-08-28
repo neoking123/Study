@@ -6,7 +6,6 @@ class InputManager
 private:
 	string inputString;
 
-
 public:
 	InputManager();
 	~InputManager();
@@ -14,6 +13,7 @@ public:
 	void Input(WPARAM wParam);
 	void PrintInputString(HDC hdc);
 	void InputBackSpace();
-	string GetInputString();
+	void ClearInputString();
+	string* GetInputString();
 };
 

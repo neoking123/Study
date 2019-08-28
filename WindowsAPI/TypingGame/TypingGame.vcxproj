@@ -142,11 +142,13 @@
   <ItemGroup>
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TypingGame.cpp" />
     <ClCompile Include="Word.cpp" />
     <ClCompile Include="WordManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="TypingGame.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Word.h" />
     <ClInclude Include="WordManager.h" />

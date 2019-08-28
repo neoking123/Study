@@ -16,6 +16,8 @@ public:
 	void LoadingFile(string _fileName);
 	void SpawnWord(int _x, int _y);
 	void PrintWord(HDC hdc);
+	void DeleteWord(list<Word*>::iterator iter);
+	list<Word*>& GetCreatedWords();
 };
 
 // 충돌체크

@@ -1,6 +1,7 @@
 #pragma once
-#include "WordManager.h"
-#include "InputManager.h"
+#include "TypingGame.h"
+
+TypingGame* TypingGame::pInstance = nullptr;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hlnst;
@@ -45,52 +46,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 	PAINTSTRUCT ps;
 	SYSTEMTIME st;
 
-	static WordManager* wordManager = new WordManager();
-	static InputManager* inputManager = new InputManager();
-
 	switch (iMessage)
 	{
 	case WM_CREATE:
 		SetTimer(hWnd, 1, 1000, NULL);
-		wordManager->Init();
-
+		TypingGame::GetInstance()->Init();
 		return 0;
 
 	case WM_TIMER:
-
-
+		TypingGame::GetInstance()->Update();
 		InvalidateRect(hWnd, NULL, TRUE);
 		return 0;
 
 	case WM_LBUTTONDOWN:
-		wordManager->SpawnWord(LOWORD(IParam), HIWORD(IParam));
-
+		TypingGame::GetInstance()->GetWordManager()->SpawnWord(LOWORD(IParam), HIWORD(IParam));
 		InvalidateRect(hWnd, NULL, TRUE);
 		return 0;
 
-	/*case WM_KEYDOWN:
-		switch (wParam)
-		{
-		case VK_BACK:
-			inputManager->InputBackSpace();
-			break;
-		}
-
-		InvalidateRect(hWnd, NULL, TRUE);
-		return 0;*/
-
 	case WM_CHAR:
-
-		inputManager->Input(wParam);
-
+		TypingGame::GetInstance()->GetInputManager()->Input(wParam);
 		InvalidateRect(hWnd, NULL, TRUE);
 		return 0;
 
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
-
-		wordManager->PrintWord(hdc);
-		inputManager->PrintInputString(hdc);
+		TypingGame::GetInstance()->Draw(hdc);
 
 		EndPaint(hWnd, &ps);
 		return 0;

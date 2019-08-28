@@ -42,7 +42,8 @@ void WordManager::SpawnWord(int _x, int _y)
 {
 	if (!loadedWords.empty())
 	{
-		createdWords.push_back(new Word(loadedWords.front(), _x, _y));
+		//createdWords.push_back(new Word(loadedWords.front(), _x, _y));
+		createdWords.insert(createdWords.end(), new Word(loadedWords.front(), _x, _y));
 		loadedWords.pop();
 	}
 }
@@ -54,5 +55,15 @@ void WordManager::PrintWord(HDC hdc)
 	{
 		DrawText(hdc, Utility::StringToTCHAR(*(createdWords.back()->GetWord())), -1, &rt, DT_CENTER);
 	}
+}
+
+void WordManager::DeleteWord(list<Word*>::iterator iter)
+{
+	createdWords.erase(iter);
+}
+
+list<Word*>& WordManager::GetCreatedWords()
+{
+	return createdWords;
 }
 
