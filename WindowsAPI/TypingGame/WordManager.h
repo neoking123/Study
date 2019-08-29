@@ -1,6 +1,5 @@
 #pragma once
 #include "Word.h"
-#include "Utility.h"
 
 class WordManager
 {
@@ -20,9 +19,10 @@ public:
 	void Init();
 	int LoadingFile(string _fileName);
 	void ClearLoadedWords();
+	void ClearCreatedWords();
 	void SpawnWord(int _x, int _y);
 	void RandomSpawnWord();
-	void RandomSpawnWordDelay();
+	void RandomSpawnWordDelay(bool isStar);
 	void PrintWord(HDC hdc);
 	void DeleteWord(list<Word*>::iterator iter);
 	void SetWordSpeed(int newSpeed);
@@ -32,6 +32,10 @@ public:
 	bool IsEmptyLoadedWords();
 	bool IsEmptyCreatedWords();
 	void CheckWordsBoundary();
+	void MakeWordsToStarWords();
+	void MakeStarToWords();
+	int GetCreatedWordsSize();
+	Utility::ITEM GiveItemChance();
 
 };
 

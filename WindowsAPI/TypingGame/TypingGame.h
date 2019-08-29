@@ -19,22 +19,38 @@ private:
 	int lifeCount;
 	int dropSpeed;
 	int gameSpeed;
+	int prevGameSpeed;
+	bool isStop;
+	bool isStar;
+	int starDurationTime;
+	Utility::ITEM getItem;
 	HWND hWnd;
+
+private:
+	void PrintScore(HDC hdc);
+	void SetGameSpeed(HWND hWnd, int newGameSpeed);
+	void CheckLevel();
+	void LevelUp();
+	void CheckLife();
+	void CheckItem(Utility::ITEM item);
+	void CheckStop();
+	void CheckStar();
+	void UseClearItem();
+	void UseHpUpItem();
+	void UseStarItem();
+	void UseStopitem();
+	void PrintItemLog(Utility::ITEM item, HDC hdc);
+	void PrintBottom(HDC hdc);
 
 public:
 	void Init(HWND hWnd);
 	void Update();
 	void Release(HWND hWnd);
 	void Draw(HDC hdc);
-	void CheckString();
-	void PrintScore(HDC hdc);
-	int GetGameSpeed();
-	void SetGameSpeed(HWND hWnd, int newGameSpeed);
 	int GetGameLevel();
-	void CheckLevel();
-	void LevelUp();
+	int GetGameSpeed();
+	void CheckString();
 	void LoseLife();
-	void CheckLife();
 
 	WordManager* GetWordManager();
 	InputManager* GetInputManager();

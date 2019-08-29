@@ -1,9 +1,6 @@
 #include "InputManager.h"
 #include "TypingGame.h"
 
-// ΩÃ±€≈Ê √ ±‚»≠
-TypingGame* TypingGame::pInstance = nullptr;
-
 InputManager::InputManager()
 {
 	position.x = 0;
@@ -37,7 +34,15 @@ void InputManager::Input(WPARAM wParam)
 
 void InputManager::PrintInputString(HDC hdc)
 {
-	TextOut(hdc, position.x, position.y, Utility::StringToTCHAR(inputString), inputString.length());
+	HFONT myFont = CreateFont(24, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, (LPCWSTR)"±√º≠√º");
+	HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
+
+	TCHAR sz[256];
+	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, inputString.c_str(), -1, sz, 256);
+	TextOut(hdc, position.x, position.y, sz, lstrlen(sz));
+
+	SelectObject(hdc, oldFont);
+	DeleteObject(myFont);
 }
 
 void InputManager::InputBackSpace()
