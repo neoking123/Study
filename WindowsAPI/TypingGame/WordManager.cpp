@@ -20,7 +20,7 @@ void WordManager::Init()
 	string levelString = ss.str();
 	LoadingFile("Stage" + levelString);
 
-	wordSpeed = 20;
+	wordSpeed = TypingGame::GetInstance()->GetDropSpeed();
 }
 
 int WordManager::LoadingFile(string _fileName)
@@ -135,9 +135,10 @@ void WordManager::PrintWord(HDC hdc)
 			if ((*iter)->GetItem() != Utility::ITEM::NONE)
 			{
 				SetTextColor(hdc, RGB(0, 0, 255));
-				//SetBkColor(hdc, RGB(0, 255, 0));
+				
 			}
 
+			SetBkColor(hdc, RGB(255, 220, 220));
 			HFONT myFont = CreateFont(24, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0,(LPCWSTR)"±Ã¼­Ã¼");
 			HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
 			
@@ -149,6 +150,7 @@ void WordManager::PrintWord(HDC hdc)
 
 			SetTextColor(hdc, RGB(0, 0, 0));
 			SelectObject(hdc, oldFont);
+			SetBkColor(hdc, RGB(255, 255, 255));
 			DeleteObject(myFont);
 		}
 	}
@@ -223,7 +225,7 @@ void WordManager::CheckWordsBoundary()
 	}
 }
 
-void WordManager::MakeWordsToStarWords()
+void WordManager::MakeWordsToStar()
 {
 	for (list<Word*>::iterator iter = createdWords.begin(); iter != createdWords.end(); iter++)
 	{

@@ -41,6 +41,7 @@ private:
 	void UseStopitem();
 	void PrintItemLog(Utility::ITEM item, HDC hdc);
 	void PrintBottom(HDC hdc);
+	void PrintLifeBox(HDC hdc);
 
 public:
 	void Init(HWND hWnd);
@@ -49,6 +50,7 @@ public:
 	void Draw(HDC hdc);
 	int GetGameLevel();
 	int GetGameSpeed();
+	int GetDropSpeed();
 	void CheckString();
 	void LoseLife();
 

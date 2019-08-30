@@ -15,11 +15,13 @@ InputManager::~InputManager()
 void InputManager::Input(WPARAM wParam)
 {
 	//(TCHAR)wParam == '\b'
-	if (wParam == 0x08) // 백스페이스
+	//wParam == 0x08 백스페이스
+	//wParam == 0x0D 엔터
+	if ((TCHAR)wParam == '\b') // 백스페이스
 	{
 		InputBackSpace();
 	}
-	else if (wParam == 0x0D) // 엔터
+	else if ((TCHAR)wParam == '\r') // 엔터
 	{
 		TypingGame::GetInstance()->CheckString();
 	}

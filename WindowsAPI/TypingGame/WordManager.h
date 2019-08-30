@@ -32,7 +32,7 @@ public:
 	bool IsEmptyLoadedWords();
 	bool IsEmptyCreatedWords();
 	void CheckWordsBoundary();
-	void MakeWordsToStarWords();
+	void MakeWordsToStar();
 	void MakeStarToWords();
 	int GetCreatedWordsSize();
 	Utility::ITEM GiveItemChance();

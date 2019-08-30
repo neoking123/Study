@@ -81,6 +81,7 @@ void TypingGame::Draw(HDC hdc)
 	PrintScore(hdc);
 	PrintItemLog(getItem, hdc);
 	PrintBottom(hdc);
+	PrintLifeBox(hdc);
 }
 
 void TypingGame::CheckString()
@@ -130,25 +131,32 @@ void TypingGame::PrintScore(HDC hdc)
 {
 	TCHAR info1[128];
 	TCHAR info2[128];
+	SetBkColor(hdc, RGB(255, 220, 220));
 	HFONT myFont = CreateFont(24, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, (LPCWSTR)"±Ã¼­Ã¼");
 	HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
-	SetTextColor(hdc, RGB(255, 153, 0));
+	SetTextColor(hdc, RGB(150, 50, 200));
 
 	wsprintf(info1, TEXT("Level : %d  Score : %d"), level, score);
 	wsprintf(info2, TEXT("Life : %d"), lifeCount);
 	TextOut(hdc, 100, 100, info1, lstrlen(info1));
 
-	SetTextColor(hdc, RGB(255, 0, 0));
+	SetTextColor(hdc, RGB(0, 180, 0));
 	TextOut(hdc, 100, 130, info2, lstrlen(info2));
 
 	SetTextColor(hdc, RGB(0, 0, 0));
 	SelectObject(hdc, oldFont);
+	SetBkColor(hdc, RGB(255, 255, 255));
 	DeleteObject(myFont);
 }
 
 int TypingGame::GetGameSpeed()
 {
 	return gameSpeed;
+}
+
+int TypingGame::GetDropSpeed()
+{
+	return dropSpeed;
 }
 
 void TypingGame::SetGameSpeed(HWND hWnd, int newGameSpeed)
@@ -242,7 +250,7 @@ void TypingGame::CheckStar()
 	{
 		starDurationTime++;
 
-		if (starDurationTime > 7)
+		if (starDurationTime > 5)
 		{
 			isStar = false;
 			starDurationTime = 0;
@@ -265,7 +273,7 @@ void TypingGame::UseHpUpItem()
 void TypingGame::UseStarItem()
 {
 	isStar = true;
-	wordManager->MakeWordsToStarWords();
+	wordManager->MakeWordsToStar();
 }
 
 void TypingGame::UseStopitem()
@@ -284,6 +292,7 @@ void TypingGame::PrintItemLog(Utility::ITEM item, HDC hdc)
 	HFONT myFont = CreateFont(24, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, (LPCWSTR)"±Ã¼­Ã¼");
 	HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
 	SetTextColor(hdc, RGB(153, 51, 255));
+	SetBkColor(hdc, RGB(255, 220, 220));
 
 	switch (item)
 	{
@@ -317,6 +326,7 @@ void TypingGame::PrintItemLog(Utility::ITEM item, HDC hdc)
 
 	SetTextColor(hdc, RGB(0, 0, 0));
 	SelectObject(hdc, oldFont);
+	SetBkColor(hdc, RGB(255, 225, 225));
 	DeleteObject(myFont);
 }
 
@@ -331,6 +341,23 @@ void TypingGame::PrintBottom(HDC hdc)
 
 	SelectObject(hdc, oldBrush);
 	//SetTextColor(hdc, RGB(0, 0, 0));
+}
+
+void TypingGame::PrintLifeBox(HDC hdc)
+{
+	HBRUSH brush, oldBrush;
+	brush = CreateSolidBrush(RGB(0, 255, 0));
+	oldBrush = (HBRUSH)SelectObject(hdc, brush);
+
+	RECT rt = { 100,180, 200, 200 };
+	for (int i = 0; i < lifeCount; i++)
+	{
+		Rectangle(hdc, rt.left, rt.top, rt.right, rt.bottom);
+		rt.top += 20;
+		rt.bottom += 20;
+	}
+
+	SelectObject(hdc, oldBrush);
 }
 
 WordManager * TypingGame::GetWordManager()
