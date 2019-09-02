@@ -1,14 +1,20 @@
 #include <Windows.h>
-#include "CardGame.h"
+#include <crtdbg.h>
+#include "MineSweeper.h"
 #include "resource.h"
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK Setting(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hlnst;
-LPCTSTR lpszClass = TEXT("Card Game");
+LPCTSTR lpszClass = TEXT("Mine Sweeper");
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
+	//메모리 릭
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	_CrtDumpMemoryLeaks();
+	//_CrtSetBreakAlloc(160);
+
 	HWND hWnd;
 	MSG Message;
 	WNDCLASS WndClass; // 옵션 구조체
@@ -40,21 +46,29 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 }
 
 // 핸들, 메세지 타입, 파라미터
-LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
+LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc;
 	PAINTSTRUCT ps;
+	POINT pt;
 
 	switch (iMessage)
 	{
 	case WM_CREATE:
+		srand(GetTickCount());
 		hdc = GetDC(hWnd);
-		CardGame::GetInstance()->Init(hWnd, hdc, g_hlnst);
+		MineSweeper::GetInstance()->Init(hdc, g_hlnst, hWnd);
 
 
 		ReleaseDC(hWnd, hdc);
 		return 0;
-		
+	case WM_LBUTTONDOWN:
+		pt.x = LOWORD(lParam);
+		pt.y = HIWORD(lParam);
+		MineSweeper::GetInstance()->Input(pt);
+		InvalidateRect(hWnd, NULL, false);
+		return 0;
+
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
@@ -68,17 +82,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 
-		CardGame::GetInstance()->Draw(hdc);
+		MineSweeper::GetInstance()->Draw(hdc);
 
 		EndPaint(hWnd, &ps);
 		return 0;
 
 	case WM_DESTROY:
-		CardGame::GetInstance()->Release();
+		MineSweeper::GetInstance()->Release();
 		PostQuitMessage(0);
 		return 0;
 	}
-	return(DefWindowProc(hWnd, iMessage, wParam, IParam));
+	return(DefWindowProc(hWnd, iMessage, wParam, lParam));
 }
 
 INT_PTR CALLBACK Setting(HWND hDlg, UINT message, WPARAM wParam, LPARAM IParam)
@@ -107,9 +121,15 @@ INT_PTR CALLBACK Setting(HWND hDlg, UINT message, WPARAM wParam, LPARAM IParam)
 			{
 
 			}
+			EndDialog(hDlg, LOWORD(wParam));
+		}
+		else if (LOWORD(wParam) == IDCANCEL)
+		{
+			EndDialog(hDlg, LOWORD(wParam));
 		}
 		break;
 	}
 
-	return DefWindowProc(hDlg, message, wParam, IParam);
+	//return DefWindowProc(hDlg, message, wParam, IParam);
+	return 0;
 }

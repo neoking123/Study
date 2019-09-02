@@ -3,19 +3,21 @@
 #include "BitMap.h"
 using namespace std;
 
-enum CARD_LIST
+enum BITMAP_RES
 {
-	DOG,
-	TIGER,
-	DUCK,
-	ELEPHANT,
-	COW,
-	HORSE,
-	CAT,
-	MONKEY,
-	FROG,
-	CHICKEN,
-	BACK,
+	RES_0,
+	RES_1,
+	RES_2,
+	RES_3,
+	RES_4,
+	RES_5,
+	RES_6,
+	RES_7,
+	RES_8,
+	RES_9,
+	RES_10,
+	RES_11,
+	RES_12,
 	END
 };
 

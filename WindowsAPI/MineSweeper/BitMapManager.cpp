@@ -14,13 +14,13 @@ BitMapManager::~BitMapManager()
 
 void BitMapManager::Init(HDC hdc, HINSTANCE hInst)
 {
-	BitMaps.reserve(10);
+	BitMaps.reserve(20);
 
-	for (int i = 0; i < CARD_LIST::END; i++)
+	for (int i = 0; i < BITMAP_RES::END; i++)
 	{
 		BitMap* bitMap = new BitMap();
+		bitMap->Init(hdc, hInst, BITMAP_RES::RES_0 + i);
 		BitMaps.push_back(bitMap);
-		bitMap->Init(hdc, hInst, CARD_LIST::DOG + i);
 	}
 }
 

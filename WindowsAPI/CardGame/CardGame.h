@@ -1,9 +1,7 @@
 #pragma once
 #include <Windows.h>
-#include "resource.h"
-
-const int WIDTH = 145;
-const int HEIGHT = 235;
+#include <vector>
+using namespace std;
 
 class BitMap;
 class Card;
@@ -15,7 +13,7 @@ private:
 	CardGame();
 
 	HWND hWnd;
-	BitMap* bitMap;
+	vector<Card*> Cards;
 
 public:
 	~CardGame();
