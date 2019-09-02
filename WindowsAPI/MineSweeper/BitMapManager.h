@@ -18,6 +18,8 @@ enum BITMAP_RES
 	RES_10,
 	RES_11,
 	RES_12,
+	RES_13,
+	RES_14,
 	END
 };
 

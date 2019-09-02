@@ -51,21 +51,53 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	HDC hdc;
 	PAINTSTRUCT ps;
 	POINT pt;
+	int clickButton = -1;
 
 	switch (iMessage)
 	{
 	case WM_CREATE:
 		srand(GetTickCount());
 		hdc = GetDC(hWnd);
+		SetTimer(hWnd, 1, 1000, NULL);
 		MineSweeper::GetInstance()->Init(hdc, g_hlnst, hWnd);
-
 
 		ReleaseDC(hWnd, hdc);
 		return 0;
+
+	case WM_GETMINMAXINFO:
+		((MINMAXINFO*)lParam)->ptMaxTrackSize.x = 880;
+		((MINMAXINFO*)lParam)->ptMaxTrackSize.y = 570;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.x = 880;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 570;
+
+		return 0;
+
+	case WM_TIMER:
+		MineSweeper::GetInstance()->Update();
+		InvalidateRect(hWnd, NULL, TRUE);
+		return 0;
+
 	case WM_LBUTTONDOWN:
 		pt.x = LOWORD(lParam);
 		pt.y = HIWORD(lParam);
-		MineSweeper::GetInstance()->Input(pt);
+		clickButton = 0;
+		MineSweeper::GetInstance()->Input(pt, clickButton);
+		InvalidateRect(hWnd, NULL, false);
+		return 0;
+
+	case WM_RBUTTONDOWN:
+		pt.x = LOWORD(lParam);
+		pt.y = HIWORD(lParam);
+		clickButton = 1;
+		MineSweeper::GetInstance()->Input(pt, clickButton);
+		InvalidateRect(hWnd, NULL, false);
+		return 0;
+
+	case WM_LBUTTONUP:
+		pt.x = LOWORD(lParam);
+		pt.y = HIWORD(lParam);
+		clickButton = 2;
+		MineSweeper::GetInstance()->Input(pt, clickButton);
 		InvalidateRect(hWnd, NULL, false);
 		return 0;
 
@@ -88,6 +120,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_DESTROY:
+		KillTimer(hWnd, 1);
 		MineSweeper::GetInstance()->Release();
 		PostQuitMessage(0);
 		return 0;

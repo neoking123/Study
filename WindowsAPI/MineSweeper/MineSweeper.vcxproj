@@ -43,7 +43,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -142,7 +142,6 @@
     <ClCompile Include="BitMap.cpp" />
     <ClCompile Include="BitMapManager.cpp" />
     <ClCompile Include="Block.cpp" />
-    <ClCompile Include="BlockManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MineSweeper.cpp" />
   </ItemGroup>
@@ -150,7 +149,6 @@
     <ClInclude Include="BitMap.h" />
     <ClInclude Include="BitMapManager.h" />
     <ClInclude Include="Block.h" />
-    <ClInclude Include="BlockManager.h" />
     <ClInclude Include="Macro.h" />
     <ClInclude Include="MineSweeper.h" />
     <ClInclude Include="resource.h" />
