@@ -3,6 +3,9 @@
 #include "MineSweeper.h"
 #include "resource.h"
 
+int WIDTH = 9;
+int HEIGHT = 9;
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK Setting(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hlnst;
@@ -144,15 +147,24 @@ INT_PTR CALLBACK Setting(HWND hDlg, UINT message, WPARAM wParam, LPARAM IParam)
 		{
 			if (IsDlgButtonChecked(hDlg, IDC_RADIO1) == BST_CHECKED)
 			{
-
+				WIDTH = 9;
+				HEIGHT = 9;
+				MineSweeper::GetInstance()->ReInit(10);
+				InvalidateRect(hDlg, NULL, true);
 			}
 			else if (IsDlgButtonChecked(hDlg, IDC_RADIO2) == BST_CHECKED)
 			{
-
+				WIDTH = 16;
+				HEIGHT = 16;
+				MineSweeper::GetInstance()->ReInit(40);
+				InvalidateRect(hDlg, NULL, true);
 			}
 			else if (IsDlgButtonChecked(hDlg, IDC_RADIO3) == BST_CHECKED)
 			{
-
+				WIDTH = 30;
+				HEIGHT = 16;
+				MineSweeper::GetInstance()->ReInit(99);
+				InvalidateRect(hDlg, NULL, true);
 			}
 			EndDialog(hDlg, LOWORD(wParam));
 		}

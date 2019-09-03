@@ -3,8 +3,6 @@
 #include "BitMapManager.h"
 #include "MineSweeper.h"
 
-
-
 Block::Block()
 {
 }
@@ -44,14 +42,16 @@ void Block::SetState(BLOCK_STATE _state)
 	{
 		isFlag = true;
 	}
-	else if (state != BLOCK_STATE::FLAG && state != BLOCK_STATE::NONECLICK)
+	else if (state != BLOCK_STATE::NONECLICK)
 	{
 		isOpen = true;
+		tempOpen = false;
 	}
 	else
 	{
 		isFlag = false;
 		isOpen = false;
+		tempOpen = false;
 	}
 }
 
@@ -121,19 +121,13 @@ void Block::CheckNearBlocks()
 {
 	CheckNearMines();
 
-	if (hasMine)
-	{
-		SetState(BLOCK_STATE::NONECLICK);
-	}
-	else if (nearMineNum == 0 && !hasMine)
+	if (nearMineNum == 0)
 	{
 		SetState(BLOCK_STATE::CLICKED);
-		isOpen = true;
 	}
-	else
+	else if(nearMineNum > 0 && nearMineNum <= 8)
 	{
 		SetState((BLOCK_STATE)nearMineNum);
-		isOpen = true;
 	}
 
 	// Àç±Í
@@ -175,6 +169,46 @@ void Block::CheckNearBlocks()
 			&& state == BLOCK_STATE::CLICKED)
 		{
 			MineSweeper::GetInstance()->GetBlock(index - WIDTH)->CheckNearBlocks();
+		}
+	}
+
+	if (index - WIDTH - 1 >= 0 && (index - WIDTH - 1) % WIDTH != WIDTH - 1)
+	{
+		if (MineSweeper::GetInstance()->GetBlock(index - WIDTH - 1)->GetState() == BLOCK_STATE::NONECLICK
+			&& !(MineSweeper::GetInstance()->GetBlock(index - WIDTH - 1)->hasMine)
+			&& state == BLOCK_STATE::CLICKED)
+		{
+			MineSweeper::GetInstance()->GetBlock(index - WIDTH - 1)->CheckNearBlocks();
+		}
+	}
+
+	if (index - WIDTH + 1 >= 0 && (index - WIDTH + 1) % WIDTH != 0)
+	{
+		if (MineSweeper::GetInstance()->GetBlock(index - WIDTH + 1)->GetState() == BLOCK_STATE::NONECLICK
+			&& !(MineSweeper::GetInstance()->GetBlock(index - WIDTH + 1)->hasMine)
+			&& state == BLOCK_STATE::CLICKED)
+		{
+			MineSweeper::GetInstance()->GetBlock(index - WIDTH + 1)->CheckNearBlocks();
+		}
+	}
+
+	if (index + WIDTH + 1 < WIDTH * HEIGHT && (index + WIDTH + 1) % WIDTH != 0)
+	{
+		if (MineSweeper::GetInstance()->GetBlock(index + WIDTH + 1)->GetState() == BLOCK_STATE::NONECLICK
+			&& !(MineSweeper::GetInstance()->GetBlock(index + WIDTH + 1)->hasMine)
+			&& state == BLOCK_STATE::CLICKED)
+		{
+			MineSweeper::GetInstance()->GetBlock(index + WIDTH + 1)->CheckNearBlocks();
+		}
+	}
+
+	if (index + WIDTH - 1 < WIDTH * HEIGHT && (index + WIDTH - 1) % WIDTH != WIDTH - 1)
+	{
+		if (MineSweeper::GetInstance()->GetBlock(index + WIDTH - 1)->GetState() == BLOCK_STATE::NONECLICK
+			&& !(MineSweeper::GetInstance()->GetBlock(index + WIDTH - 1)->hasMine)
+			&& state == BLOCK_STATE::CLICKED)
+		{
+			MineSweeper::GetInstance()->GetBlock(index + WIDTH - 1)->CheckNearBlocks();
 		}
 	}
 }
@@ -241,7 +275,6 @@ int Block::CheckNearFlag()
 
 	return nearFlagNum;
 }
-
 
 void Block::ClickNear()
 {
@@ -427,8 +460,7 @@ void Block::ClickNear()
 			{
 				if (MineSweeper::GetInstance()->GetBlock(index + 1)->state == BLOCK_STATE::NONECLICK)
 				{
-					int nearMineNum = MineSweeper::GetInstance()->GetBlock(index + 1)->CheckNearMines();
-					MineSweeper::GetInstance()->GetBlock(index + 1)->SetState((BLOCK_STATE)nearMineNum);
+					MineSweeper::GetInstance()->GetBlock(index + 1)->CheckNearBlocks();
 				}
 			}
 
@@ -437,8 +469,7 @@ void Block::ClickNear()
 			{
 				if (MineSweeper::GetInstance()->GetBlock(index - 1)->state == BLOCK_STATE::NONECLICK)
 				{
-					int nearMineNum = MineSweeper::GetInstance()->GetBlock(index - 1)->CheckNearMines();
-					MineSweeper::GetInstance()->GetBlock(index - 1)->SetState((BLOCK_STATE)nearMineNum);
+					MineSweeper::GetInstance()->GetBlock(index - 1)->CheckNearBlocks();
 				}
 			}
 
@@ -447,8 +478,7 @@ void Block::ClickNear()
 			{
 				if (MineSweeper::GetInstance()->GetBlock(index + WIDTH)->state == BLOCK_STATE::NONECLICK)
 				{
-					int nearMineNum = MineSweeper::GetInstance()->GetBlock(index + WIDTH)->CheckNearMines();
-					MineSweeper::GetInstance()->GetBlock(index + WIDTH)->SetState((BLOCK_STATE)nearMineNum);
+					MineSweeper::GetInstance()->GetBlock(index + WIDTH)->CheckNearBlocks();
 				}
 			}
 
@@ -457,8 +487,7 @@ void Block::ClickNear()
 			{
 				if (MineSweeper::GetInstance()->GetBlock(index - WIDTH)->state == BLOCK_STATE::NONECLICK)
 				{
-					int nearMineNum = MineSweeper::GetInstance()->GetBlock(index - WIDTH)->CheckNearMines();
-					MineSweeper::GetInstance()->GetBlock(index - WIDTH)->SetState((BLOCK_STATE)nearMineNum);
+					MineSweeper::GetInstance()->GetBlock(index - WIDTH)->CheckNearBlocks();
 				}
 			}
 
@@ -467,8 +496,7 @@ void Block::ClickNear()
 			{
 				if (MineSweeper::GetInstance()->GetBlock(index - WIDTH - 1)->state == BLOCK_STATE::NONECLICK)
 				{
-					int nearMineNum = MineSweeper::GetInstance()->GetBlock(index - WIDTH - 1)->CheckNearMines();
-					MineSweeper::GetInstance()->GetBlock(index - WIDTH - 1)->SetState((BLOCK_STATE)nearMineNum);
+					MineSweeper::GetInstance()->GetBlock(index - WIDTH - 1)->CheckNearBlocks();
 				}
 			}
 
@@ -477,8 +505,7 @@ void Block::ClickNear()
 			{
 				if (MineSweeper::GetInstance()->GetBlock(index - WIDTH + 1)->state == BLOCK_STATE::NONECLICK)
 				{
-					int nearMineNum = MineSweeper::GetInstance()->GetBlock(index - WIDTH + 1)->CheckNearMines();
-					MineSweeper::GetInstance()->GetBlock(index - WIDTH + 1)->SetState((BLOCK_STATE)nearMineNum);
+					MineSweeper::GetInstance()->GetBlock(index - WIDTH + 1)->CheckNearBlocks();
 				}
 			}
 
@@ -487,8 +514,7 @@ void Block::ClickNear()
 			{
 				if (MineSweeper::GetInstance()->GetBlock(index + WIDTH + 1)->state == BLOCK_STATE::NONECLICK)
 				{
-					int nearMineNum = MineSweeper::GetInstance()->GetBlock(index + WIDTH + 1)->CheckNearMines();
-					MineSweeper::GetInstance()->GetBlock(index + WIDTH + 1)->SetState((BLOCK_STATE)nearMineNum);
+					MineSweeper::GetInstance()->GetBlock(index + WIDTH + 1)->CheckNearBlocks();
 				}
 			}
 
@@ -497,8 +523,7 @@ void Block::ClickNear()
 			{
 				if (MineSweeper::GetInstance()->GetBlock(index + WIDTH - 1)->state == BLOCK_STATE::NONECLICK)
 				{
-					int nearMineNum = MineSweeper::GetInstance()->GetBlock(index + WIDTH - 1)->CheckNearMines();
-					MineSweeper::GetInstance()->GetBlock(index + WIDTH - 1)->SetState((BLOCK_STATE)nearMineNum);
+					MineSweeper::GetInstance()->GetBlock(index + WIDTH - 1)->CheckNearBlocks();
 				}
 			}
 		}
@@ -513,7 +538,6 @@ void Block::ButtonUp()
 		if (MineSweeper::GetInstance()->GetBlock(index + 1)->tempOpen 
 			&& MineSweeper::GetInstance()->GetBlock(index + 1)->state == BLOCK_STATE::CLICKED)
 		{
-			tempOpen = false;
 			MineSweeper::GetInstance()->GetBlock(index + 1)->SetState(BLOCK_STATE::NONECLICK);
 		}
 	}
@@ -524,7 +548,6 @@ void Block::ButtonUp()
 		if (MineSweeper::GetInstance()->GetBlock(index - 1)->tempOpen
 			&& MineSweeper::GetInstance()->GetBlock(index - 1)->state == BLOCK_STATE::CLICKED)
 		{
-			tempOpen = false;
 			MineSweeper::GetInstance()->GetBlock(index - 1)->SetState(BLOCK_STATE::NONECLICK);
 		}
 	}
@@ -535,7 +558,6 @@ void Block::ButtonUp()
 	{
 		if (MineSweeper::GetInstance()->GetBlock(index + WIDTH)->tempOpen)
 		{
-			tempOpen = false;
 			MineSweeper::GetInstance()->GetBlock(index + WIDTH)->SetState(BLOCK_STATE::NONECLICK);
 		}
 	}
@@ -546,7 +568,6 @@ void Block::ButtonUp()
 		if (MineSweeper::GetInstance()->GetBlock(index - WIDTH)->tempOpen
 			&& MineSweeper::GetInstance()->GetBlock(index - WIDTH)->state == BLOCK_STATE::CLICKED)
 		{
-			tempOpen = false;
 			MineSweeper::GetInstance()->GetBlock(index - WIDTH)->SetState(BLOCK_STATE::NONECLICK);
 		}
 	}
@@ -557,7 +578,6 @@ void Block::ButtonUp()
 		if (MineSweeper::GetInstance()->GetBlock(index - WIDTH - 1)->tempOpen
 			&& MineSweeper::GetInstance()->GetBlock(index - WIDTH - 1)->state == BLOCK_STATE::CLICKED)
 		{
-			tempOpen = false;
 			MineSweeper::GetInstance()->GetBlock(index - WIDTH - 1)->SetState(BLOCK_STATE::NONECLICK);
 		}
 	}
@@ -568,18 +588,16 @@ void Block::ButtonUp()
 		if (MineSweeper::GetInstance()->GetBlock(index - WIDTH + 1)->tempOpen
 			&& MineSweeper::GetInstance()->GetBlock(index - WIDTH + 1)->state == BLOCK_STATE::CLICKED)
 		{
-			tempOpen = false;
 			MineSweeper::GetInstance()->GetBlock(index - WIDTH + 1)->SetState(BLOCK_STATE::NONECLICK);
 		}
 	}
 
 	//¾Æ·¡-¾Õ
-	if (index + WIDTH + 1 < WIDTH * HEIGHT && (index + WIDTH + 1) % WIDTH != 0
-		&& MineSweeper::GetInstance()->GetBlock(index + WIDTH + 1)->state == BLOCK_STATE::CLICKED)
+	if (index + WIDTH + 1 < WIDTH * HEIGHT && (index + WIDTH + 1) % WIDTH != 0)
 	{
-		if (MineSweeper::GetInstance()->GetBlock(index + WIDTH + 1)->tempOpen)
+		if (MineSweeper::GetInstance()->GetBlock(index + WIDTH + 1)->tempOpen
+			&& MineSweeper::GetInstance()->GetBlock(index + WIDTH + 1)->state == BLOCK_STATE::CLICKED)
 		{
-			tempOpen = false;
 			MineSweeper::GetInstance()->GetBlock(index + WIDTH + 1)->SetState(BLOCK_STATE::NONECLICK);
 		}
 	}
@@ -590,10 +608,17 @@ void Block::ButtonUp()
 		if (MineSweeper::GetInstance()->GetBlock(index + WIDTH - 1)->tempOpen
 			&& MineSweeper::GetInstance()->GetBlock(index + WIDTH - 1)->state == BLOCK_STATE::CLICKED)
 		{
-			tempOpen = false;
 			MineSweeper::GetInstance()->GetBlock(index + WIDTH - 1)->SetState(BLOCK_STATE::NONECLICK);
 		}
 	}
+}
+
+bool Block::IsTempOpen()
+{
+	if (tempOpen)
+		return true;
+	else
+		return false;
 }
 
 void Block::SetHasMine(bool _hasMine)
@@ -604,6 +629,11 @@ void Block::SetHasMine(bool _hasMine)
 bool Block::GetHasMine()
 {
 	return hasMine;
+}
+
+bool Block::GetIsOpen()
+{
+	return isOpen;
 }
 
 BLOCK_STATE Block::GetState()
@@ -620,11 +650,13 @@ CLICK_STATE Block::CheckClick(POINT pt, int clickButton)
 			if (state != BLOCK_STATE::FLAG)
 			{
 				SetState(BLOCK_STATE::FLAG);
+				MineSweeper::GetInstance()->PlusFlagNum();
 				return CLICK_STATE::BLOCK_CLICK;
 			}
 			else
 			{
 				SetState(BLOCK_STATE::NONECLICK);
+				MineSweeper::GetInstance()->MinusFlagNum();
 				return CLICK_STATE::BLOCK_CLICK;
 			}	
 		}

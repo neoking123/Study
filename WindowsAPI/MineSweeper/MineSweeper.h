@@ -3,13 +3,8 @@
 #include <vector>
 using namespace std;
 
-const int WIDTH = 30;
-const int HEIGHT = 16;
-
-enum GAME_STATE
-{
-
-};
+extern int WIDTH;
+extern int HEIGHT;
 
 class Block;
 
@@ -24,20 +19,26 @@ private:
 	HWND hWnd;
 	SIZE size;
 	int mineNum;
+	int flagNum;
 	int timer;
+	int checkCount;
+	bool isEnd;
+	bool isWin;
 
 	void SpawnMine(int x, int y);
-	void RandomSpawnMine();
+	void RandomSpawnMine(int mineNum);
 	void DrawBackground(HDC hdc);
 	void DrawMineCount(HDC hdc);
 	void DrawTimer(HDC hdc);
 	void DrawSmile(HDC hdc);
-
+	void CheckWin();
+	void CheckSmileClick(POINT pt);
 
 public:
 	~MineSweeper();
 
 	void Init(HDC hdc, HINSTANCE hInst, HWND hWnd);
+	void ReInit(int _mineNum);
 	void Release();
 	void Draw(HDC hdc);
 	void Update();
@@ -45,7 +46,12 @@ public:
 	SIZE GetSize();
 	Block* GetBlock(int index);
 	void SendGamOverMessage();
+	void SendWinMessage();
 	void OpenAllMines();
+	void PlusFlagNum();
+	void MinusFlagNum();
+	void EndGame();
+
 
 	static MineSweeper* GetInstance()
 	{
