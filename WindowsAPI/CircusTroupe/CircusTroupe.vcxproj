@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{93FA394E-B167-452C-84D6-E6C62586A8F2}</ProjectGuid>
+    <ProjectGuid>{DEB9B167-4CCA-4F1A-88B2-0B6D48770FE2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>MineSweeper</RootNamespace>
+    <RootNamespace>CircusTroupe</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -37,13 +37,13 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -142,20 +142,19 @@
   <ItemGroup>
     <ClCompile Include="BitMap.cpp" />
     <ClCompile Include="BitMapManager.cpp" />
-    <ClCompile Include="Block.cpp" />
+    <ClCompile Include="Character.cpp" />
+    <ClCompile Include="CircusTroupe.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MineSweeper.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="SceneObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BitMap.h" />
     <ClInclude Include="BitMapManager.h" />
-    <ClInclude Include="Block.h" />
-    <ClInclude Include="Macro.h" />
-    <ClInclude Include="MineSweeper.h" />
-    <ClInclude Include="resource.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="MineSweeper.rc" />
+    <ClInclude Include="Character.h" />
+    <ClInclude Include="CircusTroupe.h" />
+    <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="SceneObject.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

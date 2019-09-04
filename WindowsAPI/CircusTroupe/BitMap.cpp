@@ -1,6 +1,4 @@
 #include "BitMap.h"
-#include "resource.h"
-
 
 BitMap::BitMap()
 {
@@ -33,10 +31,15 @@ SIZE BitMap::GetSize()
 	return size;
 }
 
+//void BitMap::Draw(HDC hdc, int x, int y)
+//{
+//	BitBlt(hdc, x, y, x + size.cx, y + size.cy, hMemDC, 0, 0, SRCCOPY);
+//	
+//}
+
 void BitMap::Draw(HDC hdc, int x, int y)
 {
-	BitBlt(hdc, x, y, x + size.cx, y + size.cy, hMemDC, 0, 0, SRCCOPY);
-	
+	TransparentBlt(hdc, x, y, 69, 70, hMemDC, 0, 0, 69, 70, RGB(255, 0, 255));
 }
 
 void BitMap::Release()
