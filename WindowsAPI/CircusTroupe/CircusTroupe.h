@@ -14,7 +14,7 @@ private:
 public:
 	~CircusTroupe();
 
-	void Init(HWND hWnd, HINSTANCE hInst, HDC hdc);
+	void Init(HWND hWnd, HDC hdc);
 	void Draw(HDC hdc);
 	void Input(WPARAM wParam);
 	void Update();

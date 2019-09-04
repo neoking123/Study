@@ -14,10 +14,9 @@ private:
 public:
 	BitMap();
 	~BitMap();
-	void Init(HDC hdc, HINSTANCE hInst, int id);
+	void Init(HDC hdc, int id);
 	SIZE GetSize();
 	void Draw(HDC hdc, int x, int y);
-	void DrawDoubleBuffer(HDC hdc, int x, int y);
 	void Release();
 };
 

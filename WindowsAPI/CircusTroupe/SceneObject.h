@@ -8,19 +8,22 @@ class BitMap;
 class SceneObject
 {
 private:
-	int index;
 
 protected:
 	vector<BitMap*> sprites;
 	POINT position;
+	bool isCharacter;
+
+	void AddSprite(BitMap* bitmap);
 
 public:
 	SceneObject();
 	~SceneObject();
 
-	virtual void Init(int index, POINT pos = { 0, 0 }, int spriteNum = 0);
+	virtual void Init(POINT pos = { 0, 0 }, int spriteNum = 0);
 	void Draw(HDC hdc);
-	void AddSprite(BitMap* bitmap);
+	void DrawFixedPosition(HDC hdc, int x);
+	bool IsCharacter();
 	POINT GetPosition();
 };
 

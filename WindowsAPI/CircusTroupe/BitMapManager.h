@@ -33,6 +33,7 @@ enum BITMAP_RES
 	STAR2,
 	WIN,
 	WIN2,
+	BACK_BOTTOM,
 	END
 };
 
@@ -47,7 +48,7 @@ private:
 public:
 	~BitMapManager();
 
-	void Init(HINSTANCE hInst, HDC hdc);
+	void Init(HDC hdc);
 	BitMap* GetBitMap(int id);
 	void Release();
 

@@ -50,7 +50,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 	case WM_CREATE:
 		SetTimer(hWnd, 1, 10, nullptr);
 		hdc = GetDC(hWnd);
-		CircusTroupe::GetInstance()->Init(hWnd, g_hlnst, hdc);
+		CircusTroupe::GetInstance()->Init(hWnd, hdc);
 
 		ReleaseDC(hWnd, hdc);
 		return 0;

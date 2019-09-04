@@ -16,12 +16,14 @@ enum CHARACTER_STATE
 class Character : public SceneObject
 {
 private:
+	int speed;
 
 public:
 	Character();
 	~Character();
 
-	virtual void Init(int index, POINT pos = { 0, 0 }, int spriteNum = 0) override;
+	virtual void Init(POINT pos = { 0, 0 }, int spriteNum = 0) override;
 	void Input(WPARAM wParam);
+	void SetSpeed(int newSpeed);
 };
 

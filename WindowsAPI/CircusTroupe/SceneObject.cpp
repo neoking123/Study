@@ -11,11 +11,11 @@ SceneObject::~SceneObject()
 {
 }
 
-void SceneObject::Init(int index, POINT pos,int spriteNum)
+void SceneObject::Init(POINT pos,int spriteNum)
 {
-	this->index = index;
 	position = pos;
 	sprites.reserve(spriteNum);
+	isCharacter = false;
 }
 
 void SceneObject::Draw(HDC hdc)
@@ -24,6 +24,19 @@ void SceneObject::Draw(HDC hdc)
 	{
 		sprites[0]->Draw(hdc, position.x, position.y);
 	}
+}
+
+void SceneObject::DrawFixedPosition(HDC hdc, int x)
+{
+	if (!sprites.empty())
+	{
+		sprites[0]->Draw(hdc, x, position.y);
+	}
+}
+
+bool SceneObject::IsCharacter()
+{
+	return isCharacter;
 }
 
 void SceneObject::AddSprite(BitMap * bitmap)

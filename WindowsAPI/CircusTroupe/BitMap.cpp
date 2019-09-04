@@ -9,7 +9,7 @@ BitMap::~BitMap()
 {
 }
 
-void BitMap::Init(HDC hdc, HINSTANCE hInst, int id)
+void BitMap::Init(HDC hdc, int id)
 {
 	string s = "RES\\";
 	s += to_string(id);
@@ -39,7 +39,7 @@ SIZE BitMap::GetSize()
 
 void BitMap::Draw(HDC hdc, int x, int y)
 {
-	TransparentBlt(hdc, x, y, 69, 70, hMemDC, 0, 0, 69, 70, RGB(255, 0, 255));
+	TransparentBlt(hdc, x, y, size.cx, size.cy, hMemDC, 0, 0, size.cx, size.cy, RGB(255, 0, 255));
 }
 
 void BitMap::Release()

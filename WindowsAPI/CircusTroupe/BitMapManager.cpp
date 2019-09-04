@@ -12,20 +12,14 @@ BitMapManager::~BitMapManager()
 {
 }
 
-void BitMapManager::Init(HINSTANCE hInst, HDC hdc)
+void BitMapManager::Init(HDC hdc)
 {
-	/*HDC MemDC;
-	MemDC = CreateCompatibleDC(hdc);
-	g_MemDC[0] = CreateCompatibleDC(hdc);
-	g_hBitMap[0] = CreateCompatibleBitmap(hdc, 870, 512);
-	g_hOld[0] = (HBITMAP)SelectObject(g_MemDC[0], g_hBitMap[0]);*/
-
-	BitMaps.reserve(20);
+	BitMaps.reserve(30);
 
 	for (int i = 0; i < BITMAP_RES::END; i++)
 	{
 		BitMap* bitMap = new BitMap();
-		bitMap->Init(hdc, hInst, BITMAP_RES::BACK + i);
+		bitMap->Init(hdc, BITMAP_RES::BACK + i);
 		BitMaps.push_back(bitMap);
 	}
 }

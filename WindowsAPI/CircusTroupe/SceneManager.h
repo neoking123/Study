@@ -13,21 +13,27 @@ private:
 	static SceneManager* pInstance;
 
 	vector<SceneObject*> sceneObjects;
-	int objectsNum;
 	SIZE sceneSize;
-	HDC hdcScene;
+	HDC SceneHDC;
+	HBITMAP hBitMap;
+	HBITMAP hOldBitMap;
+	int drawPointX;
+	int posX;
+	int offset;
 
 	void DrawBackground(HDC hdc);
-	
 
 public:
 	~SceneManager();
 	
-	void Init(SIZE size);
+	void Init(HDC hdc, SIZE size);
 	void DrawScene(HDC hdc);
-	void AddSceneObject(SceneObject* newObj, POINT pos = { 0, 0 }, int spriteNum = 0);
+	void CheckBoundary(POINT pos);
+	void AddSceneObject(SceneObject* newObj);
 	void Relese();
+	void Input(POINT pos);
 	int GetObjectsNum();
+	void SetOffset(POINT pos);
 
 	static SceneManager* GetInstance()
 	{

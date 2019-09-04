@@ -10,9 +10,11 @@ Character::~Character()
 {
 }
 
-void Character::Init(int index, POINT pos, int spriteNum)
+void Character::Init(POINT pos, int spriteNum)
 {
-	SceneObject::Init(index, pos, spriteNum);
+	SceneObject::Init(pos, spriteNum);
+	isCharacter = true;
+	speed = 1;
 
 	// 스프라이트 추가
 	SceneObject::AddSprite(BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::PLAYER0));
@@ -29,12 +31,17 @@ void Character::Input(WPARAM wParam)
 	switch (wParam)
 	{
 	case VK_LEFT:
-		position.x -= 8;
+		position.x -= speed;
 		break;
 	case VK_RIGHT:
-		position.x += 8;
+		position.x += speed;
 		break;
 	default:
 		break;
 	}
+}
+
+void Character::SetSpeed(int newSpeed)
+{
+	speed = newSpeed;
 }

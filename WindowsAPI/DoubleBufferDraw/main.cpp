@@ -53,7 +53,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 	{
 	case WM_CREATE:
 		//1. 백버퍼는 CreateCompatibleBitmap 으로 만든다.
-		//2. 다른 이미지는 백버의 hdc를 기준으로 생성한다.
+		//2. 다른 이미지는 백버퍼의 hdc를 기준으로 생성한다.
 		//3. 출력시 백버퍼에 출력하고 마지막에 hdc에 출력한다.
 		// TransparentBlt(g_MemDC[0], 300, 300, 240, 192, g_MemDC[2], 0, 0, 240, 192, RGB(255, 0, 255));
 		// msimg32.lib 필요함.
@@ -65,11 +65,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 		g_hBitMap[0] = CreateCompatibleBitmap(hdc, 870, 512);
 		g_hOld[0] = (HBITMAP)SelectObject(g_MemDC[0], g_hBitMap[0]);
 
-		g_MemDC[1] = CreateCompatibleDC(hdc);
+		g_MemDC[1] = CreateCompatibleDC(g_MemDC[0]);
 		g_hBitMap[1] = (HBITMAP)LoadImage(NULL, "back.bmp", IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_DEFAULTSIZE | LR_LOADFROMFILE);
 		g_hOld[1] = (HBITMAP)SelectObject(g_MemDC[1], g_hBitMap[1]);
 
-		g_MemDC[2] = CreateCompatibleDC(hdc);
+		g_MemDC[2] = CreateCompatibleDC(g_MemDC[0]);
 		g_hBitMap[2] = (HBITMAP)LoadImage(NULL, "char.bmp", IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_DEFAULTSIZE | LR_LOADFROMFILE);
 		g_hOld[2] = (HBITMAP)SelectObject(g_MemDC[2], g_hBitMap[2]);
 
