@@ -16,7 +16,8 @@ CircusTroupe::~CircusTroupe()
 void CircusTroupe::Init(HWND hWnd, HDC hdc)
 {
 	// SceneManger 초기화
-	SIZE sceneSize = { 576, 413 };
+	SIZE sceneSize = { 515, 413 };
+	//SIZE sceneSize = { 1280, 768 };
 	SceneManager::GetInstance()->Init(hdc, sceneSize);
 
 	//캐릭터 생성, 초기화
@@ -33,14 +34,16 @@ void CircusTroupe::Draw(HDC hdc)
 	SceneManager::GetInstance()->DrawScene(hdc);
 }
 
-void CircusTroupe::Input(WPARAM wParam)
+void CircusTroupe::Input(WPARAM wParam, KEY_STATE keyState)
 {
-	player->Input(wParam);
-	SceneManager::GetInstance()->Input(player->GetPosition());
+	player->Input(wParam, keyState);
+	SceneManager::GetInstance()->Input(player->GetPosition(),keyState);
 }
 
 void CircusTroupe::Update()
 {
+	player->Jump();
+	player->ForceGravity();
 }
 
 void CircusTroupe::Release()

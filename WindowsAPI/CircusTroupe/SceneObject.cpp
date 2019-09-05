@@ -44,6 +44,11 @@ void SceneObject::AddSprite(BitMap * bitmap)
 	sprites.push_back(bitmap);
 }
 
+void SceneObject::SetSprite(int index)
+{
+	sprites.at(0) = sprites.at(index);
+}
+
 POINT SceneObject::GetPosition()
 {
 	return position;

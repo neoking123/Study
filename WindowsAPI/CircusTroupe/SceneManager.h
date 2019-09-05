@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <vector>
+#include "Utility.h"
 using namespace std;
 
 class SceneObject;
@@ -14,7 +15,7 @@ private:
 
 	vector<SceneObject*> sceneObjects;
 	SIZE sceneSize;
-	HDC SceneHDC;
+	HDC sceneHDC;
 	HBITMAP hBitMap;
 	HBITMAP hOldBitMap;
 	int drawPointX;
@@ -22,16 +23,17 @@ private:
 	int offset;
 
 	void DrawBackground(HDC hdc);
+	void DrawMiterCount(int miter, int x, int y);
+	void DrawPosition_Debug(int pos);
 
 public:
 	~SceneManager();
 	
 	void Init(HDC hdc, SIZE size);
 	void DrawScene(HDC hdc);
-	void CheckBoundary(POINT pos);
 	void AddSceneObject(SceneObject* newObj);
 	void Relese();
-	void Input(POINT pos);
+	void Input(POINT pos, KEY_STATE keyState);
 	int GetObjectsNum();
 	void SetOffset(POINT pos);
 

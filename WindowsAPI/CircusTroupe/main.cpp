@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <vector>
 #include "CircusTroupe.h"
+#include "Utility.h"
 using namespace std;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -51,17 +52,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 		SetTimer(hWnd, 1, 10, nullptr);
 		hdc = GetDC(hWnd);
 		CircusTroupe::GetInstance()->Init(hWnd, hdc);
+		
 
 		ReleaseDC(hWnd, hdc);
 		return 0;
 
+	case WM_GETMINMAXINFO:
+		((MINMAXINFO*)IParam)->ptMaxTrackSize.x = 515;
+		((MINMAXINFO*)IParam)->ptMaxTrackSize.y = 450;
+		((MINMAXINFO*)IParam)->ptMinTrackSize.x = 515;
+		((MINMAXINFO*)IParam)->ptMinTrackSize.y = 450;
+		return 0;
+
 	case WM_TIMER:
 		CircusTroupe::GetInstance()->Update();
-
+		InvalidateRect(hWnd, NULL, false);
 		return 0;
 
 	case WM_KEYDOWN:
-		CircusTroupe::GetInstance()->Input(wParam);
+		CircusTroupe::GetInstance()->Input(wParam, KEY_STATE::BUTTONDOWN);
+		InvalidateRect(hWnd, NULL, false);
+		return 0;
+
+	case WM_KEYUP:
+		CircusTroupe::GetInstance()->Input(wParam, KEY_STATE::BUTTONUP);
 		InvalidateRect(hWnd, NULL, false);
 		return 0;
 

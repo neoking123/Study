@@ -15,6 +15,7 @@ protected:
 	bool isCharacter;
 
 	void AddSprite(BitMap* bitmap);
+	void SetSprite(int index);
 
 public:
 	SceneObject();

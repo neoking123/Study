@@ -16,27 +16,74 @@ void SceneManager::DrawBackground(HDC hdc)
 	int decoWidth = BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_DECO)->GetSize().cx;
 	int decoHeight = BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_DECO)->GetSize().cy;
 
-	int normalWidth = BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_NORMAL)->GetSize().cx;
 	int normalHeight = BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_NORMAL)->GetSize().cy;
 
-	int bottomlWidth = BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_BOTTOM)->GetSize().cx;
-	int bottomHeight = BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_BOTTOM)->GetSize().cy;
-
-	for (int i = 0; i < 9; i++)
+	// Background
+	for (int i = 0; i < 100; i++)
 	{
-		BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK)->Draw(hdc, drawPointX - posX + i * (backWidth - 1), 193);
-		BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_NORMAL)->Draw(hdc, drawPointX - posX + i * (normalWidth - 1), normalHeight * 2);
-		BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_BOTTOM)->Draw(hdc, drawPointX - posX + i * (bottomlWidth - 1), 193 + backHeight);
-	}
-
-	for (int i = 0; i < 9; i++)
-	{
-		if (i / 3 == 1 && i % 3 == 0)
+		int currentDrawPoint = - posX + i * (backWidth - 1);
+		if (currentDrawPoint > - 200 && currentDrawPoint < sceneSize.cx)
 		{
-			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_DECO)->Draw(hdc, drawPointX - posX + i * decoWidth, decoHeight * 2 - 8);
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK)->Draw(hdc, - posX + i * (backWidth - 1), 193);
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_NORMAL)->Draw(hdc, - posX + i * (backWidth - 1), normalHeight * 2);
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_BOTTOM)->Draw(hdc, - posX + i * (backWidth - 1), 193 + backHeight);
 		}
 	}
 
+	// Back_Deco, Miter
+	for (int i = 0; i < 100; i++)
+	{
+		int currentDrawPoint = - posX + i * decoWidth;
+		if (currentDrawPoint > - 200 && currentDrawPoint < sceneSize.cx)
+		{
+			if (i % 8 == 0)
+			{
+				BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_DECO)->Draw(hdc, - posX + i * decoWidth + backWidth * 2, decoHeight * 2 - 8);
+				BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MITER)->Draw(hdc, -posX + i * decoWidth + 20, 193 + backHeight + 5);
+				DrawMiterCount(100 - (i / 8 * 10), -posX + i * decoWidth + 45, 193 + backHeight + 10);
+				
+				if (100 - (i / 8 * 10) == 0)
+				{
+					BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::GOAL)->Draw(hdc, -posX + i * decoWidth, 140 + backHeight);
+				}
+			}
+		}
+	}
+
+}
+
+void SceneManager::DrawMiterCount(int miter, int x, int y)
+{
+	string s = to_string(miter);
+
+	SetBkColor(sceneHDC, RGB(0, 0, 0));
+	HFONT myFont = CreateFont(20, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "±Ã¼­Ã¼");
+	HFONT oldFont = (HFONT)SelectObject(sceneHDC, myFont);
+	SetTextColor(sceneHDC, RGB(255, 255, 255));
+
+	TextOut(sceneHDC, x, y, s.c_str(), s.length());
+
+	SetTextColor(sceneHDC, RGB(0, 0, 0));
+	SelectObject(sceneHDC, oldFont);
+	SetBkColor(sceneHDC, RGB(255, 255, 255));
+	DeleteObject(myFont);
+}
+
+void SceneManager::DrawPosition_Debug(int pos)
+{
+	string s = to_string(pos);
+
+	SetBkColor(sceneHDC, RGB(0, 0, 0));
+	HFONT myFont = CreateFont(20, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "±Ã¼­Ã¼");
+	HFONT oldFont = (HFONT)SelectObject(sceneHDC, myFont);
+	SetTextColor(sceneHDC, RGB(255, 255, 255));
+
+	TextOut(sceneHDC, 100, 10, s.c_str(), s.length());
+
+	SetTextColor(sceneHDC, RGB(0, 0, 0));
+	SelectObject(sceneHDC, oldFont);
+	SetBkColor(sceneHDC, RGB(255, 255, 255));
+	DeleteObject(myFont);
 }
 
 SceneManager::~SceneManager()
@@ -48,17 +95,19 @@ void SceneManager::Init(HDC hdc, SIZE size)
 	sceneSize = size;
 	drawPointX = 0;
 	posX = 0;
-	SceneHDC = CreateCompatibleDC(hdc);
+	sceneHDC = CreateCompatibleDC(hdc);
 	hBitMap = CreateCompatibleBitmap(hdc, sceneSize.cx, sceneSize.cy);
-	hOldBitMap = (HBITMAP)SelectObject(SceneHDC, hBitMap);
+	hOldBitMap = (HBITMAP)SelectObject(sceneHDC, hBitMap);
 
 	// BitMapManager ÃÊ±âÈ­
-	BitMapManager::GetInstance()->Init(SceneHDC);
+	BitMapManager::GetInstance()->Init(sceneHDC);
 }
 
 void SceneManager::DrawScene(HDC hdc)
 {
-	DrawBackground(SceneHDC);
+	DrawPosition_Debug(posX);
+
+	DrawBackground(sceneHDC);
 
 	if (!sceneObjects.empty())
 	{
@@ -66,24 +115,16 @@ void SceneManager::DrawScene(HDC hdc)
 		{
 			if ((*iter)->IsCharacter())
 			{
-				(*iter)->DrawFixedPosition(SceneHDC, 100);
+				(*iter)->DrawFixedPosition(sceneHDC, 100);
 			}
 			else
 			{
-				(*iter)->Draw(SceneHDC);
+				(*iter)->Draw(sceneHDC);
 			}
 		}
 	}
 
-	BitBlt(hdc, 0, 0, sceneSize.cx, sceneSize.cy, SceneHDC, 0, 0, SRCCOPY);
-}
-
-void SceneManager::CheckBoundary(POINT pos)
-{
-	if (posX > drawPointX)
-	{
-		//drawPointX = posX + sceneSize.cx;
-	}
+	BitBlt(hdc, 0, 0, sceneSize.cx, sceneSize.cy, sceneHDC, 0, 0, SRCCOPY);
 }
 
 void SceneManager::AddSceneObject(SceneObject* newObj)
@@ -93,15 +134,14 @@ void SceneManager::AddSceneObject(SceneObject* newObj)
 
 void SceneManager::Relese()
 {
-	SelectObject(SceneHDC, hOldBitMap);
+	SelectObject(sceneHDC, hOldBitMap);
 	DeleteObject(hBitMap);
-	DeleteDC(SceneHDC);
+	DeleteDC(sceneHDC);
 }
 
-void SceneManager::Input(POINT pos)
+void SceneManager::Input(POINT pos, KEY_STATE keyState)
 {
 	posX = pos.x - offset;
-	CheckBoundary(pos);
 }
 
 int SceneManager::GetObjectsNum()

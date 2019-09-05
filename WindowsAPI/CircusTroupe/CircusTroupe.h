@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include "Utility.h"
 
 class Character;
 
@@ -16,7 +17,7 @@ public:
 
 	void Init(HWND hWnd, HDC hdc);
 	void Draw(HDC hdc);
-	void Input(WPARAM wParam);
+	void Input(WPARAM wParam, KEY_STATE keyState);
 	void Update();
 	void Release();
 
