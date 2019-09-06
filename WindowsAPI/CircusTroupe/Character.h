@@ -43,15 +43,18 @@ private:
 	ANIM_STATE animState;
 	MOVE_DIR moveDir;
 	DWORD lastChangeTime;
-	POINT jumpTargetPos;
-	POINT landingPos;
 	float jumpTime;
 	float jumpHeight;
-	float jumpPower;
+	float jumpEndTime;
+	int jumpSpeed;
+	bool isJumpUp;
+	bool isJumpDown;
 
 	void SetDirecton(MOVE_DIR newDir);
 	void UpdateAnim(MOVE_DIR dir);
-	void SetJumpTargetPos();
+	//void SetJumpTargetPos();
+	void JumpUp();
+	void JumpDown();
 
 public:
 	Character();

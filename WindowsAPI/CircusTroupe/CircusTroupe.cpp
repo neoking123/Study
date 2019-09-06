@@ -37,13 +37,14 @@ void CircusTroupe::Draw(HDC hdc)
 void CircusTroupe::Input(WPARAM wParam, KEY_STATE keyState)
 {
 	player->Input(wParam, keyState);
-	SceneManager::GetInstance()->Input(player->GetPosition(),keyState);
+	SceneManager::GetInstance()->Input(player->GetPosition());
 }
 
 void CircusTroupe::Update()
 {
 	player->Jump();
-	player->ForceGravity();
+	SceneManager::GetInstance()->Input(player->GetPosition());
+	//player->ForceGravity();
 }
 
 void CircusTroupe::Release()

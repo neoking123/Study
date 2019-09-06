@@ -24,7 +24,7 @@ private:
 
 	void DrawBackground(HDC hdc);
 	void DrawMiterCount(int miter, int x, int y);
-	void DrawPosition_Debug(int pos);
+	void Draw_Debug(int value);
 
 public:
 	~SceneManager();
@@ -33,7 +33,7 @@ public:
 	void DrawScene(HDC hdc);
 	void AddSceneObject(SceneObject* newObj);
 	void Relese();
-	void Input(POINT pos, KEY_STATE keyState);
+	void Input(POINT pos);
 	int GetObjectsNum();
 	void SetOffset(POINT pos);
 

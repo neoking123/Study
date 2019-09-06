@@ -69,9 +69,9 @@ void SceneManager::DrawMiterCount(int miter, int x, int y)
 	DeleteObject(myFont);
 }
 
-void SceneManager::DrawPosition_Debug(int pos)
+void SceneManager::Draw_Debug(int value)
 {
-	string s = to_string(pos);
+	string s = to_string(value);
 
 	SetBkColor(sceneHDC, RGB(0, 0, 0));
 	HFONT myFont = CreateFont(20, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "±Ã¼­Ã¼");
@@ -105,7 +105,7 @@ void SceneManager::Init(HDC hdc, SIZE size)
 
 void SceneManager::DrawScene(HDC hdc)
 {
-	DrawPosition_Debug(posX);
+	Draw_Debug(posX);
 
 	DrawBackground(sceneHDC);
 
@@ -139,7 +139,7 @@ void SceneManager::Relese()
 	DeleteDC(sceneHDC);
 }
 
-void SceneManager::Input(POINT pos, KEY_STATE keyState)
+void SceneManager::Input(POINT pos)
 {
 	posX = pos.x - offset;
 }
