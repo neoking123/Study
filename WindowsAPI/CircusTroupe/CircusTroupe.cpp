@@ -1,6 +1,7 @@
 #include "CircusTroupe.h"
 #include "SceneManager.h"
 #include "Character.h"
+#include "Enemy.h"
 #include "Macro.h"
 
 CircusTroupe* CircusTroupe::pInstance = nullptr;
@@ -25,8 +26,15 @@ void CircusTroupe::Init(HWND hWnd, HDC hdc)
 	player->Init(POINT{ 100, 305 }, 6);
 	player->SetSpeed(5);
 	SceneManager::GetInstance()->AddSceneObject(player);
-
 	SceneManager::GetInstance()->SetOffset(player->GetPosition());
+
+
+	//적 생성, 초기화
+	enemy = new Enemy();
+	enemy->Init(POINT{ 400, 190 }, 9);
+	//enemy->SetSpeed(5);
+	SceneManager::GetInstance()->AddSceneObject(enemy);
+
 }
 
 void CircusTroupe::Draw(HDC hdc)
@@ -37,17 +45,18 @@ void CircusTroupe::Draw(HDC hdc)
 void CircusTroupe::Input(WPARAM wParam, KEY_STATE keyState)
 {
 	player->Input(wParam, keyState);
-	SceneManager::GetInstance()->Input(player->GetPosition());
 }
 
 void CircusTroupe::Update()
 {
 	player->Jump();
 	SceneManager::GetInstance()->Input(player->GetPosition());
-	//player->ForceGravity();
+
+	enemy->Move();
 }
 
 void CircusTroupe::Release()
 {
 	SAFE_DELETE(player);
+	SAFE_DELETE(enemy);
 }

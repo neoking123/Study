@@ -3,6 +3,7 @@
 #include "Utility.h"
 
 class Character;
+class Enemy;
 
 class CircusTroupe
 {
@@ -11,6 +12,7 @@ private:
 
 	static CircusTroupe* pInstance;
 	Character* player;
+	Enemy* enemy;
 
 public:
 	~CircusTroupe();

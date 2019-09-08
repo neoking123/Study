@@ -24,15 +24,7 @@ enum ANIM_STATE
 	WIN_POSE2
 };
 
-class BitMap;
 class Collision;
-
-//enum CHARACTER_STATE
-//{
-//	STOP,
-//	MOVE,
-//	DIE,
-//};
 
 class Character : public SceneObject
 {
@@ -43,18 +35,14 @@ private:
 	ANIM_STATE animState;
 	MOVE_DIR moveDir;
 	DWORD lastChangeTime;
-	float jumpTime;
-	float jumpHeight;
-	float jumpEndTime;
 	int jumpSpeed;
+	int jumpPower;
+	int jumpAngle;
 	bool isJumpUp;
 	bool isJumpDown;
-
+	
 	void SetDirecton(MOVE_DIR newDir);
 	void UpdateAnim(MOVE_DIR dir);
-	//void SetJumpTargetPos();
-	void JumpUp();
-	void JumpDown();
 
 public:
 	Character();
@@ -64,6 +52,5 @@ public:
 	void Input(WPARAM wParam, KEY_STATE keyState);
 	void SetSpeed(int newSpeed);
 	void Jump();
-	void ForceGravity();
 };
 

@@ -56,117 +56,41 @@ void Character::UpdateAnim(MOVE_DIR dir)
 	lastChangeTime = currentTick;
 }
 
-//void Character::SetJumpTargetPos()
-//{
-//	if (moveDir == MOVE_DIR::FORWARD)
-//	{
-//		jumpTargetPos = { position.x + 50, position.y - 50 };
-//		landingPos = { position.x + 100, position.y };
-//	}
-//	else if (moveDir == MOVE_DIR::BACKWORD)
-//	{
-//		jumpTargetPos = { position.x - 50, position.y - 50 };
-//		landingPos = { position.x - 100, position.y };
-//	}
-//	else if (moveDir == MOVE_DIR::STOP)
-//	{
-//		jumpTargetPos = { position.x, position.y - 50 };
-//		landingPos = { position.x, position.y };
-//	}
-//}
-
 void Character::Jump()
 {
 	if (!isJump)
 		return;
-	
-	animState = ANIM_STATE::JUMP;
-	SetSprite(animState);
 
-	JumpUp();
-	JumpDown();
-
-	if (moveDir == MOVE_DIR::FORWARD)
+	if (jumpAngle >= 360)
 	{
-		//position.x += 2;
-	}
-	else if (moveDir == MOVE_DIR::BACKWORD)
-	{
-		//position.x -= 2;
-	}
-}
-
-void Character::JumpUp()
-{
-	if (!isJumpUp)
-		return;
-
-	jumpHeight = jumpTime * jumpTime - jumpTime * jumpEndTime;
-	jumpTime += 0.065f;
-	position.y -= jumpSpeed;
-
-	if (moveDir == MOVE_DIR::FORWARD)
-	{
-		position.x += jumpSpeed;
-	}
-	else if (moveDir == MOVE_DIR::BACKWORD)
-	{
-		position.x -= jumpSpeed;
-	}
-
-	if (jumpTime >= jumpEndTime)
-	{
-		jumpTime = 0.0f;
-		jumpHeight = 0.0f;
-		isJumpUp = false;
-		isJumpDown = true;
-	}
-}
-
-void Character::JumpDown()
-{
-	if (!isJumpDown)
-		return;
-
-	jumpHeight = jumpTime * jumpTime - jumpTime * jumpEndTime;
-	jumpTime += 0.065f;
-	position.y += jumpSpeed;
-
-	if (moveDir == MOVE_DIR::FORWARD)
-	{
-		position.x += jumpSpeed;
-	}
-	else if (moveDir == MOVE_DIR::BACKWORD)
-	{
-		position.x -= jumpSpeed;
-	}
-
-	if (jumpTime >= jumpEndTime)
-	{
-		jumpTime = 0.0f;
-		jumpHeight = 0.0f;
-		isJumpDown = false;
 		isJump = false;
-
+		jumpAngle = 0;
 		animState = ANIM_STATE::IDLE;
 		SetSprite(animState);
 		moveDir = MOVE_DIR::STOP;
 	}
-}
 
-void Character::ForceGravity()
-{
-	if (position.y < 305)
+	if (moveDir == MOVE_DIR::FORWARD)
 	{
-		position.y += (LONG)3.f;
+		position.x += speed * 3 / speed;
 	}
+	else if (moveDir == MOVE_DIR::BACKWORD)
+	{
+		if (position.x > 100)
+		{
+			position.x -= speed * 3 / speed;
+		}
+	}
+
+
+	position.y -= (LONG)roundf(sin(DegreesToRadians(jumpAngle))) * jumpPower;
+	jumpAngle += jumpSpeed;
 
 }
 
 Character::Character()
 {
 }
-
 
 Character::~Character()
 {
@@ -180,13 +104,12 @@ void Character::Init(POINT pos, int spriteNum)
 	isJumpUp = false;
 	isJumpDown = false;
 	speed = 1;
-	jumpSpeed = 2;
+	jumpSpeed = 4;
+	jumpPower = 3;
+	jumpAngle = 0;
 	animState = ANIM_STATE::IDLE;
 	moveDir = MOVE_DIR::STOP;
 	lastChangeTime = 0;
-	jumpTime = 0.0f;
-	jumpHeight = 0.0f;
-	jumpEndTime = 3.0f;
 
 	// 스프라이트 추가
 	SceneObject::AddSprite(BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::PLAYER0));
@@ -227,6 +150,8 @@ void Character::Input(WPARAM wParam, KEY_STATE keyState)
 			{
 				isJump = true;
 				isJumpUp = true;
+				animState = ANIM_STATE::JUMP;
+				SetSprite(animState);
 			}
 			break;
 		default:

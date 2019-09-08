@@ -6,7 +6,6 @@ SceneObject::SceneObject()
 {
 }
 
-
 SceneObject::~SceneObject()
 {
 }
