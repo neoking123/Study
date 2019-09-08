@@ -54,26 +54,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 		SetTimer(hWnd, 1, 10, nullptr);
 		hdc = GetDC(hWnd);
 		CircusGame::GetInstance()->Init(hdc, SIZE{8000, 6000});
-
-
 		ReleaseDC(hWnd, hdc);
 		return 0;
 
 	case WM_GETMINMAXINFO:
-		((MINMAXINFO*)IParam)->ptMaxTrackSize.x = 1600;
-		((MINMAXINFO*)IParam)->ptMaxTrackSize.y = 1200;
+		((MINMAXINFO*)IParam)->ptMaxTrackSize.x = 800;
+		((MINMAXINFO*)IParam)->ptMaxTrackSize.y = 639;
 		((MINMAXINFO*)IParam)->ptMinTrackSize.x = 800;
-		((MINMAXINFO*)IParam)->ptMinTrackSize.y = 600;
+		((MINMAXINFO*)IParam)->ptMinTrackSize.y = 639;
 		return 0;
 
 	case WM_TIMER:
 		CircusGame::GetInstance()->Update();
-		InvalidateRect(hWnd, NULL, false);
-		return 0;
-
-	case WM_KEYUP:
-	case WM_KEYDOWN:
-		CircusGame::GetInstance()->Input(iMessage, wParam);
 		InvalidateRect(hWnd, NULL, false);
 		return 0;
 

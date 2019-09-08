@@ -4,6 +4,7 @@
 #include "Character.h"
 #include "Camera.h"
 #include "Background.h"
+#include "FireRing.h"
 
 CircusGame* CircusGame::pInstance = nullptr;
 
@@ -41,23 +42,41 @@ void CircusGame::Init(HDC hdc, SIZE gameSize)
 	//배경화면
 	background = new Background();
 	background->Init();
+
+	colliders.reserve(100);
+
+	//불링
+	FireRing* fireRing = new FireRing();
+	fireRing->Init(500, 330);
+	fireRings.push_back(fireRing);
+	gameObjects.push_back(fireRing);
+	colliders.push_back(fireRing);
 }
 
 void CircusGame::Update()
 {
 	background->Update(gameDC, *camera);
+
+	for (auto iter = fireRings.begin(); iter != fireRings.end(); iter++)
+	{
+		(*iter)->Update(gameDC);
+	}
+
 	player->Update(gameDC);
+
+	//불링 뒷부분
+	for (auto iter = fireRings.begin(); iter != fireRings.end(); iter++)
+	{
+		(*iter)->DrawBack(gameDC);
+	}
+
+	//카메라는 가장 마지막으로 업데이트
 	camera->Update(gameDC);
 }
 
 void CircusGame::Draw(HDC hdc)
 {
 	BitBlt(hdc, 0, 0, camera->GetSize().cx, camera->GetSize().cy, camera->GetDC(), 0, 0, SRCCOPY);
-}
-
-void CircusGame::Input(UINT iMessage, WPARAM wParam)
-{
-	playerInput->Input(iMessage, wParam);
 }
 
 void CircusGame::Release()
@@ -75,7 +94,7 @@ void CircusGame::Release()
 	}
 }
 
-vector<GameObject*> CircusGame::GetAllObjects()
+vector<GameObject*> CircusGame::GetAllColliders()
 {
-	return gameObjects;
+	return colliders;
 }

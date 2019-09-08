@@ -1,59 +1,45 @@
 #include "PlayerInputComponent.h"
 #include "TransformComponent.h"
 
-void PlayerInputComponent::Input(UINT iMessage, WPARAM wParam)
-{
-	this->iMessage = iMessage;
-	this->wParam = wParam;
-}
-
 void PlayerInputComponent::Update(Character& character)
 {
-	switch (iMessage)
+	if (GetAsyncKeyState(VK_RIGHT))
 	{
-	case WM_KEYDOWN:
-		switch (wParam)
+		if (character.transform.position.x < 4470 && !character.isJump && !character.isDead)
 		{
-		case VK_LEFT:
-			if(character.transform.position.x > 100)
-			{
-				character.direction = DIRECTION::LEFT;
-			}
-			else 
-			{
-				character.direction = DIRECTION::STOP;
-			}
-			break;
-
-		case VK_RIGHT:
-			if (character.transform.position.x < 4470)
-			{
-				character.direction = DIRECTION::RIGHT;
-			}
-			else
-			{
-				character.direction = DIRECTION::STOP;
-			}
-			break;
-
-		case 0x41: //A
-			break;
-
-		case 0x53: //S
-			break;
-
-		case 0x58: //X
-		case 0x5A: //Z
-			break;
-
-		default:
-			break;
+			character.direction = DIRECTION::RIGHT;
 		}
-		break;
+		else if(!character.isJump)
+		{
+			character.direction = DIRECTION::STOP;
+		}
+	}
+	else if (GetAsyncKeyState(VK_LEFT))
+	{
+		if (character.transform.position.x > 100 && !character.isJump && !character.isDead)
+		{
+			character.direction = DIRECTION::LEFT;
+		}
+		else if (!character.isJump)
+		{
+			character.direction = DIRECTION::STOP;
+		}
+	}
+	else
+	{
+		if (!character.isJump)
+		{
+			character.direction = DIRECTION::STOP;
+		}
+	}
 
-	case WM_KEYUP:
-		character.direction = DIRECTION::STOP;
-		break;
+	// ZŰ
+	if (GetAsyncKeyState(0x5A) && !character.isDead)
+	{
+		if (!character.isJump)
+		{
+			character.isJump = true;
+		}
 	}
 }
 

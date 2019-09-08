@@ -1,6 +1,7 @@
 #pragma once
 #include <windows.h>
 #include <vector>
+#include <deque>
 #include "Macro.h"
 using namespace std;
 
@@ -9,6 +10,7 @@ class GameObject;
 class Character;
 class Camera;
 class Background;
+class FireRing;
 
 class CircusGame
 {
@@ -27,15 +29,17 @@ private:
 	Character* player;
 	Camera* camera;
 	Background* background;
+	deque<FireRing*> fireRings;
+	vector<GameObject*> colliders;
+	FireRing* testFireRing;
 
 public:
 	~CircusGame();
 	void Init(HDC hdc, SIZE gameSize);
 	void Update();
 	void Draw(HDC hdc);
-	void Input(UINT iMessage, WPARAM wParam);
 	void Release();
-	vector<GameObject*> GetAllObjects();
+	vector<GameObject*> GetAllColliders();
 
 	static CircusGame* GetInstance()
 	{
