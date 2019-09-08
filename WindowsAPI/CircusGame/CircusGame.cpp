@@ -13,6 +13,47 @@ CircusGame::CircusGame()
 }
 
 
+void CircusGame::SpawnFireRing(int x)
+{
+	FireRing* fireRing = new FireRing();
+	fireRing->Init(x, 330);
+	fireRings.push_back(fireRing);
+	gameObjects.push_back(fireRing);
+	colliders.push_back(fireRing);
+}
+
+void CircusGame::RandomSpawnFireRing()
+{
+	if (currentSpawnTime > fireRingSpawnTime)
+	{
+		SpawnFireRing(4000 + camera->GetSize().cx);
+		fireRingSpawnTime = rand() % 200 + 400;
+		currentSpawnTime = 0;
+	}
+
+	currentSpawnTime++;
+}
+
+void CircusGame::CheckCameraBoundary()
+{
+
+	deque<FireRing*>::iterator iter;
+	for (iter = fireRings.begin(); iter != fireRings.end(); iter++)
+	{
+		FireRing* fireRing = static_cast<FireRing*>(*iter);
+		if (fireRing->transform.position.x < camera->transform.position.x - camera->GetSize().cx / 2)
+		{
+			break;
+		}
+	}
+
+	if (iter != fireRings.end())
+	{
+		fireRings.pop_front();
+		colliders.erase(colliders.begin());
+	}
+}
+
 CircusGame::~CircusGame()
 {
 }
@@ -44,18 +85,22 @@ void CircusGame::Init(HDC hdc, SIZE gameSize)
 	background->Init();
 
 	colliders.reserve(100);
+	fireRingSpawnTime = 10;
+	currentSpawnTime = 0;
 
-	//불링
-	FireRing* fireRing = new FireRing();
-	fireRing->Init(500, 330);
-	fireRings.push_back(fireRing);
-	gameObjects.push_back(fireRing);
-	colliders.push_back(fireRing);
+	int lastpos = 800;
+	for (int i = 0; i < 12; i++)
+	{
+		int randomDist = rand() % 200 + 200;
+		lastpos += randomDist;
+		SpawnFireRing(lastpos);
+	}
 }
 
 void CircusGame::Update()
 {
 	background->Update(gameDC, *camera);
+	RandomSpawnFireRing();
 
 	for (auto iter = fireRings.begin(); iter != fireRings.end(); iter++)
 	{
@@ -69,6 +114,8 @@ void CircusGame::Update()
 	{
 		(*iter)->DrawBack(gameDC);
 	}
+
+	CheckCameraBoundary();
 
 	//카메라는 가장 마지막으로 업데이트
 	camera->Update(gameDC);

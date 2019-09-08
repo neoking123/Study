@@ -3,6 +3,7 @@
 #include "TransformComponent.h"
 #include "Character.h"
 #include "FireRing.h"
+#include "FirePot.h"
 
 void GraphicsComponent::Update(GameObject& gameObject, HDC hdc)
 {
@@ -87,15 +88,38 @@ void GraphicsComponent::UpdateAnim(FireRing & fireRing)
 	if (currentTick - lastChangeTime < 200)
 		return;
 
-	if (fireRing.animState == FIRE_ANIM_STATE::ON)
+	if (fireRing.animState == FIRE_ANIM_STATE::FIRE_ANIM_STATE1)
 	{
-		fireRing.SetAnimState(FIRE_ANIM_STATE::OFF);
+		fireRing.SetAnimState(FIRE_ANIM_STATE::FIRE_ANIM_STATE2);
 		Sprites[0] = Sprites[10];
 		Sprites[1] = Sprites[4];
 	}
-	else if (fireRing.animState == FIRE_ANIM_STATE::OFF)
+	else if (fireRing.animState == FIRE_ANIM_STATE::FIRE_ANIM_STATE2)
 	{
-		fireRing.SetAnimState(FIRE_ANIM_STATE::ON);
+		fireRing.SetAnimState(FIRE_ANIM_STATE::FIRE_ANIM_STATE1);
+		Sprites[0] = Sprites[2];
+		Sprites[1] = Sprites[6];
+	}
+
+	lastChangeTime = currentTick;
+}
+
+void GraphicsComponent::UpdateAnim(FirePot & firePot)
+{
+	DWORD currentTick = GetTickCount();
+
+	if (currentTick - lastChangeTime < 200)
+		return;
+
+	if (firePot.animState == FIREPOT_ANIM_STATE::FIREPOT_ANIM_STATE1)
+	{
+		firePot.SetAnimState(FIREPOT_ANIM_STATE::FIREPOT_ANIM_STATE2);
+		Sprites[0] = Sprites[10];
+		Sprites[1] = Sprites[4];
+	}
+	else if (firePot.animState == FIREPOT_ANIM_STATE::FIREPOT_ANIM_STATE2)
+	{
+		firePot.SetAnimState(FIREPOT_ANIM_STATE::FIREPOT_ANIM_STATE1);
 		Sprites[0] = Sprites[2];
 		Sprites[1] = Sprites[6];
 	}

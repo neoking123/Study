@@ -4,8 +4,8 @@
 
 enum FIRE_ANIM_STATE
 {
-	ON,
-	OFF
+	FIRE_ANIM_STATE1,
+	FIRE_ANIM_STATE2,
 };
 
 class FireRing : public GameObject

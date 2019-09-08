@@ -31,7 +31,12 @@ private:
 	Background* background;
 	deque<FireRing*> fireRings;
 	vector<GameObject*> colliders;
-	FireRing* testFireRing;
+	int fireRingSpawnTime;
+	int currentSpawnTime;
+
+	void SpawnFireRing(int x);
+	void RandomSpawnFireRing();
+	void CheckCameraBoundary();
 
 public:
 	~CircusGame();

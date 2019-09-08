@@ -148,6 +148,7 @@
     <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="CircusGame.cpp" />
+    <ClCompile Include="FirePot.cpp" />
     <ClCompile Include="FireRing.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GraphicsComponent.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="CircusGame.h" />
+    <ClInclude Include="FirePot.h" />
     <ClInclude Include="FireRing.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GraphicsComponent.h" />

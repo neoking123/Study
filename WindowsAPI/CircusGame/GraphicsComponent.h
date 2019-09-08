@@ -7,6 +7,7 @@ class BitMap;
 class GameObject;
 class Character;
 class FireRing;
+class FirePot;
 
 class GraphicsComponent
 {
@@ -19,6 +20,7 @@ public:
 	void AddSprite(BitMap& bitmap);
 	void UpdateAnim(Character& character);
 	void UpdateAnim(FireRing& fireRing);
+	void UpdateAnim(FirePot& firePot);
 	void DrawBack(FireRing& fireRing, HDC hdc);
 };
 

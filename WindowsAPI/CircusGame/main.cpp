@@ -51,6 +51,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 	switch (iMessage)
 	{
 	case WM_CREATE:
+		srand(GetTickCount());
 		SetTimer(hWnd, 1, 10, nullptr);
 		hdc = GetDC(hWnd);
 		CircusGame::GetInstance()->Init(hdc, SIZE{8000, 6000});
