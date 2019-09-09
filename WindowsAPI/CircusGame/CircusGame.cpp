@@ -13,7 +13,6 @@ CircusGame::CircusGame()
 {
 }
 
-
 void CircusGame::SpawnFireRing(int x)
 {
 	FireRing* fireRing = new FireRing();
@@ -21,6 +20,15 @@ void CircusGame::SpawnFireRing(int x)
 	fireRings.push_back(fireRing);
 	gameObjects.push_back(fireRing);
 	colliders.push_back(fireRing);
+}
+
+void CircusGame::SpawnFirePot(int x)
+{
+	FirePot* newFirePot = new FirePot();
+	newFirePot->Init(x, 485);
+	gameObjects.push_back(newFirePot);
+	firePots.push_back(newFirePot);
+	colliders.push_back(newFirePot);
 }
 
 void CircusGame::RandomSpawnFireRing()
@@ -38,8 +46,8 @@ void CircusGame::RandomSpawnFireRing()
 void CircusGame::CheckCameraBoundary()
 {
 
-	deque<FireRing*>::iterator iter;
-	for (iter = fireRings.begin(); iter != fireRings.end(); iter++)
+	deque<FireRing*>::iterator iter = fireRings.begin();
+	for (; iter != fireRings.end(); iter++)
 	{
 		FireRing* fireRing = static_cast<FireRing*>(*iter);
 		if (fireRing->transform.position.x < camera->transform.position.x - camera->GetSize().cx / 2)
@@ -51,7 +59,19 @@ void CircusGame::CheckCameraBoundary()
 	if (iter != fireRings.end())
 	{
 		fireRings.pop_front();
-		colliders.erase(colliders.begin());
+		deque<GameObject*>::iterator iter = colliders.begin();
+		for(; iter != colliders.end(); iter++)
+		{
+			if ((*iter)->tag == "FireRing")
+			{
+				break;
+			}
+		}
+
+		if (iter != colliders.end())
+		{
+			colliders.erase(iter);
+		}
 	}
 }
 
@@ -85,7 +105,6 @@ void CircusGame::Init(HDC hdc, SIZE gameSize)
 	background = new Background();
 	background->Init();
 
-	colliders.reserve(100);
 	fireRingSpawnTime = 10;
 	currentSpawnTime = 0;
 
@@ -98,9 +117,13 @@ void CircusGame::Init(HDC hdc, SIZE gameSize)
 		SpawnFireRing(lastpos);
 	}
 
-	firePot = new FirePot();
-	firePot->Init(300, 485);
-	gameObjects.push_back(firePot);
+	int distance = 1850;
+	for (int i = 0; i < 5; i++)
+	{
+		distance += 450;
+		SpawnFirePot(distance);
+	}
+	SpawnFirePot(4500);
 }
 
 void CircusGame::Update()
@@ -108,12 +131,17 @@ void CircusGame::Update()
 	background->Update(gameDC, *camera);
 	RandomSpawnFireRing();
 
+	//불링 전체
 	for (auto iter = fireRings.begin(); iter != fireRings.end(); iter++)
 	{
 		(*iter)->Update(gameDC);
 	}
 
-	firePot->Update(gameDC);
+	//불단지
+	for (auto iter = firePots.begin(); iter != firePots.end(); iter++)
+	{
+		(*iter)->Update(gameDC);
+	}
 
 	player->Update(gameDC);
 
@@ -149,7 +177,7 @@ void CircusGame::Release()
 	}
 }
 
-vector<GameObject*> CircusGame::GetAllColliders()
+deque<GameObject*> CircusGame::GetAllColliders()
 {
 	return colliders;
 }

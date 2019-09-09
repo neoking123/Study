@@ -14,6 +14,7 @@ void FireRing::Init(int x, int y)
 	transform.position.x = x;
 	transform.position.y = y;
 	speed = -1;
+	tag = "FireRing";
 	animState = FIRE_ANIM_STATE::FIRE_ANIM_STATE1;
 
 	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::ENEMY));

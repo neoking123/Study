@@ -21,6 +21,7 @@ public:
 	void Update(Character& character);
 	void Update(FireRing& fireRing);
 	void SetColliderBox(SIZE boxSize);
+	void SetColliderBox(GameObject& gameObject, SIZE boxSize);
 	RECT GetColliderBox();
 	void SyncClliderPos(GameObject& gameObject);
 	void SyncClliderPos(FireRing& fireRing);

@@ -114,7 +114,7 @@ void GraphicsComponent::UpdateAnim(FirePot & firePot)
 	if (firePot.animState == FIREPOT_ANIM_STATE::FIREPOT_ANIM_STATE1)
 	{
 		firePot.SetAnimState(FIREPOT_ANIM_STATE::FIREPOT_ANIM_STATE2);
-		Sprites[0] = Sprites[10];
+		Sprites[0] = Sprites[1];
 	}
 	else if (firePot.animState == FIREPOT_ANIM_STATE::FIREPOT_ANIM_STATE2)
 	{

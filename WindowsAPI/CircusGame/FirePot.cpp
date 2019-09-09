@@ -14,13 +14,14 @@ void FirePot::Init(int x, int y)
 {
 	transform.position.x = x;
 	transform.position.y = y;
+	tag = "FirePot";
 	animState = FIREPOT_ANIM_STATE::FIREPOT_ANIM_STATE1;
 
 	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::FRONT));
 	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::FRONT));
 	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::FRONT2));
 
-	physics.SetColliderBox(SIZE{ 40, 50 });
+	physics.SetColliderBox(*this, SIZE{ 30, 30 });
 }
 
 void FirePot::Update(HDC hdc)

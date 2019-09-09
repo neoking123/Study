@@ -3,6 +3,7 @@
 #include "Character.h"
 #include "FireRing.h"
 #include "CircusGame.h"
+#include "FirePot.h"
 
 void PhysicsComponent::Update(Character & character)
 {
@@ -28,6 +29,12 @@ void PhysicsComponent::Update(FireRing & firering)
 void PhysicsComponent::SetColliderBox(SIZE boxSize)
 {
 	colliderSize = boxSize;
+}
+
+void PhysicsComponent::SetColliderBox(GameObject& gameObject, SIZE boxSize)
+{
+	colliderSize = boxSize;
+	colliderBox = { gameObject.transform.position.x + 10, gameObject.transform.position.y + 10, gameObject.transform.position.x + colliderSize.cx, gameObject.transform.position.y + colliderSize.cy };
 }
 
 RECT PhysicsComponent::GetColliderBox()
@@ -59,7 +66,7 @@ void PhysicsComponent::Jump(Character & character)
 {
 	if (character.direction == DIRECTION::RIGHT)
 	{
-		if (character.transform.position.x < 4470)
+		if (character.transform.position.x < 4600)
 		{
 			character.transform.position.x += character.speed;
 		}
@@ -84,7 +91,7 @@ void PhysicsComponent::Jump(Character & character)
 
 void PhysicsComponent::CheckCollision(Character& character)
 {
-	vector<GameObject*> colliders = CircusGame::GetInstance()->GetAllColliders();
+	deque<GameObject*> colliders = CircusGame::GetInstance()->GetAllColliders();
 	RECT rcTemp;
 
 	for (auto iter = colliders.begin(); iter != colliders.end(); iter++)
@@ -99,6 +106,12 @@ void PhysicsComponent::CheckCollision(Character& character)
 				FireRing* fireRing = static_cast<FireRing*>(*iter);
 				fireRing->speed = 0;
 			}
+		}
+
+		FirePot* firePot = static_cast<FirePot*>(*iter);
+		if (IntersectRect(&rcTemp, &colliderBox, &firePot->GetColliderBox()))
+		{
+			character.isDead = true;
 		}
 	}
 }

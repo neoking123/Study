@@ -31,12 +31,13 @@ private:
 	Camera* camera;
 	Background* background;
 	deque<FireRing*> fireRings;
-	vector<GameObject*> colliders;
-	FirePot* firePot;
+	deque<GameObject*> colliders;
+	vector<FirePot*> firePots;
 	int fireRingSpawnTime;
 	int currentSpawnTime;
 
 	void SpawnFireRing(int x);
+	void SpawnFirePot(int x);
 	void RandomSpawnFireRing();
 	void CheckCameraBoundary();
 
@@ -46,7 +47,7 @@ public:
 	void Update();
 	void Draw(HDC hdc);
 	void Release();
-	vector<GameObject*> GetAllColliders();
+	deque<GameObject*> GetAllColliders();
 
 	static CircusGame* GetInstance()
 	{

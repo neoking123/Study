@@ -22,6 +22,7 @@ void Character::Init(InputComponent * input, int x, int y)
 	jumpPower = 5;
 	isJump = false;
 	isDead = false;
+	tag = "player";
 	animState = ANIM_STATE::IDLE;
 	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::PLAYER0));
 	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::PLAYER0));
@@ -29,7 +30,7 @@ void Character::Init(InputComponent * input, int x, int y)
 	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::PLAYER2));
 	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::DEATH));
 
-	physics.SetColliderBox(SIZE{ 30, 30 });
+	physics.SetColliderBox(*this, SIZE{ 30, 30 });
 }
 
 void Character::Update(HDC hdc)

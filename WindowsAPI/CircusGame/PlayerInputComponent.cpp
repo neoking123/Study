@@ -5,7 +5,7 @@ void PlayerInputComponent::Update(Character& character)
 {
 	if (GetAsyncKeyState(VK_RIGHT))
 	{
-		if (character.transform.position.x < 4470 && !character.isJump && !character.isDead)
+		if (character.transform.position.x < 4600 && !character.isJump && !character.isDead)
 		{
 			character.direction = DIRECTION::RIGHT;
 		}

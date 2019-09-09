@@ -16,21 +16,21 @@
     <Filter Include="Components">
       <UniqueIdentifier>{643a1c35-60ba-41dc-bf4c-80a048c8d81c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameObjects">
+      <UniqueIdentifier>{45bfb31c-5449-4489-abc3-084dc65482c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Background">
+      <UniqueIdentifier>{3e6d14a8-7dbb-4a84-8ec1-137c7bb7a99c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Res">
+      <UniqueIdentifier>{f41ab12f-1c8f-4719-9584-c8d3d8c30b6e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CircusGame.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Character.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PhysicsComponent.cpp">
@@ -42,26 +42,35 @@
     <ClCompile Include="PlayerInputComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="BitMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BitMapManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CameraComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Background.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Sprite.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FireRing.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Character.cpp">
+      <Filter>GameObjects</Filter>
     </ClCompile>
     <ClCompile Include="FirePot.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="FireRing.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Background.cpp">
+      <Filter>Background</Filter>
+    </ClCompile>
+    <ClCompile Include="BitMap.cpp">
+      <Filter>Res</Filter>
+    </ClCompile>
+    <ClCompile Include="BitMapManager.cpp">
+      <Filter>Res</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>Res</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -69,15 +78,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Macro.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Character.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TransformComponent.h">
@@ -95,26 +95,35 @@
     <ClInclude Include="PlayerInputComponent.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="BitMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BitMapManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CameraComponent.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="Background.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Sprite.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FireRing.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Character.h">
+      <Filter>GameObjects</Filter>
     </ClInclude>
     <ClInclude Include="FirePot.h">
-      <Filter>Header Files</Filter>
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="FireRing.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Background.h">
+      <Filter>Background</Filter>
+    </ClInclude>
+    <ClInclude Include="BitMapManager.h">
+      <Filter>Res</Filter>
+    </ClInclude>
+    <ClInclude Include="BitMap.h">
+      <Filter>Res</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>Res</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
