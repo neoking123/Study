@@ -11,6 +11,7 @@ class Character;
 class Camera;
 class Background;
 class FireRing;
+class FirePot;
 
 class CircusGame
 {
@@ -31,6 +32,7 @@ private:
 	Background* background;
 	deque<FireRing*> fireRings;
 	vector<GameObject*> colliders;
+	FirePot* firePot;
 	int fireRingSpawnTime;
 	int currentSpawnTime;
 

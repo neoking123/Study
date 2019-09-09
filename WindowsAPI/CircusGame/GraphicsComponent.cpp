@@ -115,13 +115,11 @@ void GraphicsComponent::UpdateAnim(FirePot & firePot)
 	{
 		firePot.SetAnimState(FIREPOT_ANIM_STATE::FIREPOT_ANIM_STATE2);
 		Sprites[0] = Sprites[10];
-		Sprites[1] = Sprites[4];
 	}
 	else if (firePot.animState == FIREPOT_ANIM_STATE::FIREPOT_ANIM_STATE2)
 	{
 		firePot.SetAnimState(FIREPOT_ANIM_STATE::FIREPOT_ANIM_STATE1);
 		Sprites[0] = Sprites[2];
-		Sprites[1] = Sprites[6];
 	}
 
 	lastChangeTime = currentTick;

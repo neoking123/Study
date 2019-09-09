@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Background.h"
 #include "FireRing.h"
+#include "FirePot.h"
 
 CircusGame* CircusGame::pInstance = nullptr;
 
@@ -88,6 +89,7 @@ void CircusGame::Init(HDC hdc, SIZE gameSize)
 	fireRingSpawnTime = 10;
 	currentSpawnTime = 0;
 
+	//ºÒ¸µ
 	int lastpos = 800;
 	for (int i = 0; i < 12; i++)
 	{
@@ -95,6 +97,10 @@ void CircusGame::Init(HDC hdc, SIZE gameSize)
 		lastpos += randomDist;
 		SpawnFireRing(lastpos);
 	}
+
+	firePot = new FirePot();
+	firePot->Init(300, 485);
+	gameObjects.push_back(firePot);
 }
 
 void CircusGame::Update()
@@ -106,6 +112,8 @@ void CircusGame::Update()
 	{
 		(*iter)->Update(gameDC);
 	}
+
+	firePot->Update(gameDC);
 
 	player->Update(gameDC);
 
