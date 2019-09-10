@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++에서 생성한 포함 파일입니다.
-// BattleCityMapEditor.rc에서 사용되고 있습니다.
+// Microsoft Visual C++ generated include file.
+// Used by BattleCityMapEditor.rc
 //
 #define IDR_MENU1                       101
 #define ID_FILE_OPEN                    40001

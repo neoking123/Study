@@ -66,8 +66,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 		return 0;
 
 	case WM_GETMINMAXINFO:
-		((MINMAXINFO*)IParam)->ptMaxTrackSize.x = 1280;
-		((MINMAXINFO*)IParam)->ptMaxTrackSize.y = 1024;
+		((MINMAXINFO*)IParam)->ptMaxTrackSize.x = 800;
+		((MINMAXINFO*)IParam)->ptMaxTrackSize.y = 600;
 		((MINMAXINFO*)IParam)->ptMinTrackSize.x = 800;
 		((MINMAXINFO*)IParam)->ptMinTrackSize.y = 600;
 		return 0;
@@ -99,6 +99,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 		switch (LOWORD(wParam))
 		{
 		case ID_FILE_NEW:
+			MapEditor::GetInstance()->MakeNew();
 			return 0;
 
 		case ID_FILE_OPEN:
@@ -112,12 +113,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 			if (GetOpenFileName(&OFN) != 0)
 			{
 				sprintf(str, "%s 파일을 열었습니다.", OFN.lpstrFile);
+				MapEditor::GetInstance()->Load(OFN.lpstrFile);
 				MessageBox(hWnd, str, "파일 열기 성공", MB_OK);
 			}
 			return 0;
 
 		case ID_FILE_SAVE:
-			return 0;
+			if (MapEditor::GetInstance()->IsFileOpen())
+			{
+				MapEditor::GetInstance()->Save();
+				return 0;
+			}
 
 		case ID_FILE_SAVEAS:
 			memset(&OFN, 0, sizeof(OPENFILENAME));
@@ -127,9 +133,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 			OFN.lpstrFile = lpstrFile;
 			OFN.nMaxFile = 256;
 			OFN.lpstrInitialDir = "c:\\";
+
 			if (GetSaveFileName(&OFN) != 0)
 			{
 				sprintf(str, "%s 파일을 저장했습니다.", OFN.lpstrFile);
+				MapEditor::GetInstance()->SaveAs(OFN.lpstrFile);
 				MessageBox(hWnd, str, "파일 저장 성공", MB_OK);
 			}
 			return 0;
@@ -149,53 +157,4 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 		return 0;
 	}
 	return(DefWindowProc(hWnd, iMessage, wParam, IParam));
-}
-
-HWND hOFN;
-
-INT_PTR CALLBACK MainDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM IParam)
-{
-	OPENFILENAME OFN;
-	char str[256];
-	char lpstrFile[MAX_PATH] = "";
-
-	//ZeroMemory(&OFN, sizeof(OPENFILENAME));
-	/*memset(&OFN, 0, sizeof(OPENFILENAME));
-	OFN.lStructSize = sizeof(OPENFILENAME);
-	OFN.hwndOwner = hWnd;
-	OFN.lpstrFilter = "Every File(*.*)\n*.*\0Text File\0*.txt;*.ini\0";
-	OFN.lpstrFile = lpstrFile;
-	OFN.nMaxFile = 256;
-	OFN.lpstrInitialDir = "c:\\";*/
-
-	//GetOpenFileName
-	/*if (GetSaveFileName(&OFN) != 0)
-	{
-		sprintf(str, "%s 파일을 선택했습니다.", OFN.lpstrFile);
-		MessageBox(hWnd, str, "파일 열기 성공", MB_OK);
-	}*/
-
-	switch (message)
-	{
-	case WM_INITDIALOG:
-		hOFN = GetDlgItem(hWnd, ID_FILE_OPEN);
-		break;
-
-	case WM_COMMAND:
-		switch (LOWORD(wParam))
-		{
-		case ID_FILE_OPEN:
-			memset(&OFN, 0, sizeof(OPENFILENAME));
-			OFN.lStructSize = sizeof(OPENFILENAME);
-			OFN.hwndOwner = hWnd;
-			OFN.lpstrFilter = "Every File(*.*)\n*.*\0Text File\0*.txt;*.ini\0";
-			OFN.lpstrFile = lpstrFile;
-			OFN.nMaxFile = 256;
-			OFN.lpstrInitialDir = "c:\\";
-			EndDialog(hWnd, LOWORD(wParam));
-		}
-	}
-
-	//return DefWindowProc(hDlg, message, wParam, IParam);
-	return 0;
 }

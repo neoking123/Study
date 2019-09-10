@@ -2,11 +2,6 @@
 #include "BitMapManager.h"
 #include "Macro.h"
 
-#define TILE_SIZE 32
-#define EDITOR_WIDTH 13
-#define EDITOR_HEIGHT 13
-#define MARGIN 24
-
 enum BUTTON_ID
 {
 	ID_00,
@@ -23,7 +18,8 @@ enum BUTTON_ID
 	ID_11,
 	ID_12,
 	ID_13,
-	ID_END
+	ID_END,
+	ID_14,
 };
 
 MapEditor* MapEditor::pInstance = nullptr;
@@ -51,14 +47,7 @@ void MapEditor::DrawTiles()
 	{
 		for (int x = 0; x < EDITOR_WIDTH; x++)
 		{
-			if (tiles[y][x] == 13)
-			{
-				BitMapManager::GetInstance()->GetBitMap(46)->Draw(editorDC, x * TILE_SIZE, y * TILE_SIZE);
-			}
-			else
-			{
-				BitMapManager::GetInstance()->GetBitMap(tiles[y][x])->Draw(editorDC, x * TILE_SIZE, y * TILE_SIZE);
-			}
+			BitMapManager::GetInstance()->GetBitMap(tiles[y][x])->Draw(editorDC, x * TILE_SIZE, y * TILE_SIZE);
 		}
 	}
 }
@@ -67,13 +56,12 @@ void MapEditor::SetTile(int x, int y, int index)
 {
 	TileState tileState = { x, y, tiles[y][x] };
 	doStack.push(tileState);
-
 	tileState = { x, y, index };
 	tiles[y][x] = index;
 
-	//reStack.push(tileState);
+	doStack.push(tileState);
 
-	if (!reStack.empty() && !doStack.empty())
+	if (!reStack.empty())
 	{
 		if (tileState != reStack.top())
 		{
@@ -86,8 +74,36 @@ void MapEditor::SetTile(int x, int y, int index)
 			reStack.push(tileState);
 		}
 	}
+}
 
-	doStack.push(tileState);
+void MapEditor::CleanAll()
+{
+	TileState ts = { -1, -1, -1 };
+	doStack.push(ts);
+
+	for (int y = 0; y < EDITOR_HEIGHT; y++)
+	{
+		for (int x = 0; x < EDITOR_WIDTH; x++)
+		{
+			if (x == 6 && y == 12)
+			{
+				tiles[y][x] = BITMAP_RES::BLOCK_13;
+			}
+			else if (tiles[y][x] != BITMAP_RES::BLOCK_15)
+			{
+				TileState tileState = { x, y, tiles[y][x] };
+				doStack.push(tileState);
+				tiles[y][x] = BITMAP_RES::BLOCK_15;
+			}
+		}
+	}
+
+	doStack.push(ts);
+
+	while (!reStack.empty())
+	{
+		reStack.pop();
+	}
 }
 
 MapEditor::~MapEditor()
@@ -102,6 +118,7 @@ void MapEditor::Init(HDC hdc, HWND hWnd, HINSTANCE g_hInst, SIZE editorSize)
 	hOldBitMap = (HBITMAP)SelectObject(editorDC, hBitMap);
 	BitMapManager::GetInstance()->Init(editorDC);
 	selectTile = BITMAP_RES::BLOCK_15;
+	currentFileName = "";
 
 	HBITMAP bitmap;
 	for (int i = 0; i < BUTTON_ID::ID_13; i++)
@@ -114,16 +131,29 @@ void MapEditor::Init(HDC hdc, HWND hWnd, HINSTANCE g_hInst, SIZE editorSize)
 	}
 
 	string s = "RES\\";
-	s += to_string(46);
+	s += to_string(BITMAP_RES::BLOCK_15);
 	s += ".bmp";
 	bitmap = (HBITMAP)LoadImage(NULL, s.c_str(), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_DEFAULTSIZE | LR_LOADFROMFILE);
-	CreateBitmapButton(hWnd, g_hInst, 560, 40 + 3 * 40, TILE_SIZE, TILE_SIZE, BUTTON_ID::ID_13, bitmap);
+	CreateBitmapButton(hWnd, g_hInst, 520 + 1 * 40, 40 + 3 * 40, TILE_SIZE, TILE_SIZE, BUTTON_ID::ID_13, bitmap);
 
-	for (int y = 0; y < 13; y++)
+	s = "RES\\";
+	s += to_string(BITMAP_RES::SHIELD_1);
+	s += ".bmp";
+	bitmap = (HBITMAP)LoadImage(NULL, s.c_str(), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_DEFAULTSIZE | LR_LOADFROMFILE);
+	CreateBitmapButton(hWnd, g_hInst, 520 + 2 * 40, 40 + 3 * 40, TILE_SIZE, TILE_SIZE, BUTTON_ID::ID_14, bitmap);
+
+	for (int y = 0; y < EDITOR_HEIGHT; y++)
 	{
-		for (int x = 0; x < 13; x++)
+		for (int x = 0; x < EDITOR_WIDTH; x++)
 		{
-			tiles[y][x] = BITMAP_RES::BLOCK_15;
+			if (x == 6 && y == 12)
+			{
+				tiles[y][x] = BITMAP_RES::BLOCK_13;
+			}
+			else
+			{
+				tiles[y][x] = BITMAP_RES::BLOCK_15;
+			}
 		}
 	}
 }
@@ -150,19 +180,36 @@ void MapEditor::Release()
 
 void MapEditor::PushButton(WPARAM wParam)
 {
-	selectTile = LOWORD(wParam);
+	if (LOWORD(wParam) >= BUTTON_ID::ID_00 && LOWORD(wParam) < BUTTON_ID::ID_END)
+	{
+		if (LOWORD(wParam) == BUTTON_ID::ID_13)
+		{
+			selectTile = BITMAP_RES::BLOCK_15;
+		}
+		else
+		{
+			selectTile = LOWORD(wParam);
+		}
+	}
+	else if (LOWORD(wParam) == BUTTON_ID::ID_14)
+	{
+		CleanAll();
+	}
+
 }
 
 void MapEditor::CheckTilePosition(int x, int y)
 {
-	if (x > MARGIN && x < TILE_SIZE * EDITOR_WIDTH + MARGIN && y > MARGIN && y < TILE_SIZE * EDITOR_WIDTH + MARGIN)
+	if (x > MARGIN && x < TILE_SIZE * EDITOR_WIDTH + MARGIN && y > MARGIN && y < TILE_SIZE * EDITOR_HEIGHT + MARGIN)
 	{
 		int idX = (x - MARGIN) / 32;
 		int idY = (y - MARGIN) / 32;
 
+		if (idX == 6 && idY == 12)
+			return;
+
 		BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BLOCK_15)->Draw(editorDC, idX * TILE_SIZE, idY* TILE_SIZE);
 		SetTile(idX, idY, selectTile);
-
 	}
 }
 
@@ -185,18 +232,152 @@ void MapEditor::Input(WPARAM wParam)
 	}
 }
 
+void MapEditor::MakeNew()
+{
+	currentFileName = "";
+
+	for (int y = 0; y < EDITOR_HEIGHT; y++)
+	{
+		for (int x = 0; x < EDITOR_WIDTH; x++)
+		{
+			if (x == 6 && y == 12)
+			{
+				tiles[y][x] = BITMAP_RES::BLOCK_13;
+			}
+			else
+			{
+				tiles[y][x] = BITMAP_RES::BLOCK_15;
+			}
+		}
+	}
+	
+	while (!doStack.empty())
+	{
+		doStack.pop();
+	}
+	while (!reStack.empty())
+	{
+		reStack.pop();
+	}
+
+}
+
+void MapEditor::Save()
+{
+	ofstream outFile(currentFileName);
+	outFile << EDITOR_WIDTH << endl;
+	outFile << EDITOR_HEIGHT << endl;
+
+	for (int y = 0; y < EDITOR_HEIGHT; y++)
+	{
+		for (int x = 0; x < EDITOR_WIDTH; x++)
+		{
+			outFile << tiles[y][x] << ",";
+		}
+		outFile << endl;
+	}
+}
+
+void MapEditor::SaveAs(string fileName)
+{
+	ofstream outFile(fileName);
+	outFile << EDITOR_WIDTH << endl;
+	outFile << EDITOR_HEIGHT << endl;
+
+	for (int y = 0; y < EDITOR_HEIGHT; y++)
+	{
+		for (int x = 0; x < EDITOR_WIDTH; x++)
+		{
+			outFile << tiles[y][x] << ",";
+		}
+		outFile << endl;
+	}
+	currentFileName = fileName;
+}
+
+void MapEditor::Load(string fileName)
+{
+	currentFileName = fileName;
+	ifstream inFile(fileName);
+	if (inFile)
+	{
+		BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_BLACK)->Draw(editorDC, 0, 0);
+
+		string readString;
+		stringstream ss;
+		int tileWidth;
+		int tileHeight;
+
+		getline(inFile, readString);
+		ss.str(readString);
+		ss >> tileWidth;
+		ss.clear();
+
+		getline(inFile, readString);
+		ss.str(readString);
+		ss >> tileHeight;
+
+		char* tok = nullptr;
+
+		for (int y = 0; y < tileHeight; y++)
+		{
+			getline(inFile, readString);
+			tok = strtok((char*)readString.c_str(), ","); // ","를 제외하고 읽어들임
+			while (tok != nullptr)
+			{
+				for (int x = 0; x < tileWidth; x++)
+				{
+					tiles[y][x] = atoi(tok);
+					tok = strtok(nullptr, ",");
+				}
+			}
+		}
+
+		//스택 초기화
+		while (!doStack.empty())
+		{
+			doStack.pop();
+		}
+		while (!reStack.empty())
+		{
+			doStack.pop();
+		}
+	}
+}
+
+bool MapEditor::IsFileOpen()
+{
+	if (currentFileName == "")
+		return false;
+	else
+		return true;
+}
+
 void MapEditor::Undo()
 {
 	if (!doStack.empty())
 	{
-		//reStack.pop();
-		TileState tileState = { doStack.top().x, doStack.top().y, doStack.top().id };
-		reStack.push(tileState);
+		TileState ts = { -1, -1, -1 };
+		if (doStack.top().id == -1)
+		{
+			doStack.pop();
+			while (doStack.top().id != -1)
+			{
+				tiles[doStack.top().y][doStack.top().x] = doStack.top().id;
+				doStack.pop();
+			}
+			doStack.pop();
+		}
+		else
+		{
+			TileState tileState = { doStack.top().x, doStack.top().y, doStack.top().id };
+			reStack.push(tileState);
 
-		doStack.pop();
-		BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BLOCK_15)->Draw(editorDC, doStack.top().x * TILE_SIZE, doStack.top().y * TILE_SIZE);
-		tiles[doStack.top().y][doStack.top().x] = doStack.top().id;
-		doStack.pop();
+			doStack.pop();
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BLOCK_15)->Draw(editorDC, doStack.top().x * TILE_SIZE, doStack.top().y * TILE_SIZE);
+			tiles[doStack.top().y][doStack.top().x] = doStack.top().id;
+			doStack.pop();
+		}
 	}
 }
 

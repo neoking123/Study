@@ -2,7 +2,15 @@
 #include <Windows.h>
 #include <vector>
 #include <stack>
+#include <string>
+#include <fstream>
+#include <sstream>
 using namespace std;
+
+#define TILE_SIZE 32
+#define EDITOR_WIDTH 13
+#define EDITOR_HEIGHT 13
+#define MARGIN 24
 
 struct TileState
 {
@@ -39,16 +47,17 @@ private:
 	HBITMAP hBitMap;
 	HBITMAP hOldBitMap;
 	SIZE editorSize;
-	int tiles[13][13];
+	int tiles[EDITOR_HEIGHT][EDITOR_WIDTH];
 	int selectTile;
 	stack<TileState> doStack;
 	stack<TileState> reStack;
+	string currentFileName;
 
 	void CreateRadioButton(HWND hWnd, HINSTANCE g_hInst, int x, int y, int width, int height, int id);
 	void CreateBitmapButton(HWND hWnd, HINSTANCE g_hInst, int x, int y, int width, int height, int id, HBITMAP bitmap);
 	void DrawTiles();
 	void SetTile(int x, int y, int index);
-	
+	void CleanAll();
 	void Undo();
 	void Redo();
 
@@ -62,6 +71,11 @@ public:
 	void PushButton(WPARAM wParam);
 	void CheckTilePosition(int x, int y);
 	void Input(WPARAM wParam);
+	void MakeNew();
+	void Save();
+	void SaveAs(string fileName);
+	void Load(string fileName);
+	bool IsFileOpen();
 
 	static MapEditor* GetInstance()
 	{

@@ -142,7 +142,6 @@
   <ItemGroup>
     <ClCompile Include="BitMap.cpp" />
     <ClCompile Include="BitMapManager.cpp" />
-    <ClCompile Include="Cursor.cpp" />
     <ClCompile Include="CursorInputComponent.cpp" />
     <ClCompile Include="GraphicsComponent.cpp" />
     <ClCompile Include="main.cpp" />
@@ -151,7 +150,6 @@
   <ItemGroup>
     <ClInclude Include="BitMap.h" />
     <ClInclude Include="BitMapManager.h" />
-    <ClInclude Include="Cursor.h" />
     <ClInclude Include="CursorInputComponent.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GraphicsComponent.h" />

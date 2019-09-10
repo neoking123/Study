@@ -33,9 +33,6 @@
     <ClCompile Include="BitMapManager.cpp">
       <Filter>Bitmap</Filter>
     </ClCompile>
-    <ClCompile Include="Cursor.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="GraphicsComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
@@ -57,9 +54,6 @@
       <Filter>Bitmap</Filter>
     </ClInclude>
     <ClInclude Include="Macro.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Cursor.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TransformComponent.h">
