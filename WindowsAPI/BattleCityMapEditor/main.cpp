@@ -51,6 +51,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 {
 	HDC hdc;
 	PAINTSTRUCT ps;
+	RECT rt = { 24, 24, 24 + 416, 24 + 416 };
 	OPENFILENAME OFN;
 	char str[256];
 	char lpstrFile[MAX_PATH] = "";
@@ -71,9 +72,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 		((MINMAXINFO*)IParam)->ptMinTrackSize.y = 600;
 		return 0;
 
+	case WM_LBUTTONDOWN:
+		//MapEditor::GetInstance()->SetTile(LOWORD(IParam), HIWORD(IParam), 0);
+		MapEditor::GetInstance()->CheckTilePosition(LOWORD(IParam), HIWORD(IParam));
+		return 0;
+
+	case WM_KEYDOWN:
+		MapEditor::GetInstance()->Input(wParam);
+		return 0;
+
 	case WM_TIMER:
 		MapEditor::GetInstance()->Update();
-		InvalidateRect(hWnd, NULL, false);
+		InvalidateRect(hWnd, &rt, false);
 		return 0;
 
 	case WM_PAINT:
@@ -84,6 +94,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 		return 0;
 
 	case WM_COMMAND:
+		MapEditor::GetInstance()->PushButton(wParam);
+
 		switch (LOWORD(wParam))
 		{
 		case ID_FILE_NEW:
@@ -126,6 +138,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 			PostQuitMessage(0);
 			return 0;
 		}
+
+		SetFocus(hWnd);
+		return 0;
+
 	case WM_DESTROY:
 		KillTimer(hWnd, 1);
 		MapEditor::GetInstance()->Release();

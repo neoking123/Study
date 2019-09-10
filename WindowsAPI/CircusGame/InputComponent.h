@@ -1,10 +1,10 @@
 #pragma once
 #include <Windows.h>
-#include "Character.h"
+#include "GameObject.h"
 
 __interface InputInterface
 {
-	void Update(Character& character);
+	void Update(GameObject& gameObject);
 };
 
 class InputComponent abstract : public InputInterface

@@ -18,5 +18,6 @@ public:
 	SIZE GetSize();
 	void Draw(HDC hdc, int x, int y);
 	void Release();
+	HBITMAP& GetBitMap();
 };
 
