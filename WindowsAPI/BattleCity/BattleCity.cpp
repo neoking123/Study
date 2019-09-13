@@ -3,6 +3,7 @@
 #include "Tank.h"
 #include "PlayerInputComponent.h"
 #include "Macro.h"
+#include "Tile.h"
 
 void BattleCity::LoadMap(string fileName)
 {
@@ -36,6 +37,8 @@ void BattleCity::LoadMap(string fileName)
 			}
 		}
 	}
+
+	CreateTile();
 }
 
 void BattleCity::DrawTiles()
@@ -50,6 +53,11 @@ void BattleCity::DrawTiles()
 		}
 	}
 
+	/*for (auto iter = tileVec.begin(); iter != tileVec.end(); iter++)
+	{
+
+	}*/
+
 	ReleaseDC(hWnd, hdc);
 }
 
@@ -57,6 +65,23 @@ void BattleCity::DrawBackground()
 {
 	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_GREY)->Draw(gameDC, 0, 0);
 	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BACK_BLACK)->Draw(gameDC, MAP_MARGINE_WIDTH, MAP_MARGINE_HEIGHT);
+}
+
+void BattleCity::CreateTile()
+{
+	for (int y = 0; y < TILE_HEIGHT_NUM; y++)
+	{
+		for (int x = 0; x < TILE_WIDTH_NUM; x++)
+		{
+			if (tiles[y][x] != BITMAP_RES::BLOCK_15)
+			{
+				Tile* newTile = new Tile();
+				newTile->Init(nullptr, x * TILE_SIZE + MAP_MARGINE_WIDTH, y * TILE_SIZE + MAP_MARGINE_HEIGHT, "tile", tiles[y][x]);
+				tileVec.push_back(newTile);
+			}
+		}
+	}
+
 }
 
 BattleCity::BattleCity()
@@ -70,6 +95,8 @@ BattleCity::~BattleCity()
 
 void BattleCity::Init(HWND hWnd)
 {
+	lastTime = std::chrono::system_clock::now();
+
 	this->hWnd = hWnd;
 	HDC hdc = GetDC(hWnd);
 
@@ -91,15 +118,15 @@ void BattleCity::Init(HWND hWnd)
 void BattleCity::Update()
 {
 	std::chrono::duration<float> sec = std::chrono::system_clock::now() - lastTime;
-	/*if (sec.count() < (1 / FPS))
-		return;*/
+	if (sec.count() < (1 / FPS))
+		return;
 
 	elapseTime = sec.count();
-	lastTime = std::chrono::system_clock::now();
-
+	
 	player->Update(elapseTime);
-
 	Render();
+
+	lastTime = std::chrono::system_clock::now();
 }
 
 void BattleCity::Release()

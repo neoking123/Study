@@ -16,7 +16,7 @@ void Missile::Init(InputComponent * input, int x, int y, string tag)
 	transform.position.x = x;
 	transform.position.y = y;
 	direction = DIRECTION::STOP;
-	speed = 1;
+	speed = 4;
 	isFired = false;
 	isCrash = false;
 	animState = MISSILE_ANIM_STATE::NOT_FIRED;
@@ -58,8 +58,8 @@ void Missile::SetAnimState(MISSILE_ANIM_STATE newAnimState)
 
 void Missile::CheckBoundary()
 {
-	if (transform.position.x > 24 + 12 * 32 || transform.position.x < 24
-		|| transform.position.y < 24 || transform.position.y > 24 + 12 * 32)
+	if (transform.position.x > 24 + 13 * 32 || transform.position.x < 24
+		|| transform.position.y < 24 || transform.position.y > 24 + 13 * 32)
 	{
 		isCrash = true;
 	}

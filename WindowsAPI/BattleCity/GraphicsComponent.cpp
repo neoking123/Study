@@ -16,9 +16,9 @@ void GraphicsComponent::AddSprite(BitMap & bitmap)
 
 void GraphicsComponent::UpdateAnim(GameObject& gameObject, float elapseTime)
 {
-	/*if (elapseTime > 0.05f)
-		return;	*/
-
+	/*if (elapseTime < (1 / 60.f))
+		return;*/
+	
 	if (gameObject.tag == "player")
 	{
 		Tank* player = static_cast<Tank*>(&gameObject);

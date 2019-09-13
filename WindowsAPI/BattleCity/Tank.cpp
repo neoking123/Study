@@ -18,7 +18,7 @@ void Tank::Init(InputComponent* input, int x, int y, string tag)
 	transform.position.x = x;
 	transform.position.y = y;
 	this->tag = tag;
-	speed = 1;
+	speed = 2;
 	direction = DIRECTION::STOP;
 	fireDirection = DIRECTION::UP;
 	animState = TANK_ANIM_STATE::UP_00;
@@ -28,6 +28,8 @@ void Tank::Init(InputComponent* input, int x, int y, string tag)
 	{
 		graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(i));
 	}
+
+	phsics.SetColliderBox(*this, SIZE{ 32, 32 }, 2, 2, -2, -2);
 
 	Missile* newMissile = new Missile();
 	newMissile->Init(nullptr, 0, 0, "missile");
@@ -55,7 +57,9 @@ void Tank::Update(float elapseTime)
 
 void Tank::Render(HDC hdc)
 {
+	phsics.RenderColliderBox(hdc);
 	graphics.Render(*this, hdc);
+	
 
 	for (auto iter = missilePool.begin(); iter != missilePool.end(); iter++)
 	{

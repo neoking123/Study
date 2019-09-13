@@ -55,5 +55,4 @@ void PlayerInputComponent::Update(GameObject & gameObject)
 			player->Fire();
 		}
 	}
-	
 }

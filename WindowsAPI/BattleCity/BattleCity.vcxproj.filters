@@ -51,6 +51,9 @@
     <ClCompile Include="Missile.cpp">
       <Filter>GameOjbects</Filter>
     </ClCompile>
+    <ClCompile Include="Tile.cpp">
+      <Filter>GameOjbects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BattleCity.h">
@@ -87,6 +90,9 @@
       <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="Missile.h">
+      <Filter>GameOjbects</Filter>
+    </ClInclude>
+    <ClInclude Include="Tile.h">
       <Filter>GameOjbects</Filter>
     </ClInclude>
   </ItemGroup>

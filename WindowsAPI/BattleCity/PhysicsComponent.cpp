@@ -52,6 +52,7 @@ void PhysicsComponent::Move(GameObject & gameObject, float elapseTime)
 void PhysicsComponent::Update(GameObject & gameObject, float elapseTime)
 {
 	Move(gameObject, elapseTime);
+	SyncClliderPos(gameObject);
 }
 
 void PhysicsComponent::SetColliderBox(SIZE boxSize)
@@ -59,10 +60,14 @@ void PhysicsComponent::SetColliderBox(SIZE boxSize)
 	colliderSize = boxSize;
 }
 
-void PhysicsComponent::SetColliderBox(GameObject& gameObject, SIZE boxSize)
+void PhysicsComponent::SetColliderBox(GameObject& gameObject, SIZE boxSize, int left, int top, int right, int bottom)
 {
 	colliderSize = boxSize;
-	colliderBox = { gameObject.transform.position.x + 10, gameObject.transform.position.y + 10, gameObject.transform.position.x + colliderSize.cx, gameObject.transform.position.y + colliderSize.cy };
+	this->left = left;
+	this->top = top;
+	this->right = right;
+	this->bottom = bottom;
+	colliderBox = { gameObject.transform.position.x + this->left, gameObject.transform.position.y + this->top, gameObject.transform.position.x + colliderSize.cx + this->right, gameObject.transform.position.y + colliderSize.cy + this->bottom };
 }
 
 RECT PhysicsComponent::GetColliderBox()
@@ -72,5 +77,20 @@ RECT PhysicsComponent::GetColliderBox()
 
 void PhysicsComponent::SyncClliderPos(GameObject & gameObject)
 {
-	colliderBox = { gameObject.transform.position.x + 33 - (colliderSize.cx / 2), gameObject.transform.position.y + 31 - (colliderSize.cy / 2), gameObject.transform.position.x + 33 + (colliderSize.cx / 2), gameObject.transform.position.y + 31 + (colliderSize.cy / 2) };
+	colliderBox = { gameObject.transform.position.x + this->left, gameObject.transform.position.y + this->top, gameObject.transform.position.x + colliderSize.cx + this->right, gameObject.transform.position.y + colliderSize.cy + this->bottom };
+}
+
+void PhysicsComponent::RenderColliderBox(HDC hdc)
+{
+	HBRUSH brush = CreateSolidBrush(RGB(0, 0, 0));
+	HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, brush);
+	HPEN pen = CreatePen(PS_SOLID, 2, RGB(0, 255, 0));
+	HPEN oldPen = (HPEN)SelectObject(hdc, pen);
+
+	Rectangle(hdc, colliderBox.left, colliderBox.top, colliderBox.right, colliderBox.bottom);
+
+	SelectObject(hdc, oldBrush);
+	DeleteObject(brush);
+	SelectObject(hdc, oldPen);
+	DeleteObject(pen);
 }

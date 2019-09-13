@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 using namespace std;
 
 #define FPS			60.0f
@@ -19,6 +20,7 @@ using namespace std;
 
 class Tank;
 class PlayerInputComponent;
+class Tile;
 
 class BattleCity
 {
@@ -31,6 +33,7 @@ private:
 	chrono::system_clock::time_point lastTime;
 
 	int tiles[MAP_HEIGHT][MAP_WIDTH];
+	vector<Tile*> tileVec;
 
 	Tank* player;
 	PlayerInputComponent* playerInput;
@@ -38,6 +41,7 @@ private:
 	void LoadMap(string fileName);
 	void DrawTiles();
 	void DrawBackground();
+	void CreateTile();
 
 public:
 	BattleCity();
