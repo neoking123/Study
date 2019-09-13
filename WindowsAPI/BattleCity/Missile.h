@@ -19,6 +19,7 @@ class Missile :public GameObject
 public:
 	int speed;
 	bool isFired;
+	bool isCrash;
 	MISSILE_ANIM_STATE animState;
 	PhysicsComponent phsics;
 
@@ -32,5 +33,6 @@ public:
 	virtual void SetDirection(DIRECTION newDirection) override;
 
 	void SetAnimState(MISSILE_ANIM_STATE newAnimState);
+	void CheckBoundary();
 };
 

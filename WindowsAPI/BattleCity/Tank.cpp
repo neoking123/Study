@@ -48,8 +48,7 @@ void Tank::Update(float elapseTime)
 	{
 		if ((*iter)->isFired)
 		{
-			(*iter)->phsics.Update(**iter, elapseTime);
-			(*iter)->graphics.UpdateAnim(**iter, elapseTime);
+			(*iter)->Update(elapseTime);
 		}
 	}
 }
@@ -110,9 +109,10 @@ void Tank::Fire()
 	{
 		for (auto iter = missilePool.begin(); iter != missilePool.end(); iter++)
 		{
-			if ((*iter)->isFired)
+			if ((*iter)->isCrash)
 			{
 				(*iter)->isFired = false;
+				(*iter)->isCrash = false;
 				(*iter)->SetDirection(DIRECTION::STOP);
 				(*iter)->SetPosition(0, 0);
 			}

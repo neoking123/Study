@@ -18,6 +18,7 @@ void Missile::Init(InputComponent * input, int x, int y, string tag)
 	direction = DIRECTION::STOP;
 	speed = 1;
 	isFired = false;
+	isCrash = false;
 	animState = MISSILE_ANIM_STATE::NOT_FIRED;
 
 	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MISSILE_0));
@@ -30,7 +31,8 @@ void Missile::Init(InputComponent * input, int x, int y, string tag)
 void Missile::Update(float elapseTime)
 {
 	phsics.Update(*this, elapseTime);
-
+	graphics.UpdateAnim(*this, elapseTime);
+	CheckBoundary();
 }
 
 void Missile::Render(HDC hdc)
@@ -52,4 +54,13 @@ void Missile::SetDirection(DIRECTION newDirection)
 void Missile::SetAnimState(MISSILE_ANIM_STATE newAnimState)
 {
 	animState = newAnimState;
+}
+
+void Missile::CheckBoundary()
+{
+	if (transform.position.x > 24 + 12 * 32 || transform.position.x < 24
+		|| transform.position.y < 24 || transform.position.y > 24 + 12 * 32)
+	{
+		isCrash = true;
+	}
 }

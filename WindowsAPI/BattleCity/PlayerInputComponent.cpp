@@ -50,7 +50,7 @@ void PlayerInputComponent::Update(GameObject & gameObject)
 		else
 			player->SetDirection(DIRECTION::STOP);
 
-		if (GetAsyncKeyState(VK_SPACE) & 0x8000)
+		if (GetAsyncKeyState(VK_SPACE) & 0x0001)
 		{
 			player->Fire();
 		}
