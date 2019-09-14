@@ -2,8 +2,9 @@
 #include "BitMapManager.h"
 #include "Tank.h"
 #include "PlayerInputComponent.h"
-#include "Macro.h"
 #include "Tile.h"
+
+BattleCity* BattleCity::pInstance = nullptr;
 
 void BattleCity::LoadMap(string fileName)
 {
@@ -43,22 +44,22 @@ void BattleCity::LoadMap(string fileName)
 
 void BattleCity::DrawTiles()
 {
-	HDC hdc = GetDC(hWnd);
+	//HDC hdc = GetDC(hWnd);
 
-	for (int y = 0; y < TILE_HEIGHT_NUM; y++)
+	/*for (int y = 0; y < TILE_HEIGHT_NUM; y++)
 	{
 		for (int x = 0; x < TILE_WIDTH_NUM; x++)
 		{
 			BitMapManager::GetInstance()->GetBitMap(tiles[y][x])->Draw(gameDC, x * TILE_SIZE + MAP_MARGINE_WIDTH, y * TILE_SIZE + MAP_MARGINE_HEIGHT);
 		}
-	}
-
-	/*for (auto iter = tileVec.begin(); iter != tileVec.end(); iter++)
-	{
-
 	}*/
 
-	ReleaseDC(hWnd, hdc);
+	for (auto iter = tileVec.begin(); iter != tileVec.end(); iter++)
+	{
+		(*iter)->Render(gameDC);
+	}
+
+	//ReleaseDC(hWnd, hdc);
 }
 
 void BattleCity::DrawBackground()
@@ -150,4 +151,9 @@ void BattleCity::Render()
 	BitBlt(hdc, 0, 0, SCREEN_WIDE, SCREEN_HEIGHT, gameDC, 0, 0, SRCCOPY);
 
 	ReleaseDC(hWnd, hdc);
+}
+
+vector<Tile*> BattleCity::GetTiles()
+{
+	return tileVec;
 }

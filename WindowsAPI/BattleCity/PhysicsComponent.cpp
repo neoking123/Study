@@ -1,7 +1,9 @@
 #include "PhysicsComponent.h"
+#include "BattleCity.h"
 #include "GameObject.h"
 #include "Tank.h"
 #include "Missile.h"
+#include "Tile.h"
 
 void PhysicsComponent::Move(GameObject & gameObject, float elapseTime)
 {
@@ -49,9 +51,51 @@ void PhysicsComponent::Move(GameObject & gameObject, float elapseTime)
 	}
 }
 
+void PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
+{
+	vector<Tile*> tiles = BattleCity::GetInstance()->GetTiles();
+	RECT rcTemp;
+
+	for (auto iter = tiles.begin(); iter != tiles.end(); iter++)
+	{
+		if ( IntersectRect(&rcTemp, &colliderBox, &(*iter)->phsics1.GetColliderBox()) )
+		{
+			if (gameObject.tag == "player")
+			{
+				Tank* player = static_cast<Tank*>(&gameObject);
+				player->SetSpeed(0);
+			}
+			else if (gameObject.tag == "missile")
+			{
+				Missile* missile = static_cast<Missile*>(&gameObject);
+				missile->SetSpeed(0);
+			}
+		}
+
+		if (IntersectRect(&rcTemp, &colliderBox, &(*iter)->phsics2.GetColliderBox()))
+		{
+			Tank* player = static_cast<Tank*>(&gameObject);
+			player->SetSpeed(0);
+		}
+
+		if (IntersectRect(&rcTemp, &colliderBox, &(*iter)->phsics3.GetColliderBox()))
+		{
+			Tank* player = static_cast<Tank*>(&gameObject);
+			player->SetSpeed(0);
+		}
+
+		if (IntersectRect(&rcTemp, &colliderBox, &(*iter)->phsics4.GetColliderBox()))
+		{
+			Tank* player = static_cast<Tank*>(&gameObject);
+			player->SetSpeed(0);
+		}
+	}
+}
+
 void PhysicsComponent::Update(GameObject & gameObject, float elapseTime)
 {
 	Move(gameObject, elapseTime);
+	CheckBlockCollision(gameObject);
 	SyncClliderPos(gameObject);
 }
 

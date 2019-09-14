@@ -27,6 +27,7 @@ public:
 	~Tank();
 
 	int speed;
+	DIRECTION direction;
 	TANK_ANIM_STATE animState;
 	DIRECTION fireDirection;
 
@@ -34,7 +35,8 @@ public:
 	virtual void Update(float elapseTime) override;
 	virtual void Render(HDC hdc) override;
 	virtual void SetPosition(int x, int y) override;
-	virtual void SetDirection(DIRECTION newDirection) override;
+	void SetDirection(DIRECTION newDirection);
+	void SetSpeed(int newSpeed);
 
 	void Release();
 	void SetAnimState(TANK_ANIM_STATE newAnimState);

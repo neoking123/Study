@@ -26,6 +26,8 @@ void Missile::Init(InputComponent * input, int x, int y, string tag)
 	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MISSILE_1));
 	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MISSILE_2));
 	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MISSILE_3));
+
+	phsics.SetColliderBox(*this, SIZE{ 8, 8 }, 0, 0, 0, 0);
 }
 
 void Missile::Update(float elapseTime)
@@ -37,6 +39,7 @@ void Missile::Update(float elapseTime)
 
 void Missile::Render(HDC hdc)
 {
+	phsics.RenderColliderBox(hdc);
 	graphics.Render(*this, hdc);
 }
 
@@ -49,6 +52,11 @@ void Missile::SetPosition(int x, int y)
 void Missile::SetDirection(DIRECTION newDirection)
 {
 	direction = newDirection;
+}
+
+void Missile::SetSpeed(int newSpeed)
+{
+	speed = newSpeed;
 }
 
 void Missile::SetAnimState(MISSILE_ANIM_STATE newAnimState)

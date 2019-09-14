@@ -4,7 +4,7 @@
 
 class Tile : public GameObject
 {
-private:
+public:
 	PhysicsComponent phsics1;
 	PhysicsComponent phsics2;
 	PhysicsComponent phsics3;
@@ -21,6 +21,5 @@ public:
 	virtual void Update(float elapseTime) override;
 	virtual void Render(HDC hdc) override;
 	virtual void SetPosition(int x, int y) override;
-	virtual void SetDirection(DIRECTION newDirection) override;
 };
 

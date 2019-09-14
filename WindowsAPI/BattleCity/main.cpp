@@ -5,7 +5,7 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst;
 HWND hWnd;
 LPCTSTR lpszClass = TEXT("Battle City");
-BattleCity battleCity;
+//BattleCity battleCity;
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
@@ -30,7 +30,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	ShowWindow(hWnd, nCmdShow);
 
 	//g_GameFrame.Init(hWnd);
-	battleCity.Init(hWnd);
+	//battleCity.Init(hWnd);
+	BattleCity::GetInstance()->Init(hWnd);
 
 	while (true)
 	{
@@ -46,12 +47,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 		else
 		{
 			//g_GameFrame.Update();
-			battleCity.Update();
+			//battleCity.Update();
+			BattleCity::GetInstance()->Update();
 		}
 	}
 
 	//g_GameFrame.Release();
-	battleCity.Release();
+	//battleCity.Release();
+	BattleCity::GetInstance()->Release();
 
 	return (int)Message.wParam;
 }

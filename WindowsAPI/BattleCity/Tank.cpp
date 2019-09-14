@@ -65,7 +65,8 @@ void Tank::Render(HDC hdc)
 	{
 		if ((*iter)->isFired)
 		{
-			(*iter)->graphics.Render(**iter, hdc);
+			//(*iter)->graphics.Render(**iter, hdc);
+			(*iter)->Render(hdc);
 		}
 	}
 	
@@ -80,6 +81,11 @@ void Tank::SetPosition(int x, int y)
 void Tank::SetDirection(DIRECTION newDirection)
 {
 	direction = newDirection;
+}
+
+void Tank::SetSpeed(int newSpeed)
+{
+	speed = newSpeed;
 }
 
 void Tank::Release()

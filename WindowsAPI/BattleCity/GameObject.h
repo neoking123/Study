@@ -13,13 +13,11 @@ __interface GameObjectInterface
 	void Update(float elapseTime);
 	void Render(HDC hdc);
 	void SetPosition(int x, int y);
-	void SetDirection(DIRECTION newDirection);
 };
 
 class GameObject abstract : public GameObjectInterface
 {
 public:
-	DIRECTION direction;
 	bool isActive = false;
 	string tag;
 	TransformComponent transform;

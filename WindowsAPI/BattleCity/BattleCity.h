@@ -5,9 +5,10 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include "Macro.h"
 using namespace std;
 
-#define FPS			60.0f
+#define FPS	60.0f
 #define MAP_WIDTH 32
 #define MAP_HEIGHT 32
 #define SCREEN_WIDE 550
@@ -25,31 +26,49 @@ class Tile;
 class BattleCity
 {
 private:
+	static BattleCity* pInstance;
+
 	HDC gameDC;
 	HBITMAP hBitmap;
 	HBITMAP hOldBitmap;
 	HWND hWnd;
 	float elapseTime;
 	chrono::system_clock::time_point lastTime;
-
 	int tiles[MAP_HEIGHT][MAP_WIDTH];
-	vector<Tile*> tileVec;
-
 	Tank* player;
 	PlayerInputComponent* playerInput;
+	vector<Tile*> tileVec;
 
+	BattleCity();
 	void LoadMap(string fileName);
 	void DrawTiles();
 	void DrawBackground();
 	void CreateTile();
 
 public:
-	BattleCity();
 	~BattleCity();
-
 	void Init(HWND hWnd);
 	void Update();
 	void Release();
 	void Render();
+	vector<Tile*> GetTiles();
+
+	static BattleCity* GetInstance()
+	{
+		if (pInstance == nullptr)
+		{
+			pInstance = new BattleCity();
+		}
+		return pInstance;
+	}
+
+	static void FreeInstance()
+	{
+		if (pInstance != nullptr)
+		{
+			SAFE_DELETE(pInstance);
+
+		}
+	}
 };
 

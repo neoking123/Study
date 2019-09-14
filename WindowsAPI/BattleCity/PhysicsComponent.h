@@ -14,6 +14,7 @@ private:
 	int bottom;
 
 	void Move(GameObject& gameObject, float elapseTime);
+	void CheckBlockCollision(GameObject& gameObject);
 
 public:
 	void Update(GameObject& gameObject, float elapseTime);
