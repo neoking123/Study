@@ -21,12 +21,13 @@ class Tank : public GameObject
 private:
 	PhysicsComponent phsics;
 	vector<Missile*> missilePool;
-
+	float fireTime;
 public:
 	Tank();
 	~Tank();
 
 	int speed;
+	bool isCollide;
 	DIRECTION direction;
 	TANK_ANIM_STATE animState;
 	DIRECTION fireDirection;

@@ -3,10 +3,24 @@
 #include "GameObject.h"
 #include "Tank.h"
 #include "Missile.h"
+#include "Tile.h"
 
 void GraphicsComponent::Render(GameObject & gameObject, HDC hdc)
 {
-	Sprites[0]->Draw(hdc, gameObject.transform.position.x, gameObject.transform.position.y);
+	if (gameObject.tag == "tile")
+	{
+		Tile* tile = static_cast<Tile*>(&gameObject);
+		Sprites[0]->DrawFourDivisions(hdc, gameObject.transform.position.x, gameObject.transform.position.y, 
+			tile->phsics1.GetColliderSize(), tile->phsics2.GetColliderSize(), 
+			tile->phsics3.GetColliderSize(), tile->phsics4.GetColliderSize(),
+			tile->phsics1.left, tile->phsics1.top, tile->phsics2.left, tile->phsics2.top,
+			tile->phsics3.left, tile->phsics3.top, tile->phsics4.left, tile->phsics4.top);
+		
+	}
+	else
+	{
+		Sprites[0]->Draw(hdc, gameObject.transform.position.x, gameObject.transform.position.y);
+	}
 }
 
 void GraphicsComponent::AddSprite(BitMap & bitmap)

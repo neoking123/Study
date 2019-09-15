@@ -44,22 +44,10 @@ void BattleCity::LoadMap(string fileName)
 
 void BattleCity::DrawTiles()
 {
-	//HDC hdc = GetDC(hWnd);
-
-	/*for (int y = 0; y < TILE_HEIGHT_NUM; y++)
-	{
-		for (int x = 0; x < TILE_WIDTH_NUM; x++)
-		{
-			BitMapManager::GetInstance()->GetBitMap(tiles[y][x])->Draw(gameDC, x * TILE_SIZE + MAP_MARGINE_WIDTH, y * TILE_SIZE + MAP_MARGINE_HEIGHT);
-		}
-	}*/
-
 	for (auto iter = tileVec.begin(); iter != tileVec.end(); iter++)
 	{
 		(*iter)->Render(gameDC);
 	}
-
-	//ReleaseDC(hWnd, hdc);
 }
 
 void BattleCity::DrawBackground()

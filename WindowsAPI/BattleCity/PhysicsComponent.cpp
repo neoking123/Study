@@ -15,18 +15,42 @@ void PhysicsComponent::Move(GameObject & gameObject, float elapseTime)
 		if (player->direction == DIRECTION::LEFT)
 		{
 			player->transform.position.x -= player->speed * elapseTimeInt;
+			SyncClliderPos(gameObject);
+			if (CheckBlockCollision(gameObject))
+			{
+				player->transform.position.x += player->speed * elapseTimeInt;
+				SyncClliderPos(gameObject);
+			}
 		}
 		else if (player->direction == DIRECTION::RIGHT)
 		{
 			player->transform.position.x += player->speed * elapseTimeInt;
+			SyncClliderPos(gameObject);
+			if (CheckBlockCollision(gameObject))
+			{
+				player->transform.position.x -= player->speed * elapseTimeInt;
+				SyncClliderPos(gameObject);
+			}
 		}
 		else if (player->direction == DIRECTION::UP)
 		{
 			player->transform.position.y -= player->speed * elapseTimeInt;
+			SyncClliderPos(gameObject);
+			if (CheckBlockCollision(gameObject))
+			{
+				player->transform.position.y += player->speed * elapseTimeInt;
+				SyncClliderPos(gameObject);
+			}
 		}
 		else if (player->direction == DIRECTION::DOWN)
 		{
 			player->transform.position.y += player->speed * elapseTimeInt;
+			SyncClliderPos(gameObject);
+			if (CheckBlockCollision(gameObject))
+			{
+				player->transform.position.y -= player->speed * elapseTimeInt;
+				SyncClliderPos(gameObject);
+			}
 		}
 	}
 	else if(gameObject.tag == "missile")
@@ -35,26 +59,56 @@ void PhysicsComponent::Move(GameObject & gameObject, float elapseTime)
 		if (missile->direction == DIRECTION::LEFT)
 		{
 			missile->transform.position.x -= missile->speed * elapseTimeInt;
+			SyncClliderPos(gameObject);
+			if (CheckBlockCollision(gameObject)
+				|| missile->transform.position.x < MAP_MARGINE_WIDTH)
+			{
+				missile->Reset();
+				SyncClliderPos(gameObject);
+			}
+			
 		}
 		else if (missile->direction == DIRECTION::RIGHT)
 		{
 			missile->transform.position.x += missile->speed * elapseTimeInt;
+			SyncClliderPos(gameObject);
+			if (CheckBlockCollision(gameObject) 
+				|| missile->transform.position.x > MAP_MARGINE_WIDTH + TILE_WIDTH_NUM * TILE_SIZE)
+			{
+				missile->Reset();
+				SyncClliderPos(gameObject);
+			}
 		}
 		else if (missile->direction == DIRECTION::UP)
 		{
 			missile->transform.position.y -= missile->speed * elapseTimeInt;
+			SyncClliderPos(gameObject);
+			if (CheckBlockCollision(gameObject)
+				|| missile->transform.position.y < MAP_MARGINE_HEIGHT)
+			{
+				missile->Reset();
+				SyncClliderPos(gameObject);
+			}
 		}
 		else if (missile->direction == DIRECTION::DOWN)
 		{
 			missile->transform.position.y += missile->speed * elapseTimeInt;
+			SyncClliderPos(gameObject);
+			if (CheckBlockCollision(gameObject)
+				|| missile->transform.position.y > MAP_MARGINE_HEIGHT + TILE_HEIGHT_NUM * TILE_SIZE)
+			{
+				missile->Reset();
+				SyncClliderPos(gameObject);
+			}
 		}
 	}
 }
 
-void PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
+bool PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
 {
 	vector<Tile*> tiles = BattleCity::GetInstance()->GetTiles();
 	RECT rcTemp;
+	bool isCollide = false;
 
 	for (auto iter = tiles.begin(); iter != tiles.end(); iter++)
 	{
@@ -63,40 +117,144 @@ void PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
 			if (gameObject.tag == "player")
 			{
 				Tank* player = static_cast<Tank*>(&gameObject);
-				player->SetSpeed(0);
+				player->isCollide = true;
 			}
 			else if (gameObject.tag == "missile")
 			{
 				Missile* missile = static_cast<Missile*>(&gameObject);
-				missile->SetSpeed(0);
+				missile->isCollide = true;
+
+				RECT rt = (*iter)->phsics1.GetColliderBox();
+				SIZE sz = (*iter)->phsics1.colliderSize;
+				if (missile->direction == DIRECTION::RIGHT)
+				{
+					(*iter)->phsics1.SetColliderBox(**iter, SIZE{ sz.cx - 8, sz.cy }, (*iter)->phsics1.left + 8, (*iter)->phsics1.top, (*iter)->phsics1.right + 8, (*iter)->phsics1.bottom);
+				}
+				else if (missile->direction == DIRECTION::LEFT)
+				{
+					(*iter)->phsics1.SetColliderBox(**iter, SIZE{ sz.cx - 8, sz.cy }, (*iter)->phsics1.left, (*iter)->phsics1.top, (*iter)->phsics1.right, (*iter)->phsics1.bottom);
+				}
+				else if (missile->direction == DIRECTION::UP)
+				{
+					(*iter)->phsics1.SetColliderBox(**iter, SIZE{ sz.cx, sz.cy - 8 }, (*iter)->phsics1.left, (*iter)->phsics1.top, (*iter)->phsics1.right, (*iter)->phsics1.bottom);
+				}
+				else if (missile->direction == DIRECTION::DOWN)
+				{
+					(*iter)->phsics1.SetColliderBox(**iter, SIZE{ sz.cx, sz.cy - 8 }, (*iter)->phsics1.left, (*iter)->phsics1.top + 8, (*iter)->phsics1.right, (*iter)->phsics1.bottom + 8);
+				}
 			}
+			isCollide = true;
 		}
 
 		if (IntersectRect(&rcTemp, &colliderBox, &(*iter)->phsics2.GetColliderBox()))
 		{
-			Tank* player = static_cast<Tank*>(&gameObject);
-			player->SetSpeed(0);
+			if (gameObject.tag == "player")
+			{
+				Tank* player = static_cast<Tank*>(&gameObject);
+				player->isCollide = true;
+			}
+			else if (gameObject.tag == "missile")
+			{
+				Missile* missile = static_cast<Missile*>(&gameObject);
+				missile->isCollide = true;
+
+				RECT rt = (*iter)->phsics2.GetColliderBox();
+				SIZE sz = (*iter)->phsics2.colliderSize;
+				if (missile->direction == DIRECTION::RIGHT)
+				{
+					(*iter)->phsics2.SetColliderBox(**iter, SIZE{ sz.cx - 8, sz.cy }, (*iter)->phsics2.left + 8, (*iter)->phsics2.top, (*iter)->phsics2.right + 8, (*iter)->phsics2.bottom);
+				}
+				else if (missile->direction == DIRECTION::LEFT)
+				{
+					(*iter)->phsics2.SetColliderBox(**iter, SIZE{ sz.cx - 8, sz.cy }, (*iter)->phsics2.left, (*iter)->phsics2.top, (*iter)->phsics2.right, (*iter)->phsics2.bottom);
+				}
+				else if (missile->direction == DIRECTION::UP)
+				{
+					(*iter)->phsics2.SetColliderBox(**iter, SIZE{ sz.cx, sz.cy - 8 }, (*iter)->phsics2.left, (*iter)->phsics2.top, (*iter)->phsics2.right, (*iter)->phsics2.bottom);
+				}
+				else if (missile->direction == DIRECTION::DOWN)
+				{
+					(*iter)->phsics2.SetColliderBox(**iter, SIZE{ sz.cx, sz.cy - 8 }, (*iter)->phsics2.left, (*iter)->phsics2.top + 8, (*iter)->phsics2.right, (*iter)->phsics2.bottom + 8);
+				}
+			}
+			isCollide = true;
 		}
 
 		if (IntersectRect(&rcTemp, &colliderBox, &(*iter)->phsics3.GetColliderBox()))
 		{
-			Tank* player = static_cast<Tank*>(&gameObject);
-			player->SetSpeed(0);
+			if (gameObject.tag == "player")
+			{
+				Tank* player = static_cast<Tank*>(&gameObject);
+				player->isCollide = true;
+			}
+			else if (gameObject.tag == "missile")
+			{
+				Missile* missile = static_cast<Missile*>(&gameObject);
+				missile->isCollide = true;
+
+				RECT rt = (*iter)->phsics3.GetColliderBox();
+				SIZE sz = (*iter)->phsics3.colliderSize;
+				if (missile->direction == DIRECTION::RIGHT)
+				{
+					(*iter)->phsics3.SetColliderBox(**iter, SIZE{ sz.cx - 8, sz.cy }, (*iter)->phsics3.left + 8, (*iter)->phsics3.top, (*iter)->phsics3.right + 8, (*iter)->phsics3.bottom);
+				}
+				else if (missile->direction == DIRECTION::LEFT)
+				{
+					(*iter)->phsics3.SetColliderBox(**iter, SIZE{ sz.cx - 8, sz.cy }, (*iter)->phsics3.left, (*iter)->phsics3.top, (*iter)->phsics3.right, (*iter)->phsics3.bottom);
+				}
+				else if (missile->direction == DIRECTION::UP)
+				{
+					(*iter)->phsics3.SetColliderBox(**iter, SIZE{ sz.cx, sz.cy - 8 }, (*iter)->phsics3.left, (*iter)->phsics3.top, (*iter)->phsics3.right, (*iter)->phsics3.bottom);
+				}
+				else if (missile->direction == DIRECTION::DOWN)
+				{
+					(*iter)->phsics3.SetColliderBox(**iter, SIZE{ sz.cx, sz.cy - 8 }, (*iter)->phsics3.left, (*iter)->phsics3.top + 8, (*iter)->phsics3.right, (*iter)->phsics3.bottom + 8);
+				}
+			}
+			isCollide = true;
 		}
 
 		if (IntersectRect(&rcTemp, &colliderBox, &(*iter)->phsics4.GetColliderBox()))
 		{
-			Tank* player = static_cast<Tank*>(&gameObject);
-			player->SetSpeed(0);
+			if (gameObject.tag == "player")
+			{
+				Tank* player = static_cast<Tank*>(&gameObject);
+				player->isCollide = true;
+			}
+			else if (gameObject.tag == "missile")
+			{
+				Missile* missile = static_cast<Missile*>(&gameObject);
+				missile->isCollide = true;
+
+				RECT rt = (*iter)->phsics4.GetColliderBox();
+				SIZE sz = (*iter)->phsics4.colliderSize;
+				if (missile->direction == DIRECTION::RIGHT)
+				{
+					(*iter)->phsics4.SetColliderBox(**iter, SIZE{ sz.cx - 8, sz.cy }, (*iter)->phsics4.left + 8, (*iter)->phsics4.top, (*iter)->phsics4.right + 8, (*iter)->phsics4.bottom);
+				}
+				else if (missile->direction == DIRECTION::LEFT)
+				{
+					(*iter)->phsics4.SetColliderBox(**iter, SIZE{ sz.cx - 8, sz.cy }, (*iter)->phsics4.left, (*iter)->phsics4.top, (*iter)->phsics4.right, (*iter)->phsics4.bottom);
+				}
+				else if (missile->direction == DIRECTION::UP)
+				{
+					(*iter)->phsics4.SetColliderBox(**iter, SIZE{ sz.cx, sz.cy - 8 }, (*iter)->phsics4.left, (*iter)->phsics4.top, (*iter)->phsics4.right, (*iter)->phsics4.bottom);
+				}
+				else if (missile->direction == DIRECTION::DOWN)
+				{
+					(*iter)->phsics4.SetColliderBox(**iter, SIZE{ sz.cx, sz.cy - 8 }, (*iter)->phsics4.left, (*iter)->phsics4.top + 8, (*iter)->phsics4.right, (*iter)->phsics4.bottom + 8);
+				}
+			}
+			isCollide = true;
 		}
 	}
+
+	return isCollide;
 }
 
 void PhysicsComponent::Update(GameObject & gameObject, float elapseTime)
 {
 	Move(gameObject, elapseTime);
-	CheckBlockCollision(gameObject);
-	SyncClliderPos(gameObject);
 }
 
 void PhysicsComponent::SetColliderBox(SIZE boxSize)
@@ -117,6 +275,11 @@ void PhysicsComponent::SetColliderBox(GameObject& gameObject, SIZE boxSize, int 
 RECT PhysicsComponent::GetColliderBox()
 {
 	return colliderBox;
+}
+
+SIZE PhysicsComponent::GetColliderSize()
+{
+	return colliderSize;
 }
 
 void PhysicsComponent::SyncClliderPos(GameObject & gameObject)

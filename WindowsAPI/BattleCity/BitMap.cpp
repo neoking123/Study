@@ -42,6 +42,14 @@ void BitMap::Draw(HDC hdc, int x, int y)
 	TransparentBlt(hdc, x, y, size.cx, size.cy, hMemDC, 0, 0, size.cx, size.cy, RGB(255, 0, 255));
 }
 
+void BitMap::DrawFourDivisions(HDC hdc, int x, int y, SIZE size1, SIZE size2, SIZE size3, SIZE size4, int l1, int t1, int l2, int t2, int l3, int t3, int l4, int t4)
+{
+	TransparentBlt(hdc, x + l1, y + t1, size1.cx, size1.cy, hMemDC, 0, 0, size1.cx, size1.cy, RGB(255, 0, 255));
+	TransparentBlt(hdc, x + l2, y + t2, size2.cx, size2.cy, hMemDC, 16, 0, size2.cx, size2.cy, RGB(255, 0, 255));
+	TransparentBlt(hdc, x + l3, y + t3, size3.cx, size3.cy, hMemDC, 0, 16, size3.cx, size3.cy, RGB(255, 0, 255));
+	TransparentBlt(hdc, x + l4, y + t4, size4.cx, size4.cy, hMemDC, 16, 16, size4.cx, size4.cy, RGB(255, 0, 255));
+}
+
 void BitMap::Release()
 {
 	SelectObject(hMemDC, hOldBitMap);

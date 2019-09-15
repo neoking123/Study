@@ -9,6 +9,11 @@ LPCTSTR lpszClass = TEXT("Battle City");
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
+	//메모리 릭
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	_CrtDumpMemoryLeaks();
+	//_CrtSetBreakAlloc(160);
+
 	MSG Message;
 	WNDCLASS WndClass;
 	g_hInst = hInstance;

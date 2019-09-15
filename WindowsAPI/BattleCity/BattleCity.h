@@ -8,7 +8,7 @@
 #include "Macro.h"
 using namespace std;
 
-#define FPS	60.0f
+#define FPS	100.0f
 #define MAP_WIDTH 32
 #define MAP_HEIGHT 32
 #define SCREEN_WIDE 550

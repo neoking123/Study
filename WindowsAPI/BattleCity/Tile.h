@@ -2,6 +2,8 @@
 #include "GameObject.h"
 #include "PhysicsComponent.h"
 
+#define QUARTER 16
+
 class Tile : public GameObject
 {
 public:

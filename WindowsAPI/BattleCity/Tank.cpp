@@ -19,6 +19,8 @@ void Tank::Init(InputComponent* input, int x, int y, string tag)
 	transform.position.y = y;
 	this->tag = tag;
 	speed = 2;
+	fireTime = 0.0f;
+	isCollide = false;
 	direction = DIRECTION::STOP;
 	fireDirection = DIRECTION::UP;
 	animState = TANK_ANIM_STATE::UP_00;
@@ -53,6 +55,8 @@ void Tank::Update(float elapseTime)
 			(*iter)->Update(elapseTime);
 		}
 	}
+
+	fireTime += elapseTime;
 }
 
 void Tank::Render(HDC hdc)
@@ -65,7 +69,6 @@ void Tank::Render(HDC hdc)
 	{
 		if ((*iter)->isFired)
 		{
-			//(*iter)->graphics.Render(**iter, hdc);
 			(*iter)->Render(hdc);
 		}
 	}
@@ -103,6 +106,9 @@ void Tank::SetAnimState(TANK_ANIM_STATE newAnimState)
 
 void Tank::Fire()
 {
+	if (fireTime < 0.1f)
+		return;
+
 	auto iter = missilePool.begin();
 	for (; iter != missilePool.end(); iter++)
 	{
@@ -111,6 +117,7 @@ void Tank::Fire()
 			(*iter)->isFired = true;
 			(*iter)->SetDirection(fireDirection);
 			(*iter)->SetPosition(transform.position.x + 12, transform.position.y + 12);
+			fireTime = 0.0f;
 			return;
 		}
 	}
@@ -119,12 +126,9 @@ void Tank::Fire()
 	{
 		for (auto iter = missilePool.begin(); iter != missilePool.end(); iter++)
 		{
-			if ((*iter)->isCrash)
+			if ((*iter)->isCollide)
 			{
-				(*iter)->isFired = false;
-				(*iter)->isCrash = false;
-				(*iter)->SetDirection(DIRECTION::STOP);
-				(*iter)->SetPosition(0, 0);
+				//(*iter)->Reset();
 			}
 		}
 	}
