@@ -18,16 +18,19 @@ class Missile;
 
 class Tank : public GameObject
 {
-private:
-	PhysicsComponent phsics;
+protected:
 	vector<Missile*> missilePool;
-	float fireTime;
+	float fireElapseTime;
+	float fireDelayTime;
+
 public:
 	Tank();
 	~Tank();
 
 	int speed;
 	bool isCollide;
+	bool isDead;
+	PhysicsComponent phsics;
 	DIRECTION direction;
 	TANK_ANIM_STATE animState;
 	DIRECTION fireDirection;
@@ -38,9 +41,9 @@ public:
 	virtual void SetPosition(int x, int y) override;
 	void SetDirection(DIRECTION newDirection);
 	void SetSpeed(int newSpeed);
-
 	void Release();
 	void SetAnimState(TANK_ANIM_STATE newAnimState);
 	void Fire();
+	void Die();
 };
 

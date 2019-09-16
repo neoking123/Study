@@ -145,6 +145,8 @@
     <ClCompile Include="BattleCity.cpp" />
     <ClCompile Include="BitMap.cpp" />
     <ClCompile Include="BitMapManager.cpp" />
+    <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyInputComponent.cpp" />
     <ClCompile Include="GraphicsComponent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Missile.cpp" />
@@ -157,6 +159,8 @@
     <ClInclude Include="BattleCity.h" />
     <ClInclude Include="BitMap.h" />
     <ClInclude Include="BitMapManager.h" />
+    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyInputComponent.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GraphicsComponent.h" />
     <ClInclude Include="InputComponent.h" />

@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <list>
 #include "Macro.h"
 using namespace std;
 
@@ -18,10 +19,13 @@ using namespace std;
 #define TILE_WIDTH_NUM 13
 #define TILE_HEIGHT_NUM 13
 #define TILE_SIZE 32
+#define MAX_ENEMY_NUM 4
 
 class Tank;
 class PlayerInputComponent;
 class Tile;
+class Enemy;
+class EnemyInputComponent;
 
 class BattleCity
 {
@@ -38,6 +42,9 @@ private:
 	Tank* player;
 	PlayerInputComponent* playerInput;
 	vector<Tile*> tileVec;
+	vector<EnemyInputComponent*> enemyInputs;
+	list<Enemy*> enemys;
+	vector<Tank*> tanks;
 
 	BattleCity();
 	void LoadMap(string fileName);
@@ -52,6 +59,7 @@ public:
 	void Release();
 	void Render();
 	vector<Tile*> GetTiles();
+	vector<Tank*> GetTanks();
 
 	static BattleCity* GetInstance()
 	{

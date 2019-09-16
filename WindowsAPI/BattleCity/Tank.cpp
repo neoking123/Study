@@ -19,8 +19,10 @@ void Tank::Init(InputComponent* input, int x, int y, string tag)
 	transform.position.y = y;
 	this->tag = tag;
 	speed = 2;
-	fireTime = 0.0f;
+	fireElapseTime = 0.0f;
+	fireDelayTime = 0.1f;
 	isCollide = false;
+	isDead = false;
 	direction = DIRECTION::STOP;
 	fireDirection = DIRECTION::UP;
 	animState = TANK_ANIM_STATE::UP_00;
@@ -34,11 +36,11 @@ void Tank::Init(InputComponent* input, int x, int y, string tag)
 	phsics.SetColliderBox(*this, SIZE{ 32, 32 }, 2, 2, -2, -2);
 
 	Missile* newMissile = new Missile();
-	newMissile->Init(nullptr, 0, 0, "missile");
+	newMissile->Init(nullptr, 0, 0, "missile_player");
 	missilePool.push_back(newMissile);
 
 	newMissile = new Missile();
-	newMissile->Init(nullptr, 0, 0, "missile");
+	newMissile->Init(nullptr, 0, 0, "missile_player");
 	missilePool.push_back(newMissile);
 }
 
@@ -56,14 +58,13 @@ void Tank::Update(float elapseTime)
 		}
 	}
 
-	fireTime += elapseTime;
+	fireElapseTime += elapseTime;
 }
 
 void Tank::Render(HDC hdc)
 {
 	phsics.RenderColliderBox(hdc);
 	graphics.Render(*this, hdc);
-	
 
 	for (auto iter = missilePool.begin(); iter != missilePool.end(); iter++)
 	{
@@ -72,7 +73,6 @@ void Tank::Render(HDC hdc)
 			(*iter)->Render(hdc);
 		}
 	}
-	
 }
 
 void Tank::SetPosition(int x, int y)
@@ -106,7 +106,7 @@ void Tank::SetAnimState(TANK_ANIM_STATE newAnimState)
 
 void Tank::Fire()
 {
-	if (fireTime < 0.1f)
+	if (fireElapseTime < fireDelayTime)
 		return;
 
 	auto iter = missilePool.begin();
@@ -116,8 +116,9 @@ void Tank::Fire()
 		{
 			(*iter)->isFired = true;
 			(*iter)->SetDirection(fireDirection);
-			(*iter)->SetPosition(transform.position.x + 12, transform.position.y + 12);
-			fireTime = 0.0f;
+			//(*iter)->SetPosition(transform.position.x + 12, transform.position.y + 12);
+			(*iter)->SetFirePosition(transform.position.x, transform.position.y);
+			fireElapseTime = 0.0f;
 			return;
 		}
 	}
@@ -132,4 +133,10 @@ void Tank::Fire()
 			}
 		}
 	}
+}
+
+void Tank::Die()
+{
+	isDead = true;
+	phsics.SetColliderBox(*this, SIZE{ 0, 0 });
 }

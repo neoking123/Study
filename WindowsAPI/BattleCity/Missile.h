@@ -31,6 +31,7 @@ public:
 	virtual void Update(float elapseTime) override;
 	virtual void Render(HDC hdc) override;
 	virtual void SetPosition(int x, int y) override;
+	void SetFirePosition(int x, int y);
 	void SetDirection(DIRECTION newDirection);
 	void SetSpeed(int newSpeed);
 	void Reset();

@@ -3,6 +3,8 @@
 #include "Tank.h"
 #include "PlayerInputComponent.h"
 #include "Tile.h"
+#include "Enemy.h"
+#include "EnemyInputComponent.h"
 
 BattleCity* BattleCity::pInstance = nullptr;
 
@@ -100,6 +102,22 @@ void BattleCity::Init(HWND hWnd)
 
 	player = new Tank();
 	player->Init(playerInput, 4 * TILE_SIZE + MAP_MARGINE_WIDTH, 12 * TILE_SIZE + MAP_MARGINE_HEIGHT, "player");
+	tanks.push_back(player);
+
+	for (int i = 0; i < MAX_ENEMY_NUM; i++)
+	{
+		EnemyInputComponent* enemyInput = new EnemyInputComponent();
+		enemyInputs.push_back(enemyInput);
+
+		Enemy* enemy = new Enemy();
+		enemy->Init(enemyInputs[i], (i * 2) * TILE_SIZE + MAP_MARGINE_WIDTH, 0 * TILE_SIZE + MAP_MARGINE_HEIGHT, "enemy");
+		enemys.push_back(enemy);
+		tanks.push_back(enemy);
+	}
+
+	/*enemy_debug = new Enemy();
+	enemy_debug->Init(enemyInput, 0 * TILE_SIZE + MAP_MARGINE_WIDTH, 0 * TILE_SIZE + MAP_MARGINE_HEIGHT, "enemy");
+	tanks.push_back(enemy_debug);*/
 	
 	ReleaseDC(hWnd, hdc);
 }
@@ -112,7 +130,15 @@ void BattleCity::Update()
 
 	elapseTime = sec.count();
 	
-	player->Update(elapseTime);
+	if (!player->isDead)
+		player->Update(elapseTime);
+
+	for (auto iter = enemys.begin(); iter != enemys.end(); iter++)
+	{
+		if (!(*iter)->isDead)
+			(*iter)->Update(elapseTime);
+	}
+	
 	Render();
 
 	lastTime = std::chrono::system_clock::now();
@@ -122,6 +148,15 @@ void BattleCity::Release()
 {
 	SAFE_DELETE(player);
 	SAFE_DELETE(playerInput);
+
+	for (auto iter = enemys.begin(); iter != enemys.end(); iter++)
+	{
+		SAFE_DELETE(*iter);
+		(*iter)->Release();
+	}
+
+	player->Release();
+
 
 	SelectObject(gameDC, hOldBitmap);
 	DeleteObject(hBitmap);
@@ -134,7 +169,15 @@ void BattleCity::Render()
 
 	DrawBackground();
 	DrawTiles();
-	player->Render(gameDC);
+
+	if (!player->isDead)
+		player->Render(gameDC);
+
+	for (auto iter = enemys.begin(); iter != enemys.end(); iter++)
+	{
+		if (!(*iter)->isDead)
+			(*iter)->Render(gameDC);
+	}
 
 	BitBlt(hdc, 0, 0, SCREEN_WIDE, SCREEN_HEIGHT, gameDC, 0, 0, SRCCOPY);
 
@@ -144,4 +187,9 @@ void BattleCity::Render()
 vector<Tile*> BattleCity::GetTiles()
 {
 	return tileVec;
+}
+
+vector<Tank*> BattleCity::GetTanks()
+{
+	return tanks;
 }

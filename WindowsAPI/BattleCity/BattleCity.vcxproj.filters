@@ -54,6 +54,12 @@
     <ClCompile Include="Tile.cpp">
       <Filter>GameOjbects</Filter>
     </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>GameOjbects</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyInputComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BattleCity.h">
@@ -94,6 +100,12 @@
     </ClInclude>
     <ClInclude Include="Tile.h">
       <Filter>GameOjbects</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>GameOjbects</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyInputComponent.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

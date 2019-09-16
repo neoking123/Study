@@ -34,8 +34,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 		CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
 	ShowWindow(hWnd, nCmdShow);
 
-	//g_GameFrame.Init(hWnd);
-	//battleCity.Init(hWnd);
+	srand(GetTickCount());
 	BattleCity::GetInstance()->Init(hWnd);
 
 	while (true)
@@ -51,14 +50,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 		}
 		else
 		{
-			//g_GameFrame.Update();
-			//battleCity.Update();
 			BattleCity::GetInstance()->Update();
 		}
 	}
 
-	//g_GameFrame.Release();
-	//battleCity.Release();
 	BattleCity::GetInstance()->Release();
 
 	return (int)Message.wParam;

@@ -33,7 +33,7 @@ void Missile::Init(InputComponent * input, int x, int y, string tag)
 
 void Missile::Update(float elapseTime)
 {
-	phsics.Update(*this, elapseTime);
+ 	phsics.Update(*this, elapseTime);
 	graphics.UpdateAnim(*this, elapseTime);
 	//CheckBoundary();
 }
@@ -48,6 +48,30 @@ void Missile::SetPosition(int x, int y)
 {
 	transform.position.x = x;
 	transform.position.y = y;
+}
+
+void Missile::SetFirePosition(int x, int y)
+{
+	if (direction == DIRECTION::UP)
+	{
+		transform.position.x = x + 12;
+		transform.position.y = y;
+	}
+	else if (direction == DIRECTION::DOWN)
+	{
+		transform.position.x = x + 12;
+		transform.position.y = y + 24;
+	}
+	else if (direction == DIRECTION::LEFT)
+	{
+		transform.position.x = x;
+		transform.position.y = y + 12;
+	}
+	else if (direction == DIRECTION::RIGHT)
+	{
+		transform.position.x = x + 24;
+		transform.position.y = y + 12;
+	}
 }
 
 void Missile::SetDirection(DIRECTION newDirection)

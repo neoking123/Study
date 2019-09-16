@@ -4,6 +4,7 @@
 #include "Tank.h"
 #include "Missile.h"
 #include "Tile.h"
+#include "Enemy.h"
 
 void GraphicsComponent::Render(GameObject & gameObject, HDC hdc)
 {
@@ -147,4 +148,82 @@ void GraphicsComponent::UpdateAnim(GameObject& gameObject, float elapseTime)
 			}
 		}
 	}
+	else if (gameObject.tag == "enemy")
+	{
+		Enemy* enemy = static_cast<Enemy*>(&gameObject);
+
+		if (enemy->direction == DIRECTION::RIGHT)
+		{
+			if (enemy->animState != TANK_ANIM_STATE::RIGHT_00 && enemy->animState != TANK_ANIM_STATE::RIGHT_01)
+			{
+				enemy->SetAnimState(TANK_ANIM_STATE::RIGHT_00);
+			}
+
+			if (enemy->animState == TANK_ANIM_STATE::RIGHT_00)
+			{
+				enemy->SetAnimState(TANK_ANIM_STATE::RIGHT_01);
+				Sprites[0] = Sprites[TANK_ANIM_STATE::RIGHT_01 + 1];
+			}
+			else if (enemy->animState == TANK_ANIM_STATE::RIGHT_01)
+			{
+				enemy->SetAnimState(TANK_ANIM_STATE::RIGHT_00);
+				Sprites[0] = Sprites[TANK_ANIM_STATE::RIGHT_00 + 1];
+			}
+		}
+		else if (enemy->direction == DIRECTION::LEFT)
+		{
+			if (enemy->animState != TANK_ANIM_STATE::LEFT_00 && enemy->animState != TANK_ANIM_STATE::LEFT_01)
+			{
+				enemy->SetAnimState(TANK_ANIM_STATE::LEFT_00);
+			}
+
+			if (enemy->animState == TANK_ANIM_STATE::LEFT_00)
+			{
+				enemy->SetAnimState(TANK_ANIM_STATE::LEFT_01);
+				Sprites[0] = Sprites[TANK_ANIM_STATE::LEFT_01 + 1];
+			}
+			else if (enemy->animState == TANK_ANIM_STATE::LEFT_01)
+			{
+				enemy->SetAnimState(TANK_ANIM_STATE::LEFT_00);
+				Sprites[0] = Sprites[TANK_ANIM_STATE::LEFT_00 + 1];
+			}
+		}
+		else if (enemy->direction == DIRECTION::UP)
+		{
+			if (enemy->animState != TANK_ANIM_STATE::UP_00 && enemy->animState != TANK_ANIM_STATE::UP_01)
+			{
+				enemy->SetAnimState(TANK_ANIM_STATE::UP_00);
+			}
+
+			if (enemy->animState == TANK_ANIM_STATE::UP_00)
+			{
+				enemy->SetAnimState(TANK_ANIM_STATE::UP_01);
+				Sprites[0] = Sprites[TANK_ANIM_STATE::UP_01 + 1];
+			}
+			else if (enemy->animState == TANK_ANIM_STATE::UP_01)
+			{
+				enemy->SetAnimState(TANK_ANIM_STATE::UP_00);
+				Sprites[0] = Sprites[TANK_ANIM_STATE::UP_00 + 1];
+			}
+		}
+		else if (enemy->direction == DIRECTION::DOWN)
+		{
+			if (enemy->animState != TANK_ANIM_STATE::DOWN_00 && enemy->animState != TANK_ANIM_STATE::DOWN_01)
+			{
+				enemy->SetAnimState(TANK_ANIM_STATE::DOWN_00);
+			}
+
+			if (enemy->animState == TANK_ANIM_STATE::DOWN_00)
+			{
+				enemy->SetAnimState(TANK_ANIM_STATE::DOWN_01);
+				Sprites[0] = Sprites[TANK_ANIM_STATE::DOWN_01 + 1];
+			}
+			else if (enemy->animState == TANK_ANIM_STATE::DOWN_01)
+			{
+				enemy->SetAnimState(TANK_ANIM_STATE::DOWN_00);
+				Sprites[0] = Sprites[TANK_ANIM_STATE::DOWN_00 + 1];
+			}
+		}
+	}
+
 }

@@ -4,7 +4,6 @@
 class PlayerInputComponent : public InputComponent
 {
 public:
-
 	virtual void Update(GameObject& gameObject) override;
 };
 

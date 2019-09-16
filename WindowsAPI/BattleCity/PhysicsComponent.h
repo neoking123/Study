@@ -11,6 +11,7 @@ private:
 	
 	void Move(GameObject& gameObject, float elapseTime);
 	bool CheckBlockCollision(GameObject& gameObject);
+	bool CheckTankCollision(GameObject& gameObject);
 
 public:
 	int left;
