@@ -45,5 +45,6 @@ public:
 	void SetAnimState(TANK_ANIM_STATE newAnimState);
 	void Fire();
 	void Die();
+	vector<Missile*> GetMissiles();
 };
 

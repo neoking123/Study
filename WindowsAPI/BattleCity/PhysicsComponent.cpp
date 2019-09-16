@@ -61,7 +61,7 @@ void PhysicsComponent::Move(GameObject & gameObject, float elapseTime)
 		{
 			missile->transform.position.x -= missile->speed * elapseTimeInt;
 			SyncClliderPos(gameObject);
-			if (CheckBlockCollision(gameObject) || CheckTankCollision(gameObject)
+			if (CheckBlockCollision(gameObject) || CheckTankCollision(gameObject) || CheckMissileCollision(gameObject)
 				|| missile->transform.position.x < MAP_MARGINE_WIDTH)
 			{
 				missile->Reset();
@@ -73,7 +73,7 @@ void PhysicsComponent::Move(GameObject & gameObject, float elapseTime)
 		{
 			missile->transform.position.x += missile->speed * elapseTimeInt;
 			SyncClliderPos(gameObject);
-			if (CheckBlockCollision(gameObject) || CheckTankCollision(gameObject)
+			if (CheckBlockCollision(gameObject) || CheckTankCollision(gameObject) || CheckMissileCollision(gameObject)
 				|| missile->transform.position.x > MAP_MARGINE_WIDTH + TILE_WIDTH_NUM * TILE_SIZE)
 			{
 				missile->Reset();
@@ -84,7 +84,7 @@ void PhysicsComponent::Move(GameObject & gameObject, float elapseTime)
 		{
 			missile->transform.position.y -= missile->speed * elapseTimeInt;
 			SyncClliderPos(gameObject);
-			if (CheckBlockCollision(gameObject) || CheckTankCollision(gameObject)
+			if (CheckBlockCollision(gameObject) || CheckTankCollision(gameObject) || CheckMissileCollision(gameObject)
 				|| missile->transform.position.y < MAP_MARGINE_HEIGHT)
 			{
 				missile->Reset();
@@ -95,7 +95,7 @@ void PhysicsComponent::Move(GameObject & gameObject, float elapseTime)
 		{
 			missile->transform.position.y += missile->speed * elapseTimeInt;
 			SyncClliderPos(gameObject);
-			if (CheckBlockCollision(gameObject) || CheckTankCollision(gameObject)
+			if (CheckBlockCollision(gameObject) || CheckTankCollision(gameObject) || CheckMissileCollision(gameObject)
 				|| missile->transform.position.y > MAP_MARGINE_HEIGHT + TILE_HEIGHT_NUM * TILE_SIZE)
 			{
 				missile->Reset();
@@ -361,6 +361,35 @@ bool PhysicsComponent::CheckTankCollision(GameObject & gameObject)
 		}
 	}
 
+
+	return isCollide;
+}
+
+bool PhysicsComponent::CheckMissileCollision(GameObject & gameObject)
+{
+	vector<Tank*> tanks = BattleCity::GetInstance()->GetTanks();
+	RECT rcTemp;
+	bool isCollide = false;
+
+	for (auto iter = tanks.begin(); iter != tanks.end(); iter++)
+	{
+		vector<Missile*> missiles = (*iter)->GetMissiles();
+		for (auto missileIter = missiles.begin(); missileIter != missiles.end(); missileIter++)
+		{
+			if ((*missileIter)->isFired &&
+				IntersectRect(&rcTemp, &colliderBox, &(*missileIter)->phsics.GetColliderBox()))
+			{
+				if (gameObject.tag == "missile_player" && (*missileIter)->tag != "missile_player")
+				{
+					isCollide = true;
+				}
+				else if (gameObject.tag == "missile_enemy" && (*missileIter)->tag != "missile_enemy")
+				{
+					isCollide = true;
+				}
+			}
+		}
+	}
 
 	return isCollide;
 }

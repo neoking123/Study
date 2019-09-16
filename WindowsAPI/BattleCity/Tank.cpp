@@ -140,3 +140,8 @@ void Tank::Die()
 	isDead = true;
 	phsics.SetColliderBox(*this, SIZE{ 0, 0 });
 }
+
+vector<Missile*> Tank::GetMissiles()
+{
+	return missilePool;
+}
