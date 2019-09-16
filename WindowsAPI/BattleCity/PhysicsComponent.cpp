@@ -381,10 +381,12 @@ bool PhysicsComponent::CheckMissileCollision(GameObject & gameObject)
 			{
 				if (gameObject.tag == "missile_player" && (*missileIter)->tag != "missile_player")
 				{
+					(*missileIter)->Reset();
 					isCollide = true;
 				}
 				else if (gameObject.tag == "missile_enemy" && (*missileIter)->tag != "missile_enemy")
 				{
+					(*missileIter)->Reset();
 					isCollide = true;
 				}
 			}

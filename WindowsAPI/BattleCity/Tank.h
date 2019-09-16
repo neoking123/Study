@@ -11,7 +11,13 @@ enum TANK_ANIM_STATE
 	RIGHT_00,
 	RIGHT_01,
 	UP_00,
-	UP_01
+	UP_01,
+	BOMB_00,
+	BOMB_01,
+	BOMB_02,
+	BOMB_03,
+	BOMB_04,
+	EXPLOSION_START
 };
 
 class Missile;
@@ -30,6 +36,7 @@ public:
 	int speed;
 	bool isCollide;
 	bool isDead;
+	bool isEndAnim;
 	PhysicsComponent phsics;
 	DIRECTION direction;
 	TANK_ANIM_STATE animState;

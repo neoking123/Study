@@ -69,10 +69,10 @@ void Tile::Update(float elapseTime)
 
 void Tile::Render(HDC hdc)
 {
-	phsics1.RenderColliderBox(hdc);
-	phsics2.RenderColliderBox(hdc);
-	phsics3.RenderColliderBox(hdc);
-	phsics4.RenderColliderBox(hdc);
+	//phsics1.RenderColliderBox(hdc);
+	//phsics2.RenderColliderBox(hdc);
+	//phsics3.RenderColliderBox(hdc);
+	//phsics4.RenderColliderBox(hdc);
 	graphics.Render(*this, hdc);
 }
 

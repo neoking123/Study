@@ -110,8 +110,49 @@ void GraphicsComponent::UpdateAnim(GameObject& gameObject, float elapseTime)
 				Sprites[0] = Sprites[TANK_ANIM_STATE::DOWN_00 + 1];
 			}
 		}
+
+		if (bombTime < 0.025f)
+		{
+			bombTime += elapseTime;
+			return;
+		}
+		bombTime = 0.0f;
+
+		if (player->animState == TANK_ANIM_STATE::EXPLOSION_START)
+		{
+			player->SetAnimState(TANK_ANIM_STATE::BOMB_00);
+			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_00 + 1];
+		}
+		else if (player->animState == TANK_ANIM_STATE::BOMB_00)
+		{
+			player->SetAnimState(TANK_ANIM_STATE::BOMB_01);
+			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_01 + 1];
+		}
+		else if (player->animState == TANK_ANIM_STATE::BOMB_01)
+		{
+			player->SetAnimState(TANK_ANIM_STATE::BOMB_02);
+			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_02 + 1];
+		}
+		else if (player->animState == TANK_ANIM_STATE::BOMB_02)
+		{
+			player->SetPosition(player->transform.position.x - 16, player->transform.position.y - 16);
+			player->SetAnimState(TANK_ANIM_STATE::BOMB_03);
+			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_03 + 1];
+		}
+		else if (player->animState == TANK_ANIM_STATE::BOMB_03)
+		{
+			player->SetAnimState(TANK_ANIM_STATE::BOMB_04);
+			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_04 + 1];
+		}
+		else if (player->animState == TANK_ANIM_STATE::BOMB_04)
+		{
+			player->SetPosition(player->transform.position.x + 16, player->transform.position.y + 16);
+			player->SetAnimState(TANK_ANIM_STATE::BOMB_03);
+			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_03 + 1];
+			player->isEndAnim = true;
+		}
 	}
-	else if (gameObject.tag == "missile")
+	else if (gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy")
 	{
 		Missile* missile = static_cast<Missile*>(&gameObject);
 
@@ -146,6 +187,32 @@ void GraphicsComponent::UpdateAnim(GameObject& gameObject, float elapseTime)
 				missile->SetAnimState(MISSILE_ANIM_STATE::FIRE_DOWN);
 				Sprites[0] = Sprites[MISSILE_ANIM_STATE::FIRE_DOWN + 1];
 			}
+		}
+
+		if (bombTime < 0.025f)
+		{
+			bombTime += elapseTime;
+			return;
+		}
+		bombTime = 0.0f;
+
+		if (missile->animState == MISSILE_ANIM_STATE::BOMB_START)
+		{
+			missile->SetPosition(missile->transform.position.x - 12, missile->transform.position.y - 12);
+			missile->SetAnimState(MISSILE_ANIM_STATE::BOMB_0);
+			Sprites[0] = Sprites[MISSILE_ANIM_STATE::BOMB_0 + 1];
+		}
+		else if (missile->animState == MISSILE_ANIM_STATE::BOMB_0)
+		{
+			missile->SetAnimState(MISSILE_ANIM_STATE::BOMB_1);
+			Sprites[0] = Sprites[MISSILE_ANIM_STATE::BOMB_1 + 1];
+		}
+		else if (missile->animState == MISSILE_ANIM_STATE::BOMB_1)
+		{
+			missile->SetAnimState(MISSILE_ANIM_STATE::BOMB_2);
+			Sprites[0] = Sprites[MISSILE_ANIM_STATE::BOMB_2 + 1];
+			missile->SetPosition(0, 0);
+			missile->isFired = false;
 		}
 	}
 	else if (gameObject.tag == "enemy")
@@ -224,6 +291,49 @@ void GraphicsComponent::UpdateAnim(GameObject& gameObject, float elapseTime)
 				Sprites[0] = Sprites[TANK_ANIM_STATE::DOWN_00 + 1];
 			}
 		}
+
+		if (bombTime < 0.025f)
+		{
+			bombTime += elapseTime;
+			return;
+		}
+		bombTime = 0.0f;
+
+		if (enemy->animState == TANK_ANIM_STATE::EXPLOSION_START)
+		{
+			enemy->SetAnimState(TANK_ANIM_STATE::BOMB_00);
+			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_00 + 1];
+		}
+		else if (enemy->animState == TANK_ANIM_STATE::BOMB_00)
+		{
+			enemy->SetAnimState(TANK_ANIM_STATE::BOMB_01);
+			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_01 + 1];
+		}
+		else if (enemy->animState == TANK_ANIM_STATE::BOMB_01)
+		{
+			enemy->SetAnimState(TANK_ANIM_STATE::BOMB_02);
+			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_02 + 1];
+		}
+		else if (enemy->animState == TANK_ANIM_STATE::BOMB_02)
+		{
+			enemy->SetPosition(enemy->transform.position.x - 16, enemy->transform.position.y - 16);
+			enemy->SetAnimState(TANK_ANIM_STATE::BOMB_03);
+			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_03 + 1];
+		}
+		else if (enemy->animState == TANK_ANIM_STATE::BOMB_03)
+		{
+			enemy->SetAnimState(TANK_ANIM_STATE::BOMB_04);
+			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_04 + 1];
+		}
+		else if (enemy->animState == TANK_ANIM_STATE::BOMB_04)
+		{
+			enemy->SetPosition(enemy->transform.position.x + 16, enemy->transform.position.y + 16);
+			enemy->SetAnimState(TANK_ANIM_STATE::BOMB_03);
+			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_03 + 1];
+			enemy->isEndAnim = true;
+		}
+
+		
 	}
 
 }

@@ -10,6 +10,7 @@ class GraphicsComponent
 {
 private:
 	vector<BitMap*> Sprites;
+	float bombTime = 0.0f;
 
 public:
 	void Render(GameObject& gameObject, HDC hdc);

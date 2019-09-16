@@ -7,6 +7,10 @@ void EnemyInputComponent::Update(GameObject & gameObject)
 	{
 		Enemy* enemy = static_cast<Enemy*>(&gameObject);
 
+		if (enemy->isDead)
+			return;
+			
+
 		if (directionChangeCount > randomDirectionChangeDelayCount)
 		{
 			randomDirection = rand() % 5;

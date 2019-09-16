@@ -22,6 +22,7 @@ void Enemy::Init(InputComponent * input, int x, int y, string tag)
 	fireDelayTime = 0.5f;
 	isCollide = false;
 	isDead = false;
+	isEndAnim = false;
 	direction = DIRECTION::STOP;
 	fireDirection = DIRECTION::DOWN;
 	animState = TANK_ANIM_STATE::DOWN_00;
@@ -32,50 +33,14 @@ void Enemy::Init(InputComponent * input, int x, int y, string tag)
 		graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(i));
 	}
 
+	for (int i = BITMAP_RES::EXPLOSION_0; i <= EXPLOSION_4; i++)
+	{
+		graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(i));
+	}
+
 	phsics.SetColliderBox(*this, SIZE{ 32, 32 }, 2, 2, -2, -2);
 
 	Missile* newMissile = new Missile();
 	newMissile->Init(nullptr, 0, 0, "missile_enemy");
 	missilePool.push_back(newMissile);
-
-	/*newMissile = new Missile();
-	newMissile->Init(nullptr, 0, 0, "missile");
-	missilePool.push_back(newMissile);*/
-}
-
-void Enemy::Update(float elapseTime)
-{
-	input->Update(*this);
-	phsics.Update(*this, elapseTime);
-	graphics.UpdateAnim(*this, elapseTime);
-
-	for (auto iter = missilePool.begin(); iter != missilePool.end(); iter++)
-	{
-		if ((*iter)->isFired)
-		{
-			(*iter)->Update(elapseTime);
-		}
-	}
-
-	fireElapseTime += elapseTime;
-}
-
-void Enemy::Render(HDC hdc)
-{
-	phsics.RenderColliderBox(hdc);
-	graphics.Render(*this, hdc);
-
-	for (auto iter = missilePool.begin(); iter != missilePool.end(); iter++)
-	{
-		if ((*iter)->isFired)
-		{
-			(*iter)->Render(hdc);
-		}
-	}
-}
-
-void Enemy::SetPosition(int x, int y)
-{
-	transform.position.x = x;
-	transform.position.y = y;
 }

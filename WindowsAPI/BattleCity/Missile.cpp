@@ -28,6 +28,10 @@ void Missile::Init(InputComponent * input, int x, int y, string tag)
 	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MISSILE_2));
 	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MISSILE_3));
 
+	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::EXPLOSION_0));
+	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::EXPLOSION_1));
+	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::EXPLOSION_2));
+
 	phsics.SetColliderBox(*this, SIZE{ 8, 8 }, 0, 0, 0, 0);
 }
 
@@ -35,12 +39,11 @@ void Missile::Update(float elapseTime)
 {
  	phsics.Update(*this, elapseTime);
 	graphics.UpdateAnim(*this, elapseTime);
-	//CheckBoundary();
 }
 
 void Missile::Render(HDC hdc)
 {
-	phsics.RenderColliderBox(hdc);
+	//phsics.RenderColliderBox(hdc);
 	graphics.Render(*this, hdc);
 }
 
@@ -55,21 +58,21 @@ void Missile::SetFirePosition(int x, int y)
 	if (direction == DIRECTION::UP)
 	{
 		transform.position.x = x + 12;
-		transform.position.y = y;
+		transform.position.y = y + 2;
 	}
 	else if (direction == DIRECTION::DOWN)
 	{
 		transform.position.x = x + 12;
-		transform.position.y = y + 24;
+		transform.position.y = y + 24 - 2;
 	}
 	else if (direction == DIRECTION::LEFT)
 	{
-		transform.position.x = x;
+		transform.position.x = x + 2;
 		transform.position.y = y + 12;
 	}
 	else if (direction == DIRECTION::RIGHT)
 	{
-		transform.position.x = x + 24;
+		transform.position.x = x + 24 - 2;
 		transform.position.y = y + 12;
 	}
 }
@@ -86,10 +89,10 @@ void Missile::SetSpeed(int newSpeed)
 
 void Missile::Reset()
 {
-	isFired = false;
+	//isFired = false;
 	isCollide = false;
 	SetDirection(DIRECTION::STOP);
-	SetPosition(0, 0);
+	SetAnimState(MISSILE_ANIM_STATE::BOMB_START);
 }
 
 void Missile::SetAnimState(MISSILE_ANIM_STATE newAnimState)

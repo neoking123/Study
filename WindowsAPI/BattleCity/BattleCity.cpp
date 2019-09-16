@@ -130,13 +130,11 @@ void BattleCity::Update()
 
 	elapseTime = sec.count();
 	
-	if (!player->isDead)
-		player->Update(elapseTime);
+	player->Update(elapseTime);
 
 	for (auto iter = enemys.begin(); iter != enemys.end(); iter++)
 	{
-		if (!(*iter)->isDead)
-			(*iter)->Update(elapseTime);
+		(*iter)->Update(elapseTime);
 	}
 	
 	Render();
@@ -170,13 +168,11 @@ void BattleCity::Render()
 	DrawBackground();
 	DrawTiles();
 
-	if (!player->isDead)
-		player->Render(gameDC);
+	player->Render(gameDC);
 
 	for (auto iter = enemys.begin(); iter != enemys.end(); iter++)
 	{
-		if (!(*iter)->isDead)
-			(*iter)->Render(gameDC);
+		(*iter)->Render(gameDC);
 	}
 
 	BitBlt(hdc, 0, 0, SCREEN_WIDE, SCREEN_HEIGHT, gameDC, 0, 0, SRCCOPY);

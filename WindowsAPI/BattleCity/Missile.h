@@ -11,7 +11,8 @@ enum MISSILE_ANIM_STATE
 	BOMB_0,
 	BOMB_1,
 	BOMB_2,
-	NOT_FIRED,
+	BOMB_START,
+	NOT_FIRED
 };
 
 class Missile :public GameObject

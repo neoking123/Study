@@ -23,6 +23,7 @@ void Tank::Init(InputComponent* input, int x, int y, string tag)
 	fireDelayTime = 0.1f;
 	isCollide = false;
 	isDead = false;
+	isEndAnim = false;
 	direction = DIRECTION::STOP;
 	fireDirection = DIRECTION::UP;
 	animState = TANK_ANIM_STATE::UP_00;
@@ -32,6 +33,12 @@ void Tank::Init(InputComponent* input, int x, int y, string tag)
 	{
 		graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(i));
 	}
+
+	for (int i = BITMAP_RES::EXPLOSION_0; i <= EXPLOSION_4; i++)
+	{
+		graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(i));
+	}
+
 
 	phsics.SetColliderBox(*this, SIZE{ 32, 32 }, 2, 2, -2, -2);
 
@@ -46,9 +53,14 @@ void Tank::Init(InputComponent* input, int x, int y, string tag)
 
 void Tank::Update(float elapseTime)
 {
-	input->Update(*this);
-	phsics.Update(*this, elapseTime);
-	graphics.UpdateAnim(*this, elapseTime);
+	if (!isDead)
+	{
+		input->Update(*this);
+		phsics.Update(*this, elapseTime);
+	}
+	
+	if(!isEndAnim)
+		graphics.UpdateAnim(*this, elapseTime);
 
 	for (auto iter = missilePool.begin(); iter != missilePool.end(); iter++)
 	{
@@ -63,8 +75,13 @@ void Tank::Update(float elapseTime)
 
 void Tank::Render(HDC hdc)
 {
-	phsics.RenderColliderBox(hdc);
-	graphics.Render(*this, hdc);
+	if (!isDead)
+	{
+		//phsics.RenderColliderBox(hdc);
+	}
+
+	if (!isEndAnim)
+		graphics.Render(*this, hdc);
 
 	for (auto iter = missilePool.begin(); iter != missilePool.end(); iter++)
 	{
@@ -116,21 +133,9 @@ void Tank::Fire()
 		{
 			(*iter)->isFired = true;
 			(*iter)->SetDirection(fireDirection);
-			//(*iter)->SetPosition(transform.position.x + 12, transform.position.y + 12);
 			(*iter)->SetFirePosition(transform.position.x, transform.position.y);
 			fireElapseTime = 0.0f;
 			return;
-		}
-	}
-
-	if (iter == missilePool.end())
-	{
-		for (auto iter = missilePool.begin(); iter != missilePool.end(); iter++)
-		{
-			if ((*iter)->isCollide)
-			{
-				//(*iter)->Reset();
-			}
 		}
 	}
 }
@@ -139,6 +144,8 @@ void Tank::Die()
 {
 	isDead = true;
 	phsics.SetColliderBox(*this, SIZE{ 0, 0 });
+	SetDirection(DIRECTION::STOP);
+	SetAnimState(TANK_ANIM_STATE::EXPLOSION_START);
 }
 
 vector<Missile*> Tank::GetMissiles()
