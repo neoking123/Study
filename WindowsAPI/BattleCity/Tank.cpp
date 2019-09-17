@@ -1,8 +1,33 @@
 #include "Tank.h"
 #include "BitMapManager.h"
 #include "InputComponent.h"
+#include "BattleCity.h"
 #include "Missile.h"
 #include "Macro.h"
+
+void Tank::Revive(float elapseTime)
+{
+	if (tag != "player")
+		return;
+
+	if (lifeCount <= 0)
+		return;
+
+	if (revivalElapseTime < revivalDelayTime)
+	{
+		revivalElapseTime += elapseTime;
+		return;
+	}
+
+	revivalElapseTime = 0.0f;
+	lifeCount--;
+	isDead = false;
+	isEndAnim = false;
+	isEndBomb = false;
+	phsics.SetColliderBox(*this, SIZE{ 32, 32 }, 2, 2, -2, -2);
+	SetAnimState(TANK_ANIM_STATE::UP_00);
+	SetPosition(4 * TILE_SIZE + MAP_MARGINE_WIDTH, 12 * TILE_SIZE + MAP_MARGINE_HEIGHT);
+}
 
 Tank::Tank()
 {
@@ -19,11 +44,15 @@ void Tank::Init(InputComponent* input, int x, int y, string tag)
 	transform.position.y = y;
 	this->tag = tag;
 	speed = 2;
+	lifeCount = 2;
 	fireElapseTime = 0.0f;
 	fireDelayTime = 0.1f;
+	revivalElapseTime = 0.0f;
+	revivalDelayTime = 1.5f;
 	isCollide = false;
 	isDead = false;
 	isEndAnim = false;
+	isEndBomb = false;
 	direction = DIRECTION::STOP;
 	fireDirection = DIRECTION::UP;
 	animState = TANK_ANIM_STATE::UP_00;
@@ -57,6 +86,10 @@ void Tank::Update(float elapseTime)
 	{
 		input->Update(*this);
 		phsics.Update(*this, elapseTime);
+	}
+	else
+	{
+		Revive(elapseTime);
 	}
 	
 	if(!isEndAnim)
@@ -142,6 +175,10 @@ void Tank::Fire()
 
 void Tank::Die()
 {
+	if (tag == "enemy")
+	{
+		BattleCity::GetInstance()->DecreaseEnemyNum();
+	}
 	isDead = true;
 	phsics.SetColliderBox(*this, SIZE{ 0, 0 });
 	SetDirection(DIRECTION::STOP);

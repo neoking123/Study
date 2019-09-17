@@ -28,6 +28,10 @@ protected:
 	vector<Missile*> missilePool;
 	float fireElapseTime;
 	float fireDelayTime;
+	float revivalElapseTime;
+	float revivalDelayTime;
+
+	void Revive(float elapseTime);
 
 public:
 	Tank();
@@ -37,6 +41,8 @@ public:
 	bool isCollide;
 	bool isDead;
 	bool isEndAnim;
+	bool isEndBomb;
+	int lifeCount;
 	PhysicsComponent phsics;
 	DIRECTION direction;
 	TANK_ANIM_STATE animState;

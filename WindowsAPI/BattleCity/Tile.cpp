@@ -16,6 +16,7 @@ void Tile::Init(InputComponent * input, int x, int y, string tag)
 	transform.position.x = x;
 	transform.position.y = y;
 	this->tag = tag;
+	animState = TILE_ANIM_STATE::EGLE_IDLE;
 
 	phsics1.SetColliderBox(*this, SIZE{ QUARTER,QUARTER });
 	phsics2.SetColliderBox(*this, SIZE{ QUARTER,QUARTER }, QUARTER, 0, QUARTER, 0);
@@ -52,19 +53,34 @@ void Tile::Init(InputComponent * input, int x, int y, string tag, int tileNum)
 	}
 	else
 	{
-		phsics1.SetColliderBox(*this, SIZE{ QUARTER,QUARTER });
-		phsics2.SetColliderBox(*this, SIZE{ QUARTER,QUARTER }, QUARTER, 0, QUARTER, 0);
-		phsics3.SetColliderBox(*this, SIZE{ QUARTER,QUARTER }, 0, QUARTER, 0, QUARTER);
-		phsics4.SetColliderBox(*this, SIZE{ QUARTER,QUARTER }, QUARTER, QUARTER, QUARTER, QUARTER);
+		phsics1.SetColliderBox(*this, SIZE{ QUARTER * 2,QUARTER * 2});
+		//phsics2.SetColliderBox(*this, SIZE{ QUARTER,QUARTER }, QUARTER, 0, QUARTER, 0);
+		//phsics3.SetColliderBox(*this, SIZE{ QUARTER,QUARTER }, 0, QUARTER, 0, QUARTER);
+		//phsics4.SetColliderBox(*this, SIZE{ QUARTER,QUARTER }, QUARTER, QUARTER, QUARTER, QUARTER);
 	}
 
 	this->tileNum = tileNum;
-	graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(this->tileNum));
+	if (this->tileNum == BITMAP_RES::BLOCK_13)
+	{
+		graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(this->tileNum));
+		graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(this->tileNum));
+		graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(this->tileNum + 1));
+
+		graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::EXPLOSION_0));
+		graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::EXPLOSION_1));
+		graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::EXPLOSION_2));
+		graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::EXPLOSION_3));
+		graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::EXPLOSION_4));
+	}
+	else
+	{
+		graphics.AddSprite(*BitMapManager::GetInstance()->GetBitMap(this->tileNum));
+	}
 }
 
 void Tile::Update(float elapseTime)
 {
-
+	graphics.UpdateAnim(*this, elapseTime);
 }
 
 void Tile::Render(HDC hdc)
@@ -78,4 +94,11 @@ void Tile::Render(HDC hdc)
 
 void Tile::SetPosition(int x, int y)
 {
+	transform.position.x = x;
+	transform.position.y = y;
+}
+
+void Tile::SetAnimState(TILE_ANIM_STATE newState)
+{
+	animState = newState;
 }

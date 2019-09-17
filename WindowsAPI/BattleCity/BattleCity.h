@@ -20,6 +20,7 @@ using namespace std;
 #define TILE_HEIGHT_NUM 13
 #define TILE_SIZE 32
 #define MAX_ENEMY_NUM 4
+#define MAX_SPAWN_NUM 20
 
 class Tank;
 class PlayerInputComponent;
@@ -36,21 +37,35 @@ private:
 	HBITMAP hBitmap;
 	HBITMAP hOldBitmap;
 	HWND hWnd;
+
 	float elapseTime;
 	chrono::system_clock::time_point lastTime;
+
 	int tiles[MAP_HEIGHT][MAP_WIDTH];
+	vector<Tile*> tileVec;
+
 	Tank* player;
 	PlayerInputComponent* playerInput;
-	vector<Tile*> tileVec;
 	vector<EnemyInputComponent*> enemyInputs;
 	list<Enemy*> enemys;
 	vector<Tank*> tanks;
+
+	int spawnPointNum;
+	float spawnTime;
+	int spawnEnemyNum;
+	int killCount;
+	bool isDestroyedEgle;
 
 	BattleCity();
 	void LoadMap(string fileName);
 	void DrawTiles();
 	void DrawBackground();
 	void CreateTile();
+	void SpawnEnemy(float elapseTime);
+	void DrawRemainEnemyNum(HDC hdc);
+	void CheckWin();
+	void DrawLifeCount(HDC hdc);
+	void DrawFlag(HDC hdc);
 
 public:
 	~BattleCity();
@@ -60,6 +75,8 @@ public:
 	void Render();
 	vector<Tile*> GetTiles();
 	vector<Tank*> GetTanks();
+	void DecreaseEnemyNum();
+	void DestroyEgle();
 
 	static BattleCity* GetInstance()
 	{

@@ -64,10 +64,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	switch (iMessage)
 	{
 	case WM_GETMINMAXINFO:
-		((MINMAXINFO*)lParam)->ptMaxTrackSize.x = 800;
-		((MINMAXINFO*)lParam)->ptMaxTrackSize.y = 700;
-		((MINMAXINFO*)lParam)->ptMinTrackSize.x = 800;
-		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 700;
+		((MINMAXINFO*)lParam)->ptMaxTrackSize.x = 560;
+		((MINMAXINFO*)lParam)->ptMaxTrackSize.y = 495;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.x = 560;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 495;
 		return 0;
 
 	case WM_DESTROY:

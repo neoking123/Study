@@ -170,7 +170,7 @@ bool PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
 				Enemy* enemy = static_cast<Enemy*>(&gameObject);
 				enemy->isCollide = true;
 			}
-			else if (gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy")
+			else if ((gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy") && (*iter)->tag == "tile_brick")
 			{
 				Missile* missile = static_cast<Missile*>(&gameObject);
 				missile->isCollide = true;
@@ -194,6 +194,13 @@ bool PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
 					(*iter)->phsics1.SetColliderBox(**iter, SIZE{ sz.cx, sz.cy - 8 }, (*iter)->phsics1.left, (*iter)->phsics1.top + 8, (*iter)->phsics1.right, (*iter)->phsics1.bottom + 8);
 				}
 			}
+			else if ((gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy") && (*iter)->tag == "tile_egle")
+			{
+				Missile* missile = static_cast<Missile*>(&gameObject);
+				missile->isCollide = true;
+
+				(*iter)->SetAnimState(TILE_ANIM_STATE::EGLE_BOMB_START);
+			}
 			isCollide = true;
 		}
 
@@ -209,7 +216,7 @@ bool PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
 				Enemy* enemy = static_cast<Enemy*>(&gameObject);
 				enemy->isCollide = true;
 			}
-			else if (gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy")
+			else if ((gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy") && (*iter)->tag == "tile_brick")
 			{
 				Missile* missile = static_cast<Missile*>(&gameObject);
 				missile->isCollide = true;
@@ -248,7 +255,7 @@ bool PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
 				Enemy* enemy = static_cast<Enemy*>(&gameObject);
 				enemy->isCollide = true;
 			}
-			else if (gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy")
+			else if ((gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy") && (*iter)->tag == "tile_brick")
 			{
 				Missile* missile = static_cast<Missile*>(&gameObject);
 				missile->isCollide = true;
@@ -287,7 +294,7 @@ bool PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
 				Enemy* enemy = static_cast<Enemy*>(&gameObject);
 				enemy->isCollide = true;
 			}
-			else if (gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy")
+			else if ((gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy") && (*iter)->tag == "tile_brick")
 			{
 				Missile* missile = static_cast<Missile*>(&gameObject);
 				missile->isCollide = true;

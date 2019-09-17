@@ -8,7 +8,7 @@
 
 void GraphicsComponent::Render(GameObject & gameObject, HDC hdc)
 {
-	if (gameObject.tag == "tile")
+	if (gameObject.tag == "tile_brick" || gameObject.tag == "tile_iron")
 	{
 		Tile* tile = static_cast<Tile*>(&gameObject);
 		Sprites[0]->DrawFourDivisions(hdc, gameObject.transform.position.x, gameObject.transform.position.y, 
@@ -16,7 +16,6 @@ void GraphicsComponent::Render(GameObject & gameObject, HDC hdc)
 			tile->phsics3.GetColliderSize(), tile->phsics4.GetColliderSize(),
 			tile->phsics1.left, tile->phsics1.top, tile->phsics2.left, tile->phsics2.top,
 			tile->phsics3.left, tile->phsics3.top, tile->phsics4.left, tile->phsics4.top);
-		
 	}
 	else
 	{
@@ -139,16 +138,22 @@ void GraphicsComponent::UpdateAnim(GameObject& gameObject, float elapseTime)
 			player->SetAnimState(TANK_ANIM_STATE::BOMB_03);
 			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_03 + 1];
 		}
-		else if (player->animState == TANK_ANIM_STATE::BOMB_03)
+		else if (player->animState == TANK_ANIM_STATE::BOMB_03 && !player->isEndBomb)
 		{
 			player->SetAnimState(TANK_ANIM_STATE::BOMB_04);
 			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_04 + 1];
 		}
 		else if (player->animState == TANK_ANIM_STATE::BOMB_04)
 		{
-			player->SetPosition(player->transform.position.x + 16, player->transform.position.y + 16);
 			player->SetAnimState(TANK_ANIM_STATE::BOMB_03);
 			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_03 + 1];
+			player->isEndBomb = true;
+		}
+		else if (player->animState == TANK_ANIM_STATE::BOMB_03 && player->isEndBomb)
+		{
+			player->SetPosition(player->transform.position.x + 16, player->transform.position.y + 16);
+			player->SetAnimState(TANK_ANIM_STATE::UP_00);
+			Sprites[0] = Sprites[TANK_ANIM_STATE::UP_00 + 1];
 			player->isEndAnim = true;
 		}
 	}
@@ -332,7 +337,54 @@ void GraphicsComponent::UpdateAnim(GameObject& gameObject, float elapseTime)
 			Sprites[0] = Sprites[TANK_ANIM_STATE::BOMB_03 + 1];
 			enemy->isEndAnim = true;
 		}
+	}
+	else if (gameObject.tag == "tile_egle")
+	{
+		if (bombTime < 0.025f)
+		{
+			bombTime += elapseTime;
+			return;
+		}
+		bombTime = 0.0f;
 
+		Tile* egle = static_cast<Tile*>(&gameObject);
+		if (egle->animState == TILE_ANIM_STATE::EGLE_BOMB_START)
+		{
+			egle->SetAnimState(TILE_ANIM_STATE::EGLE_BOMB_0);
+			Sprites[0] = Sprites[TILE_ANIM_STATE::EGLE_BOMB_0 + 1];
+		}
+		else if (egle->animState == TILE_ANIM_STATE::EGLE_BOMB_0)
+		{
+			egle->SetAnimState(TILE_ANIM_STATE::EGLE_BOMB_1);
+			Sprites[0] = Sprites[TILE_ANIM_STATE::EGLE_BOMB_1 + 1];
+		}
+		else if (egle->animState == TILE_ANIM_STATE::EGLE_BOMB_1)
+		{
+			egle->SetAnimState(TILE_ANIM_STATE::EGLE_BOMB_2);
+			Sprites[0] = Sprites[TILE_ANIM_STATE::EGLE_BOMB_2 + 1];
+		}
+		else if (egle->animState == TILE_ANIM_STATE::EGLE_BOMB_2)
+		{
+			egle->SetPosition(egle->transform.position.x - 16, egle->transform.position.y - 16);
+			egle->SetAnimState(TILE_ANIM_STATE::EGLE_BOMB_3);
+			Sprites[0] = Sprites[TILE_ANIM_STATE::EGLE_BOMB_3 + 1];
+		}
+		else if (egle->animState == TILE_ANIM_STATE::EGLE_BOMB_3)
+		{
+			egle->SetAnimState(TILE_ANIM_STATE::EGLE_BOMB_4);
+			Sprites[0] = Sprites[TILE_ANIM_STATE::EGLE_BOMB_4 + 1];
+		}
+		else if (egle->animState == TILE_ANIM_STATE::EGLE_BOMB_4)
+		{
+			egle->SetPosition(egle->transform.position.x + 16, egle->transform.position.y + 16);
+			egle->SetAnimState(TILE_ANIM_STATE::EGLE_FLAG);
+			Sprites[0] = Sprites[TILE_ANIM_STATE::EGLE_FLAG + 1];
+
+			egle->phsics1.SetColliderBox(*egle, SIZE{ 0, 0 });
+			egle->phsics2.SetColliderBox(*egle, SIZE{ 0, 0 });
+			egle->phsics3.SetColliderBox(*egle, SIZE{ 0, 0 });
+			egle->phsics4.SetColliderBox(*egle, SIZE{ 0, 0 });
+		}
 		
 	}
 
