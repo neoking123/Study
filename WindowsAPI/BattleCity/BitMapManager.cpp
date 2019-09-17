@@ -38,4 +38,5 @@ void BitMapManager::Release()
 	{
 		SAFE_DELETE(*iter);
 	}
+	BitMaps.clear();
 }

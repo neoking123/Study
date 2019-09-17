@@ -10,7 +10,7 @@ void Tank::Revive(float elapseTime)
 	if (tag != "player")
 		return;
 
-	if (lifeCount <= 0)
+	if (BattleCity::GetInstance()->GetLifeCount() <= 0)
 		return;
 
 	if (revivalElapseTime < revivalDelayTime)
@@ -20,7 +20,7 @@ void Tank::Revive(float elapseTime)
 	}
 
 	revivalElapseTime = 0.0f;
-	lifeCount--;
+	BattleCity::GetInstance()->LoseLife();
 	isDead = false;
 	isEndAnim = false;
 	isEndBomb = false;
@@ -44,7 +44,6 @@ void Tank::Init(InputComponent* input, int x, int y, string tag)
 	transform.position.y = y;
 	this->tag = tag;
 	speed = 2;
-	lifeCount = 2;
 	fireElapseTime = 0.0f;
 	fireDelayTime = 0.1f;
 	revivalElapseTime = 0.0f;
@@ -147,6 +146,7 @@ void Tank::Release()
 	{
 		SAFE_DELETE(*iter);
 	}
+	missilePool.clear();
 }
 
 void Tank::SetAnimState(TANK_ANIM_STATE newAnimState)

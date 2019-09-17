@@ -9,12 +9,11 @@ void EnemyInputComponent::Update(GameObject & gameObject)
 
 		if (enemy->isDead)
 			return;
-			
 
 		if (directionChangeCount > randomDirectionChangeDelayCount)
 		{
 			randomDirection = rand() % 5;
-			randomDirectionChangeDelayCount = rand() % 50 + 50;
+			randomDirectionChangeDelayCount = rand() % 50 + 20;
 			directionChangeCount = 0;
 		}
 		else

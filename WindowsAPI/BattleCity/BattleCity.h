@@ -21,6 +21,17 @@ using namespace std;
 #define TILE_SIZE 32
 #define MAX_ENEMY_NUM 4
 #define MAX_SPAWN_NUM 20
+#define STAGE1 "Maps\\Stage1.txt"
+#define STAGE2 "Maps\\Stage2.txt"
+
+enum SCENE_STATE
+{
+	MAIN_SCENE,
+	STAGE_SCENE,
+	INGAME_SCENE,
+	SCORE_SCENE,
+	GAMEOVER_SCENE,
+};
 
 class Tank;
 class PlayerInputComponent;
@@ -41,11 +52,20 @@ private:
 	float elapseTime;
 	chrono::system_clock::time_point lastTime;
 
+	bool isFisrtInit;
+	SCENE_STATE sceneState;
+	int currentStage;
+	float stageChangeTime;
+	int scoreKillCount;
+	int scoreCount;
+	float scoreSceneTime;
+	int lifeCount;
+
 	int tiles[MAP_HEIGHT][MAP_WIDTH];
 	vector<Tile*> tileVec;
 
-	Tank* player;
-	PlayerInputComponent* playerInput;
+	Tank* player = nullptr;
+	PlayerInputComponent* playerInput = nullptr;
 	vector<EnemyInputComponent*> enemyInputs;
 	list<Enemy*> enemys;
 	vector<Tank*> tanks;
@@ -59,17 +79,24 @@ private:
 	BattleCity();
 	void LoadMap(string fileName);
 	void DrawTiles();
+	void DrawTreeTiles();
 	void DrawBackground();
 	void CreateTile();
 	void SpawnEnemy(float elapseTime);
 	void DrawRemainEnemyNum(HDC hdc);
-	void CheckWin();
+	void CheckWin(float elapseTime);
+	void CheckGameOver(float elapseTime);
 	void DrawLifeCount(HDC hdc);
-	void DrawFlag(HDC hdc);
+	void DrawStageFlag(HDC hdc);
+	void UpdateEnemys(float elapseTime);
+	void UpdateTileEgle(float elapseTime);
+	void RenderEnemys(HDC hdc);
+	void DrawScoreScene(HDC hdc);
 
 public:
 	~BattleCity();
 	void Init(HWND hWnd);
+	void ReInit();
 	void Update();
 	void Release();
 	void Render();
@@ -77,6 +104,8 @@ public:
 	vector<Tank*> GetTanks();
 	void DecreaseEnemyNum();
 	void DestroyEgle();
+	int GetLifeCount();
+	void LoseLife();
 
 	static BattleCity* GetInstance()
 	{

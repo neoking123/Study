@@ -48,7 +48,21 @@ void BattleCity::DrawTiles()
 {
 	for (auto iter = tileVec.begin(); iter != tileVec.end(); iter++)
 	{
-		(*iter)->Render(gameDC);
+		if ((*iter)->tag != "tile_tree")
+		{
+			(*iter)->Render(gameDC);
+		}
+	}
+}
+
+void BattleCity::DrawTreeTiles()
+{
+	for (auto iter = tileVec.begin(); iter != tileVec.end(); iter++)
+	{
+		if ((*iter)->tag == "tile_tree")
+		{
+			(*iter)->Render(gameDC);
+		}
 	}
 }
 
@@ -108,7 +122,7 @@ void BattleCity::CreateTile()
 
 void BattleCity::SpawnEnemy(float elapseTime)
 {
-	if (spawnTime < 1.5f)
+	if (spawnTime < 1.0f)
 	{
 		spawnTime += elapseTime;
 		return;
@@ -120,7 +134,7 @@ void BattleCity::SpawnEnemy(float elapseTime)
 
 	if (enemys.size() >= MAX_SPAWN_NUM)
 		return;
-	
+
 	if (spawnPointNum >= 12)
 	{
 		spawnPointNum = 0;
@@ -128,6 +142,18 @@ void BattleCity::SpawnEnemy(float elapseTime)
 	else
 	{
 		spawnPointNum += 6;
+	}
+
+	RECT spawnBox = { spawnPointNum * TILE_SIZE + MAP_MARGINE_WIDTH, 0 * TILE_SIZE + MAP_MARGINE_HEIGHT, 
+		spawnPointNum * TILE_SIZE + MAP_MARGINE_WIDTH + 30, 0 * TILE_SIZE + MAP_MARGINE_HEIGHT + 30 };
+	RECT rt;
+
+	for (auto iter = tanks.begin(); iter != tanks.end(); iter++)
+	{
+		if (IntersectRect(&rt, &spawnBox, &(*iter)->phsics.GetColliderBox()))
+		{
+			return;
+		}
 	}
 	
 	EnemyInputComponent* enemyInput = new EnemyInputComponent();
@@ -149,12 +175,33 @@ void BattleCity::DrawRemainEnemyNum(HDC hdc)
 	}
 }
 
-void BattleCity::CheckWin()
+void BattleCity::CheckWin(float elapseTime)
 {
 	if (spawnEnemyNum == 0 && enemys.size() == MAX_SPAWN_NUM)
 	{
-		int a = 0;
-		int b = 0;
+		if (stageChangeTime < 1.0f)
+		{
+			stageChangeTime += elapseTime;
+			return;
+		}
+		stageChangeTime = 0.0f;
+		sceneState = SCENE_STATE::SCORE_SCENE;
+	}
+}
+
+void BattleCity::CheckGameOver(float elapseTime)
+{
+	if ((lifeCount == 0 && player->isDead == true) || isDestroyedEgle == true)
+	{
+		if (stageChangeTime < 1.0f)
+		{
+			stageChangeTime += elapseTime;
+			return;
+		}
+		stageChangeTime = 0.0f;
+		sceneState = SCENE_STATE::GAMEOVER_SCENE;
+
+		isFisrtInit = true;
 	}
 }
 
@@ -168,7 +215,7 @@ void BattleCity::DrawLifeCount(HDC hdc)
 	SetTextColor(hdc, RGB(0, 0, 0));
 
 	wsprintf(info, TEXT("1P"));
-	wsprintf(lifeCountStr, TEXT("%d"), player->lifeCount);
+	wsprintf(lifeCountStr, TEXT("%d"), lifeCount);
 	TextOut(hdc, 14 * TILE_SIZE + MAP_MARGINE_WIDTH, 8 + 7 * TILE_SIZE + MAP_MARGINE_HEIGHT, info, lstrlen(info));
 	TextOut(hdc, -8 + 15 * TILE_SIZE + MAP_MARGINE_WIDTH, -4 + 8 * TILE_SIZE + MAP_MARGINE_HEIGHT, lifeCountStr, lstrlen(lifeCountStr));
 
@@ -180,11 +227,81 @@ void BattleCity::DrawLifeCount(HDC hdc)
 	DeleteObject(myFont);
 }
 
-void BattleCity::DrawFlag(HDC hdc)
+void BattleCity::DrawStageFlag(HDC hdc)
 {
-	if (!isDestroyedEgle)
-		return;
-	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BLOCK_14)->Draw(gameDC, 6 * TILE_SIZE + MAP_MARGINE_WIDTH, 12 * TILE_SIZE + MAP_MARGINE_HEIGHT);
+	TCHAR stageNum[128];
+	SetBkColor(hdc, RGB(127, 127, 127));
+	HFONT myFont = CreateFont(24, 0, 0, 0, 1000, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "Arial");
+	HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
+	SetTextColor(hdc, RGB(0, 0, 0));
+
+	wsprintf(stageNum, TEXT("%d"), currentStage);
+	TextOut(hdc, -8 + 15 * TILE_SIZE + MAP_MARGINE_WIDTH, 8 + 11 * TILE_SIZE + MAP_MARGINE_HEIGHT, stageNum, lstrlen(stageNum));
+
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::STAGE_ICON)->Draw(gameDC, 14 * TILE_SIZE + MAP_MARGINE_WIDTH, 16 + 10 * TILE_SIZE + MAP_MARGINE_HEIGHT);
+
+	SetTextColor(hdc, RGB(0, 0, 0));
+	SelectObject(hdc, oldFont);
+	SetBkColor(hdc, RGB(255, 255, 255));
+	DeleteObject(myFont);
+}
+
+void BattleCity::UpdateEnemys(float elapseTime)
+{
+	for (auto iter = enemys.begin(); iter != enemys.end(); iter++)
+	{
+		(*iter)->Update(elapseTime);
+	}
+}
+
+void BattleCity::UpdateTileEgle(float elapseTime)
+{
+	for (auto iter = tileVec.begin(); iter != tileVec.end(); iter++)
+	{
+		if ((*iter)->tag == "tile_egle")
+		{
+			(*iter)->Update(elapseTime);
+		}
+	}
+}
+
+void BattleCity::RenderEnemys(HDC hdc)
+{
+	for (auto iter = enemys.begin(); iter != enemys.end(); iter++)
+	{
+		(*iter)->Render(gameDC);
+	}
+}
+
+void BattleCity::DrawScoreScene(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::SCORE)->Draw(gameDC, 0, 0);
+
+	TCHAR stageNum[128];
+	TCHAR KillCount[128];
+	TCHAR scoreCount[128];
+	TCHAR playerScore[128];
+	SetBkColor(hdc, RGB(0, 0, 0));
+	HFONT myFont = CreateFont(24, 0, 0, 0, 1000, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "Arial");
+	HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
+	SetTextColor(hdc, RGB(255, 255, 255));
+
+	wsprintf(stageNum, TEXT("%d"), currentStage);
+	wsprintf(KillCount, TEXT("%d"), scoreKillCount);
+	wsprintf(scoreCount, TEXT("%d"), this->scoreCount);
+	wsprintf(playerScore, TEXT("%d"), 2000);
+
+	TextOut(hdc, 310, 58, stageNum, lstrlen(stageNum));
+	TextOut(hdc, 210, 175, KillCount, lstrlen(KillCount));
+	TextOut(hdc, 80, 175, scoreCount, lstrlen(scoreCount));
+
+	SetTextColor(hdc, RGB(255, 160, 0));
+	TextOut(hdc, 150, 130, playerScore, lstrlen(playerScore));
+
+	SetTextColor(hdc, RGB(0, 0, 0));
+	SelectObject(hdc, oldFont);
+	SetBkColor(hdc, RGB(255, 255, 255));
+	DeleteObject(myFont);
 }
 
 BattleCity::BattleCity()
@@ -208,7 +325,54 @@ void BattleCity::Init(HWND hWnd)
 	hOldBitmap = (HBITMAP)SelectObject(gameDC, hBitmap);
 
 	BitMapManager::GetInstance()->Init(gameDC);
-	LoadMap("Maps\\Stage1.txt");
+
+	isFisrtInit = true;
+	sceneState = SCENE_STATE::MAIN_SCENE;
+	currentStage = 1;
+	stageChangeTime = 0.0f;
+
+	ReleaseDC(hWnd, hdc);
+}
+
+void BattleCity::ReInit()
+{
+	if(player != nullptr)
+		player->Release();
+	SAFE_DELETE(player);
+	SAFE_DELETE(playerInput);
+
+	for (auto iter = enemys.begin(); iter != enemys.end(); iter++)
+	{
+		(*iter)->Release();
+		SAFE_DELETE(*iter);
+	}
+	enemys.clear();
+	tanks.clear();
+
+	for (auto iter = enemyInputs.begin(); iter != enemyInputs.end(); iter++)
+	{
+		SAFE_DELETE(*iter);
+	}
+	enemyInputs.clear();
+
+	for (auto iter = tileVec.begin(); iter != tileVec.end(); iter++)
+	{
+		SAFE_DELETE(*iter);
+	}
+	tileVec.clear();
+
+
+	if (currentStage == 1)
+	{
+		lifeCount = 2;
+		LoadMap(STAGE1);
+	}
+	else if (currentStage == 2)
+	{
+		LoadMap(STAGE2);
+	}
+	
+	stageChangeTime = 0.0f;
 
 	playerInput = new PlayerInputComponent();
 
@@ -220,9 +384,10 @@ void BattleCity::Init(HWND hWnd)
 	spawnTime = 0.0f;
 	spawnEnemyNum = 0;
 	killCount = 0;
+	scoreKillCount = 0;
+	scoreCount = 0;
+	scoreSceneTime = 0.0f;
 	isDestroyedEgle = false;
-
-	ReleaseDC(hWnd, hdc);
 }
 
 void BattleCity::Update()
@@ -232,34 +397,105 @@ void BattleCity::Update()
 		return;
 
 	elapseTime = sec.count();
-	
 
-	player->Update(elapseTime);
-
-	SpawnEnemy(elapseTime);
-
-	for (auto iter = enemys.begin(); iter != enemys.end(); iter++)
+	switch (sceneState)
 	{
-		(*iter)->Update(elapseTime);
-	}
-	
-	for (auto iter = tileVec.begin(); iter != tileVec.end(); iter++)
-	{
-		if ((*iter)->tag == "tile_egle")
+	case SCENE_STATE::MAIN_SCENE:
+		if (GetAsyncKeyState(VK_SPACE) & 0x8000)
 		{
-			(*iter)->Update(elapseTime);
+			sceneState = SCENE_STATE::STAGE_SCENE;
 		}
+		break;
+
+	case SCENE_STATE::STAGE_SCENE:
+		if (stageChangeTime < 1.0f)
+		{
+			stageChangeTime += elapseTime;
+			break;
+		}
+
+		if (isFisrtInit)
+		{
+			ReInit();
+			isFisrtInit = false;
+		}
+
+		stageChangeTime = 0.0f;
+		sceneState = SCENE_STATE::INGAME_SCENE;
+		break;
+
+	case SCENE_STATE::INGAME_SCENE:
+		player->Update(elapseTime);
+		SpawnEnemy(elapseTime);
+		UpdateEnemys(elapseTime);
+		UpdateTileEgle(elapseTime);
+		CheckWin(elapseTime);
+		CheckGameOver(elapseTime);
+		break;
+
+	case SCENE_STATE::GAMEOVER_SCENE:
+		UpdateEnemys(elapseTime);
+
+		if (stageChangeTime < 2.0f)
+		{
+			stageChangeTime += elapseTime;
+			break;
+		}
+		stageChangeTime = 0.0f;
+		sceneState = SCENE_STATE::MAIN_SCENE;
+		currentStage = 1;
+		break;
+
+	case SCENE_STATE::SCORE_SCENE:
+
+		if (scoreSceneTime < 0.05f)
+		{
+			scoreSceneTime += elapseTime;
+			break;
+		}
+		else if(scoreSceneTime < 1.0f)
+		{
+			scoreSceneTime = 0.0f;
+			scoreKillCount++;
+			scoreCount = scoreKillCount * 100;
+			if (scoreKillCount == MAX_SPAWN_NUM)
+			{
+				scoreSceneTime = 2.0f;
+			}
+		}
+
+		if (stageChangeTime < 2.0f)
+		{
+			stageChangeTime += elapseTime;
+			break;
+		}
+
+		stageChangeTime = 0.0f;
+		if (currentStage == 1)
+		{
+			isFisrtInit = true;
+			currentStage = 2;
+			sceneState = SCENE_STATE::STAGE_SCENE;
+		}
+		else if (currentStage == 2)
+		{
+			isFisrtInit = true;
+			currentStage = 1;
+			sceneState = SCENE_STATE::MAIN_SCENE;
+		}
+
+		break;
 	}
 
 	Render();
-	CheckWin();
 
 	lastTime = std::chrono::system_clock::now();
 }
 
 void BattleCity::Release()
 {
-	player->Release();
+	if (player != nullptr)
+		player->Release();
 	SAFE_DELETE(player);
 	SAFE_DELETE(playerInput);
 
@@ -268,22 +504,22 @@ void BattleCity::Release()
 		(*iter)->Release();
 		SAFE_DELETE(*iter);
 	}
+	enemys.clear();
+	tanks.clear();
 
-	for (auto iter = enemyInputs.begin(); iter != enemyInputs.end(); iter)
+	for (auto iter = enemyInputs.begin(); iter != enemyInputs.end(); iter++)
 	{
 		SAFE_DELETE(*iter);
 	}
-
-	for (auto iter = tanks.begin(); iter != tanks.end(); iter++)
-	{
-		SAFE_DELETE(*iter);
-	}
+	enemyInputs.clear();
 
 	for (auto iter = tileVec.begin(); iter != tileVec.end(); iter++)
 	{
 		SAFE_DELETE(*iter);
 	}
+	tileVec.clear();
 
+	BitMapManager::GetInstance()->Release();
 	SelectObject(gameDC, hOldBitmap);
 	DeleteObject(hBitmap);
 	DeleteDC(gameDC);
@@ -293,17 +529,50 @@ void BattleCity::Render()
 {
 	HDC hdc = GetDC(hWnd);
 
-	DrawBackground();
-	//DrawFlag(gameDC);
-	DrawTiles();
-	DrawRemainEnemyNum(gameDC);
-	DrawLifeCount(gameDC);
-
-	player->Render(gameDC);
-
-	for (auto iter = enemys.begin(); iter != enemys.end(); iter++)
+	switch (sceneState)
 	{
-		(*iter)->Render(gameDC);
+	case SCENE_STATE::MAIN_SCENE:
+		BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MAIN)->Draw(gameDC, 0, 0);
+		break;
+
+	case SCENE_STATE::STAGE_SCENE:
+		if (currentStage == 1)
+		{
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::STAGE_1)->Draw(gameDC, 0, 0);
+		}
+		else if (currentStage == 2)
+		{
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::STAGE_2)->Draw(gameDC, 0, 0);
+		}
+		
+		break;
+
+	case SCENE_STATE::INGAME_SCENE:
+		DrawBackground();
+		DrawTiles();
+		DrawRemainEnemyNum(gameDC);
+		DrawLifeCount(gameDC);
+		DrawStageFlag(gameDC);
+		player->Render(gameDC);
+		RenderEnemys(gameDC);
+		DrawTreeTiles();
+		break;
+
+	case SCENE_STATE::GAMEOVER_SCENE:
+		DrawBackground();
+		DrawTiles();
+		DrawRemainEnemyNum(gameDC);
+		DrawLifeCount(gameDC);
+		DrawStageFlag(gameDC);
+		player->Render(gameDC);
+		RenderEnemys(gameDC);
+		DrawTreeTiles();
+		BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::GAMEOVER)->Draw(gameDC, 16 + 5 * TILE_SIZE + MAP_MARGINE_WIDTH, -16 + 7 * TILE_SIZE + MAP_MARGINE_HEIGHT);
+		break;
+
+	case SCENE_STATE::SCORE_SCENE:
+		DrawScoreScene(gameDC);
+		break;
 	}
 
 	BitBlt(hdc, 0, 0, SCREEN_WIDE, SCREEN_HEIGHT, gameDC, 0, 0, SRCCOPY);
@@ -330,4 +599,14 @@ void BattleCity::DecreaseEnemyNum()
 void BattleCity::DestroyEgle()
 {
 	isDestroyedEgle = true;
+}
+
+int BattleCity::GetLifeCount()
+{
+	return lifeCount;
+}
+
+void BattleCity::LoseLife()
+{
+	lifeCount--;
 }

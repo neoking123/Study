@@ -200,6 +200,7 @@ bool PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
 				missile->isCollide = true;
 
 				(*iter)->SetAnimState(TILE_ANIM_STATE::EGLE_BOMB_START);
+				BattleCity::GetInstance()->DestroyEgle();
 			}
 			isCollide = true;
 		}

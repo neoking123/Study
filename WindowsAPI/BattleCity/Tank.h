@@ -42,7 +42,6 @@ public:
 	bool isDead;
 	bool isEndAnim;
 	bool isEndBomb;
-	int lifeCount;
 	PhysicsComponent phsics;
 	DIRECTION direction;
 	TANK_ANIM_STATE animState;
