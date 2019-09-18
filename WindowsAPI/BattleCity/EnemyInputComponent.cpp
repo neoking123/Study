@@ -5,7 +5,7 @@ void EnemyInputComponent::Update(GameObject & gameObject)
 {
 	if (gameObject.tag == "enemy")
 	{
-		Enemy* enemy = static_cast<Enemy*>(&gameObject);
+		Enemy* enemy = dynamic_cast<Enemy*>(&gameObject);
 
 		if (enemy->isDead)
 			return;

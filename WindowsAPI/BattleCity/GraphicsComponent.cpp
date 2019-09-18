@@ -10,7 +10,7 @@ void GraphicsComponent::Render(GameObject & gameObject, HDC hdc)
 {
 	if (gameObject.tag == "tile_brick" || gameObject.tag == "tile_iron")
 	{
-		Tile* tile = static_cast<Tile*>(&gameObject);
+		Tile* tile = dynamic_cast<Tile*>(&gameObject);
 		Sprites[0]->DrawFourDivisions(hdc, gameObject.transform.position.x, gameObject.transform.position.y, 
 			tile->phsics1.GetColliderSize(), tile->phsics2.GetColliderSize(), 
 			tile->phsics3.GetColliderSize(), tile->phsics4.GetColliderSize(),
@@ -35,7 +35,7 @@ void GraphicsComponent::UpdateAnim(GameObject& gameObject, float elapseTime)
 	
 	if (gameObject.tag == "player")
 	{
-		Tank* player = static_cast<Tank*>(&gameObject);
+		Tank* player = dynamic_cast<Tank*>(&gameObject);
 
 		if (player->direction == DIRECTION::RIGHT)
 		{
@@ -159,7 +159,7 @@ void GraphicsComponent::UpdateAnim(GameObject& gameObject, float elapseTime)
 	}
 	else if (gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy")
 	{
-		Missile* missile = static_cast<Missile*>(&gameObject);
+		Missile* missile = dynamic_cast<Missile*>(&gameObject);
 
 		if (missile->direction == DIRECTION::RIGHT)
 		{
@@ -222,7 +222,7 @@ void GraphicsComponent::UpdateAnim(GameObject& gameObject, float elapseTime)
 	}
 	else if (gameObject.tag == "enemy")
 	{
-		Enemy* enemy = static_cast<Enemy*>(&gameObject);
+		Enemy* enemy = dynamic_cast<Enemy*>(&gameObject);
 
 		if (enemy->direction == DIRECTION::RIGHT)
 		{
@@ -347,7 +347,7 @@ void GraphicsComponent::UpdateAnim(GameObject& gameObject, float elapseTime)
 		}
 		bombTime = 0.0f;
 
-		Tile* egle = static_cast<Tile*>(&gameObject);
+		Tile* egle = dynamic_cast<Tile*>(&gameObject);
 		if (egle->animState == TILE_ANIM_STATE::EGLE_BOMB_START)
 		{
 			egle->SetAnimState(TILE_ANIM_STATE::EGLE_BOMB_0);

@@ -11,7 +11,7 @@ void PhysicsComponent::Move(GameObject & gameObject, float elapseTime)
 	int elapseTimeInt = ceil(elapseTime);
 	if (gameObject.tag == "player")
 	{
-		Tank* player = static_cast<Tank*>(&gameObject);
+		Tank* player = dynamic_cast<Tank*>(&gameObject);
 
 		if (player->direction == DIRECTION::LEFT)
 		{
@@ -56,7 +56,7 @@ void PhysicsComponent::Move(GameObject & gameObject, float elapseTime)
 	}
 	else if(gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy")
 	{
-		Missile* missile = static_cast<Missile*>(&gameObject);
+		Missile* missile = dynamic_cast<Missile*>(&gameObject);
 		if (missile->direction == DIRECTION::LEFT)
 		{
 			missile->transform.position.x -= missile->speed * elapseTimeInt;
@@ -105,7 +105,7 @@ void PhysicsComponent::Move(GameObject & gameObject, float elapseTime)
 	}
 	else if (gameObject.tag == "enemy")
 	{
-		Enemy* enemy = static_cast<Enemy*>(&gameObject);
+		Enemy* enemy = dynamic_cast<Enemy*>(&gameObject);
 
 		if (enemy->direction == DIRECTION::LEFT)
 		{
@@ -162,17 +162,17 @@ bool PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
 		{
 			if (gameObject.tag == "player")
 			{
-				Tank* player = static_cast<Tank*>(&gameObject);
+				Tank* player = dynamic_cast<Tank*>(&gameObject);
 				player->isCollide = true;
 			}
 			else if (gameObject.tag == "enemy")
 			{
-				Enemy* enemy = static_cast<Enemy*>(&gameObject);
+				Enemy* enemy = dynamic_cast<Enemy*>(&gameObject);
 				enemy->isCollide = true;
 			}
 			else if ((gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy") && (*iter)->tag == "tile_brick")
 			{
-				Missile* missile = static_cast<Missile*>(&gameObject);
+				Missile* missile = dynamic_cast<Missile*>(&gameObject);
 				missile->isCollide = true;
 
 				RECT rt = (*iter)->phsics1.GetColliderBox();
@@ -196,7 +196,7 @@ bool PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
 			}
 			else if ((gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy") && (*iter)->tag == "tile_egle")
 			{
-				Missile* missile = static_cast<Missile*>(&gameObject);
+				Missile* missile = dynamic_cast<Missile*>(&gameObject);
 				missile->isCollide = true;
 
 				(*iter)->SetAnimState(TILE_ANIM_STATE::EGLE_BOMB_START);
@@ -209,17 +209,17 @@ bool PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
 		{
 			if (gameObject.tag == "player")
 			{
-				Tank* player = static_cast<Tank*>(&gameObject);
+				Tank* player = dynamic_cast<Tank*>(&gameObject);
 				player->isCollide = true;
 			}
 			else if (gameObject.tag == "enemy")
 			{
-				Enemy* enemy = static_cast<Enemy*>(&gameObject);
+				Enemy* enemy = dynamic_cast<Enemy*>(&gameObject);
 				enemy->isCollide = true;
 			}
 			else if ((gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy") && (*iter)->tag == "tile_brick")
 			{
-				Missile* missile = static_cast<Missile*>(&gameObject);
+				Missile* missile = dynamic_cast<Missile*>(&gameObject);
 				missile->isCollide = true;
 
 				RECT rt = (*iter)->phsics2.GetColliderBox();
@@ -248,17 +248,17 @@ bool PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
 		{
 			if (gameObject.tag == "player")
 			{
-				Tank* player = static_cast<Tank*>(&gameObject);
+				Tank* player = dynamic_cast<Tank*>(&gameObject);
 				player->isCollide = true;
 			}
 			else if (gameObject.tag == "enemy")
 			{
-				Enemy* enemy = static_cast<Enemy*>(&gameObject);
+				Enemy* enemy = dynamic_cast<Enemy*>(&gameObject);
 				enemy->isCollide = true;
 			}
 			else if ((gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy") && (*iter)->tag == "tile_brick")
 			{
-				Missile* missile = static_cast<Missile*>(&gameObject);
+				Missile* missile = dynamic_cast<Missile*>(&gameObject);
 				missile->isCollide = true;
 
 				RECT rt = (*iter)->phsics3.GetColliderBox();
@@ -287,17 +287,17 @@ bool PhysicsComponent::CheckBlockCollision(GameObject& gameObject)
 		{
 			if (gameObject.tag == "player")
 			{
-				Tank* player = static_cast<Tank*>(&gameObject);
+				Tank* player = dynamic_cast<Tank*>(&gameObject);
 				player->isCollide = true;
 			}
 			else if (gameObject.tag == "enemy")
 			{
-				Enemy* enemy = static_cast<Enemy*>(&gameObject);
+				Enemy* enemy = dynamic_cast<Enemy*>(&gameObject);
 				enemy->isCollide = true;
 			}
 			else if ((gameObject.tag == "missile_player" || gameObject.tag == "missile_enemy") && (*iter)->tag == "tile_brick")
 			{
-				Missile* missile = static_cast<Missile*>(&gameObject);
+				Missile* missile = dynamic_cast<Missile*>(&gameObject);
 				missile->isCollide = true;
 
 				RECT rt = (*iter)->phsics4.GetColliderBox();
@@ -338,30 +338,30 @@ bool PhysicsComponent::CheckTankCollision(GameObject & gameObject)
 		{
 			if (gameObject.tag == "player" && (*iter)->tag != "player")
 			{
-				Tank* player = static_cast<Tank*>(&gameObject);
+				Tank* player = dynamic_cast<Tank*>(&gameObject);
 				player->isCollide = true;
 				isCollide = true;
 			}
 			else if (gameObject.tag == "enemy")
 			{
-				Tank* tank = static_cast<Tank*>(&gameObject);
+				Tank* tank = dynamic_cast<Tank*>(&gameObject);
 				if (tank != *iter)
 				{
-					Enemy* enemy = static_cast<Enemy*>(&gameObject);
+					Enemy* enemy = dynamic_cast<Enemy*>(&gameObject);
 					enemy->isCollide = true;
 					isCollide = true;
 				}
 			}
 			else if (gameObject.tag == "missile_player" && (*iter)->tag == "enemy")
 			{
-				Missile* missile = static_cast<Missile*>(&gameObject);
+				Missile* missile = dynamic_cast<Missile*>(&gameObject);
 				missile->isCollide = true;
 				isCollide = true;
 				(*iter)->Die();
 			}
 			else if (gameObject.tag == "missile_enemy" && (*iter)->tag == "player")
 			{
-				Missile* missile = static_cast<Missile*>(&gameObject);
+				Missile* missile = dynamic_cast<Missile*>(&gameObject);
 				missile->isCollide = true;
 				isCollide = true;
 				(*iter)->Die();

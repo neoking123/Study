@@ -45,6 +45,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameFrame", "GameFrame\Game
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BattleCity", "BattleCity\BattleCity.vcxproj", "{F4263375-763B-4710-9917-C610267EC867}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineLibTest", "EngineLibTest\EngineLibTest.vcxproj", "{85FFC7A3-1CB9-4605-B9CF-0BBC35288FD2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E0D3ED6B-F75F-480F-98BC-E823DBC962AB} = {E0D3ED6B-F75F-480F-98BC-E823DBC962AB}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineStaticLibTest", "EngineStaticLibTest\EngineStaticLibTest.vcxproj", "{E0D3ED6B-F75F-480F-98BC-E823DBC962AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -221,6 +228,22 @@ Global
 		{F4263375-763B-4710-9917-C610267EC867}.Release|x64.Build.0 = Release|x64
 		{F4263375-763B-4710-9917-C610267EC867}.Release|x86.ActiveCfg = Release|Win32
 		{F4263375-763B-4710-9917-C610267EC867}.Release|x86.Build.0 = Release|Win32
+		{85FFC7A3-1CB9-4605-B9CF-0BBC35288FD2}.Debug|x64.ActiveCfg = Debug|x64
+		{85FFC7A3-1CB9-4605-B9CF-0BBC35288FD2}.Debug|x64.Build.0 = Debug|x64
+		{85FFC7A3-1CB9-4605-B9CF-0BBC35288FD2}.Debug|x86.ActiveCfg = Debug|Win32
+		{85FFC7A3-1CB9-4605-B9CF-0BBC35288FD2}.Debug|x86.Build.0 = Debug|Win32
+		{85FFC7A3-1CB9-4605-B9CF-0BBC35288FD2}.Release|x64.ActiveCfg = Release|x64
+		{85FFC7A3-1CB9-4605-B9CF-0BBC35288FD2}.Release|x64.Build.0 = Release|x64
+		{85FFC7A3-1CB9-4605-B9CF-0BBC35288FD2}.Release|x86.ActiveCfg = Release|Win32
+		{85FFC7A3-1CB9-4605-B9CF-0BBC35288FD2}.Release|x86.Build.0 = Release|Win32
+		{E0D3ED6B-F75F-480F-98BC-E823DBC962AB}.Debug|x64.ActiveCfg = Debug|x64
+		{E0D3ED6B-F75F-480F-98BC-E823DBC962AB}.Debug|x64.Build.0 = Debug|x64
+		{E0D3ED6B-F75F-480F-98BC-E823DBC962AB}.Debug|x86.ActiveCfg = Debug|Win32
+		{E0D3ED6B-F75F-480F-98BC-E823DBC962AB}.Debug|x86.Build.0 = Debug|Win32
+		{E0D3ED6B-F75F-480F-98BC-E823DBC962AB}.Release|x64.ActiveCfg = Release|x64
+		{E0D3ED6B-F75F-480F-98BC-E823DBC962AB}.Release|x64.Build.0 = Release|x64
+		{E0D3ED6B-F75F-480F-98BC-E823DBC962AB}.Release|x86.ActiveCfg = Release|Win32
+		{E0D3ED6B-F75F-480F-98BC-E823DBC962AB}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

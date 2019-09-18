@@ -5,7 +5,7 @@ void PlayerInputComponent::Update(GameObject & gameObject)
 {
 	if (gameObject.tag == "player")
 	{
-		Tank* player = static_cast<Tank*>(&gameObject);
+		Tank* player = dynamic_cast<Tank*>(&gameObject);
 
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
