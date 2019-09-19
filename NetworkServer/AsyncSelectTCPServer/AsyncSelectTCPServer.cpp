@@ -201,7 +201,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return;
 		}
 		// 데이터 받기
-		retval = recv(client_sock, ptr->buf, BUFSIZE, 0);
+		retval = recv(ptr->sock, ptr->buf, BUFSIZE, 0);
 		if (retval == SOCKET_ERROR)
 		{
 			err_display("recv()");
