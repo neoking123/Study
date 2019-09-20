@@ -138,6 +138,15 @@ int main(int argc, char* argv[])
 	return msg.wParam;
 }
 
+class Player
+{
+public:
+	Player() {};
+	~Player() {};
+	int x = 0;
+	int y = 0;
+};
+
 // 윈도우 메시지 처리
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -153,6 +162,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
+
 
 // 소켓 관련 윈도우 메시지 처리
 void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
