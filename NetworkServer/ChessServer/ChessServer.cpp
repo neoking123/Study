@@ -159,7 +159,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		PACKET_LOGIN packet;
 		packet.header.type = PACKET_TYPE_LOGIN;
-		packet.header.type = sizeof(packet);
+		packet.header.len = sizeof(packet);
 		packet.loginIndex = pInfo->index;
 		send(client_sock, (const char*)&packet, packet.header.len, 0);
 
@@ -167,7 +167,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		PACKET_USER_DATA user_packet;
 		user_packet.header.type = PACKET_TYPE_USER_DATA;
-		user_packet.header.len = sizeof(PACKET_HEADER) + sizeof(WORD) + sizeof(USER_DATA) * connectedUsers.size();
+		user_packet.header.len = sizeof(PACKET_HEADER) + sizeof(int) + sizeof(USER_DATA) * connectedUsers.size();
 		user_packet.count = connectedUsers.size();
 		int i = 0;
 		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++, i++)
@@ -186,21 +186,21 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case FD_READ:
 	{
-		char szBuf[BUFSIZE];
+		char buf[BUFSIZE];
 
 		// 데이터 받기
-		retval = recv(wParam, szBuf, BUFSIZE, 0);
+		retval = recv(wParam, buf, BUFSIZE, 0);
 		if (retval == SOCKET_ERROR)
 		{
 			err_display("recv()");
 			return;
 		}
 
-		USER_INFO* pUser = connectedUsers[wParam];
+		USER_INFO* user = connectedUsers[wParam];
 
 		while (true)
 		{
-			if (!ProcessPacket(wParam, pUser, szBuf, retval))
+			if (!ProcessPacket(wParam, user, buf, retval))
 			{
 				Sleep(100);
 				//SendMessage(hWnd, uMsg, wParam, lParam);
@@ -208,7 +208,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			else
 			{
-				if (pUser->len < sizeof(PACKET_HEADER))
+				if (user->len < sizeof(PACKET_HEADER))
 					break;
 			}
 		}
@@ -224,22 +224,22 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 // 패킷 처리 함수
-bool ProcessPacket(SOCKET sock, USER_INFO* pUser, char* szBuf, int& len)
+bool ProcessPacket(SOCKET sock, USER_INFO* userInfo, char* buf, int& len)
 {
 	if (len > 0)
 	{
-		memcpy(&pUser->userBuf[pUser->len], szBuf, len);
-		pUser->len += len;
+		memcpy(&userInfo->userBuf[userInfo->len], buf, len);
+		userInfo->len += len;
 		len = 0;
 	}
 
-	if (pUser->len < sizeof(PACKET_HEADER))
+	if (userInfo->len < sizeof(PACKET_HEADER))
 		return false;
 
 	PACKET_HEADER header;
-	memcpy(&header, pUser->userBuf, sizeof(header));
+	memcpy(&header, userInfo->userBuf, sizeof(header));
 
-	if (pUser->len < header.len)
+	if (userInfo->len < header.len)
 		return false;
 
 	switch (header.type)
@@ -247,7 +247,7 @@ bool ProcessPacket(SOCKET sock, USER_INFO* pUser, char* szBuf, int& len)
 	case PACKET_TYPE_SEND_POS:
 	{
 		PACKET_SEND_POS packet;
-		memcpy(&packet, szBuf, header.len);
+		memcpy(&packet, buf, header.len);
 
 		connectedUsers[sock]->x = packet.data.x;
 		connectedUsers[sock]->y = packet.data.y;
@@ -263,8 +263,8 @@ bool ProcessPacket(SOCKET sock, USER_INFO* pUser, char* szBuf, int& len)
 	break;
 	}
 
-	memcpy(&pUser->userBuf, &pUser->userBuf[header.len], pUser->len - header.len);
-	pUser->len -= header.len;
+	memcpy(&userInfo->userBuf, &userInfo->userBuf[header.len], userInfo->len - header.len);
+	userInfo->len -= header.len;
 
 	return true;
 }

@@ -193,6 +193,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		ProcessPacket(szBuf, retval);
 	}
 	break;
+
 	case FD_CLOSE:
 		closesocket(wParam);
 		break;

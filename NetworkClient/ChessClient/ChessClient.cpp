@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <map>
 #include "..\..\Common\ChessPacket.h"
+#include "ChessGame.h"
 using namespace std;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -23,6 +24,11 @@ SOCKET sock;
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
+	//메모리 릭
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	_CrtDumpMemoryLeaks();
+	//_CrtSetBreakAlloc(160);
+
 	HWND hWnd;
 	MSG Message;
 	WNDCLASS wndClass;
@@ -43,6 +49,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	hWnd = CreateWindow(g_szClassName, g_szClassName, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
 		CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
 	ShowWindow(hWnd, nCmdShow);
+
+	ChessGame::GetInstance()->Init(hWnd);
 
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
@@ -76,12 +84,30 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 		return -1;
 	}
 
-	while (GetMessage(&Message, NULL, 0, 0))
+	/*while (GetMessage(&Message, NULL, 0, 0))
 	{
 		TranslateMessage(&Message);
 		DispatchMessage(&Message);
+	}*/
+
+	while (true)
+	{
+		/// 메시지큐에 메시지가 있으면 메시지 처리
+		if (PeekMessage(&Message, NULL, 0U, 0U, PM_REMOVE))
+		{
+			if (Message.message == WM_QUIT)
+				break;
+
+			TranslateMessage(&Message);
+			DispatchMessage(&Message);
+		}
+		else
+		{
+			ChessGame::GetInstance()->Update();
+		}
 	}
 
+	ChessGame::GetInstance()->Release();
 	closesocket(sock);
 	WSACleanup();
 
@@ -110,6 +136,8 @@ void SendPos()
 	send(sock, (const char*)&packet, sizeof(packet), 0);
 }
 
+MOUSE_STATE mouseState = MOUSE_STATE::CLICK_UP;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc;
@@ -117,7 +145,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 	switch (iMessage)
 	{
-	case WM_CREATE:
+	case WM_LBUTTONDOWN:
+		if (mouseState == MOUSE_STATE::CLICK_DOWN)
+			return 0;
+
+		mouseState = MOUSE_STATE::CLICK_DOWN;
+		ChessGame::GetInstance()->MouseInput(LOWORD(lParam), HIWORD(lParam), MOUSE_STATE::CLICK_DOWN);
+		return 0;
+
+	case WM_LBUTTONUP:
+		mouseState = MOUSE_STATE::CLICK_UP;
+		ChessGame::GetInstance()->MouseInput(LOWORD(lParam), HIWORD(lParam), MOUSE_STATE::CLICK_UP);
+		return 0;
+
+	case WM_GETMINMAXINFO:
+		((MINMAXINFO*)lParam)->ptMaxTrackSize.x = 1280;
+		((MINMAXINFO*)lParam)->ptMaxTrackSize.y = 995;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.x = 1280;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 995;
 		return 0;
 
 	case WM_SOCKET:
@@ -125,7 +170,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		InvalidateRect(hWnd, NULL, true);
 		return 0;
 
-	case WM_KEYDOWN:
+	/*case WM_KEYDOWN:
 		switch (wParam)
 		{
 		case VK_LEFT:
@@ -146,9 +191,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		InvalidateRect(hWnd, NULL, true);
-		return 0;
+		return 0;*/
 
-	case WM_PAINT:
+	/*case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 		for (auto iter = players.begin(); iter != players.end(); iter++)
 		{
@@ -158,7 +203,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 		}
 		EndPaint(hWnd, &ps);
-		return 0;
+		return 0;*/
 
 	case WM_DESTROY:
 		for (auto iter = players.begin(); iter != players.end(); iter++)
@@ -175,9 +220,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	SOCKET client_sock;
-	SOCKADDR_IN clientaddr;
-	int addrlen = 0;
 	int retval = 0;
 
 	if (WSAGETSELECTERROR(lParam))
@@ -191,9 +233,9 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 	case FD_READ:
 	{
-		char szBuf[BUFSIZE];
+		char buf[BUFSIZE];
 
-		retval = recv(wParam, szBuf, BUFSIZE, 0);
+		retval = recv(wParam, buf, BUFSIZE, 0);
 		if (retval == SOCKET_ERROR)
 		{
 			if (WSAGetLastError() != WSAEWOULDBLOCK)
@@ -203,7 +245,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 		}
 
-		ProcessPacket(szBuf, retval);
+		ProcessPacket(buf, retval);
 	}
 	break;
 
@@ -213,26 +255,27 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 }
 
-void ProcessPacket(char* szBuf, int len)
+void ProcessPacket(char* buf, int len)
 {
 	PACKET_HEADER header;
 
-	memcpy(&header, szBuf, sizeof(header));
+	memcpy(&header, buf, sizeof(header));
 
 	switch (header.type)
 	{
 	case PACKET_TYPE_LOGIN:
 	{
 		PACKET_LOGIN packet;
-		memcpy(&packet, szBuf, header.len);
+		memcpy(&packet, buf, header.len);
 
 		playerIndex = packet.loginIndex;
 	}
 	break;
+
 	case PACKET_TYPE_USER_DATA:
 	{
 		PACKET_USER_DATA packet;
-		memcpy(&packet, szBuf, header.len);
+		memcpy(&packet, buf, header.len);
 
 		for (auto iter = players.begin(); iter != players.end(); iter++)
 		{
@@ -249,10 +292,11 @@ void ProcessPacket(char* szBuf, int len)
 		}
 	}
 	break;
+
 	case PACKET_TYPE_SEND_POS:
 	{
 		PACKET_SEND_POS packet;
-		memcpy(&packet, szBuf, header.len);
+		memcpy(&packet, buf, header.len);
 
 		players[packet.data.userIndex]->x = packet.data.x;
 		players[packet.data.userIndex]->y = packet.data.y;
