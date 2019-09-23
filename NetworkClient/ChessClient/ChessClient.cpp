@@ -236,10 +236,10 @@ void ProcessPacket(char* buf, int len)
 		}
 		players.clear();
 
-		if (packet.count <= 0)
+		if (packet.userCount <= 0)
 			break;
 
-		for (int i = 0; i < packet.count; i++)
+		for (int i = 0; i < packet.userCount; i++)
 		{
 			Player* player = new Player();
 			player->name = packet.userData->userName;
@@ -259,14 +259,14 @@ void ProcessPacket(char* buf, int len)
 		LobbyManager::GetInstance()->ClearRooms();
 
 		LobbyManager::GetInstance()->roomNum = packet.lobyData.roomNum;
-
+		LobbyManager::GetInstance()->maxRoomNum = packet.lobyData.maxRoomNum;
 		if (LobbyManager::GetInstance()->roomNum <= 0)
 			break;
 
 		LobbyManager::GetInstance()->roomCount = 0;
 		for (int i = 0; i < LobbyManager::GetInstance()->roomNum; i++)
 		{
-			LobbyManager::GetInstance()->CreateRoom(packet.lobyData.roomsData[i].roomName);
+			LobbyManager::GetInstance()->CreateRoom(packet.lobyData.roomsData[i].roomName, packet.lobyData.roomsData[i].inPlayerNum);
 		}
 
 	}

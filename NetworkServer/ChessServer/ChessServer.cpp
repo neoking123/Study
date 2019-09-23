@@ -1,5 +1,6 @@
 #include <WinSock2.h>
 #include <stdlib.h>
+#include <sstream>
 #include <stdio.h>
 #include <map>
 #include "..\..\Common\ChessPacket.h"
@@ -10,6 +11,7 @@ using namespace std;
 #define SERVERPORT 9000
 #define BUFSIZE 512
 #define WM_SOCKET (WM_USER + 1)
+#define MAX_ROOM_NUM 10
 char windowClassName[256] = "ChessServer";
 
 class USER_INFO
@@ -18,7 +20,7 @@ public:
 	int index;
 	char userBuf[BUFSIZE];
 	char userName[128];
-	int userNameLen;
+	int inRoomNum;
 	int len;
 };
 
@@ -26,7 +28,8 @@ class ROOM_INFO
 {
 public:
 	char roomName[128];
-	int roomNameLen;
+	int inPlayerNum;
+	//int roomNameLen;
 };
 
 int userIndex = 0;
@@ -153,7 +156,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			err_display("accept()");
 			return;
 		}
-		printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트번호=%d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
+		printf("\n[Chess Server] 클라이언트 접속: IP 주소=%s, 포트번호=%d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 
 		retval = WSAAsyncSelect(client_sock, hWnd, WM_SOCKET, FD_READ | FD_WRITE | FD_CLOSE);
 		if (retval == SOCKET_ERROR)
@@ -164,8 +167,11 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		USER_INFO* playerInfo = new USER_INFO();
 		playerInfo->index = userIndex++;
 		playerInfo->len = 0;
-		strcpy(playerInfo->userName, "player1");
-		playerInfo->userNameLen = sizeof("player1");
+		stringstream ss;
+		ss << playerInfo->index;
+		string str = "player" + ss.str();
+		strcpy(playerInfo->userName, str.c_str());
+		//playerInfo->userNameLen = sizeof("player1");
 		//pInfo->x = rand() % 600;
 		//pInfo->y = rand() % 400;
 		connectedUsers.insert(make_pair(client_sock, playerInfo));
@@ -182,7 +188,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		// 유저 정보 전송
 		PACKET_USER_DATA userDatePacket;
 		userDatePacket.header.type = PACKET_TYPE_USER_DATA;
-		userDatePacket.count = connectedUsers.size();
+		userDatePacket.userCount = connectedUsers.size();
 		int i = 0;
 		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++, i++)
 		{
@@ -191,15 +197,16 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			//user_packet.userData[i].y = iter->second->y;
 		}
 
-		int userNameSize = 0;
+		//int userNameSize = 0;
 		int k = 0;
 		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++, k++)
 		{
 			strcpy(userDatePacket.userData[k].userName, iter->second->userName);
-			userNameSize += sizeof(char) * iter->second->userNameLen;
+			userDatePacket.userData[k].inRoomNum = iter->second->inRoomNum;
+			//userNameSize += sizeof(char) * iter->second->userNameLen;
 		}
 
-		userDatePacket.header.len = sizeof(PACKET_HEADER) + sizeof(int) + sizeof(int) * connectedUsers.size() + userNameSize;
+		userDatePacket.header.len = sizeof(PACKET_HEADER) + sizeof(int) + (sizeof(int) + sizeof(int) + sizeof(char) * 32) * connectedUsers.size();
 
 		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
 		{
@@ -223,20 +230,19 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		PACKET_LOBBY_DATA lobbyDataPacket;
 		lobbyDataPacket.header.type = PACKET_TYPE::PACKET_TYPE_LOBBY_DATA;
 		int j = 0;
-		int roomNameSize = 0;
+		//int roomNameSize = 0;
 		for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++, j++)
 		{
 			strcpy(lobbyDataPacket.lobyData.roomsData[j].roomName, createdRooms[j]->roomName);
+			lobbyDataPacket.lobyData.roomsData[i].inPlayerNum = createdRooms[j]->inPlayerNum;
 			//lobbyDataPacket.lobyData.roomsData[j].roomNameLen = createdRooms[j]->roomNameLen;
-			roomNameSize += sizeof(char) * createdRooms[j]->roomNameLen;
+			//roomNameSize += sizeof(char) * createdRooms[j]->roomNameLen;
 		}
 		lobbyDataPacket.lobyData.roomNum = roomNum;
-		lobbyDataPacket.header.len = sizeof(PACKET_HEADER) + sizeof(int) + roomNum * sizeof(char) * 128;
+		lobbyDataPacket.lobyData.maxRoomNum = MAX_ROOM_NUM;
+		lobbyDataPacket.header.len = sizeof(PACKET_HEADER) + sizeof(int) + sizeof(int) + sizeof(int) + roomNum * sizeof(char) * 32;
 
 		send(client_sock, (const char*)&lobbyDataPacket, lobbyDataPacket.header.len, 0);
-
-		SAFE_DELETE(playerInfo);
-		//SAFE_DELETE(roomInfo);
 	}
 	break;
 
@@ -273,7 +279,13 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	break;
 
 	case FD_CLOSE:
+		SOCKADDR_IN clientaddr;
+		int addrlen = sizeof(clientaddr);;
+		getpeername(wParam, (SOCKADDR*)&clientaddr, &addrlen);
 		closesocket(wParam);
+		connectedUsers.erase(wParam);
+		printf("[Chess Server] 클라이언트 종료: IP 주소=%s, 포트번호=%d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
+		
 		break;
 	}
 }
@@ -323,12 +335,29 @@ bool ProcessPacket(SOCKET sock, USER_INFO* userInfo, char* buf, int& len)
 		PACKET_CREATE_ROOM packet;
 		memcpy(&packet, buf, header.len);
 
+		if (roomNum >= MAX_ROOM_NUM)
+			break;
+
+		ROOM_INFO* roomInfo = new ROOM_INFO();
+		strcpy(roomInfo->roomName, packet.roomData.roomName);
+		roomInfo->inPlayerNum = packet.roomData.inPlayerNum;
+		createdRooms.insert(make_pair(roomNum, roomInfo));
+
+		PACKET_LOBBY_DATA lobbyDataPacket;
+		lobbyDataPacket.header.type = PACKET_TYPE::PACKET_TYPE_LOBBY_DATA;
+		int i = 0;
+		for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++, i++)
+		{
+			strcpy(lobbyDataPacket.lobyData.roomsData[i].roomName, createdRooms[i]->roomName);
+		}
+		lobbyDataPacket.lobyData.roomNum = ++roomNum;
+		lobbyDataPacket.lobyData.maxRoomNum = MAX_ROOM_NUM;
+		lobbyDataPacket.header.len = sizeof(PACKET_HEADER) + sizeof(int) + sizeof(int) + sizeof(int) + roomNum * sizeof(char) * 32;
+
 		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
 		{
-			send(iter->first, (const char*)&packet, header.len, 0);
+			send(iter->first, (const char*)&lobbyDataPacket, lobbyDataPacket.header.len, 0);
 		}
-
-		// 방 생성 업데이트
 	}
 	break;
 

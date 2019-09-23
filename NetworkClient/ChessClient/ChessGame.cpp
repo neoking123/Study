@@ -8,6 +8,22 @@ ChessGame::ChessGame()
 {
 }
 
+void ChessGame::DrawInRoom(HDC hdc)
+{
+	DrawBackground(hdc);
+	DrawChessBoard(hdc);
+}
+
+void ChessGame::DrawBackground(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBY_BACK)->Draw(hdc, 0, 0, 2, 2);
+}
+
+void ChessGame::DrawChessBoard(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::CHESS_BOARD)->Draw(hdc, 0, 0);
+}
+
 ChessGame::~ChessGame()
 {
 }
@@ -82,6 +98,7 @@ void ChessGame::Render()
 		break;
 
 	case SCENE_STATE::READY_SCENE:
+		DrawInRoom(gameDC);
 		break;
 
 	case SCENE_STATE::START_SCENE:

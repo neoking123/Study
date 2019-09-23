@@ -20,20 +20,23 @@ struct PACKET_HEADER
 struct USER_DATA
 {
 	int userIndex;
-	int userNameLen;
-	char userName[128];
+	int inRoomNum;
+	//int userNameLen;
+	char userName[32];
 	//int x;
 	//int y;
 };
 
 struct ROOM_DATA
 {
-	char roomName[128];
+	int inPlayerNum;
+	char roomName[32];
 };
 
 struct LOBY_DATA
 {
 	int roomNum;
+	int maxRoomNum;
 	ROOM_DATA roomsData[20];
 };
 
@@ -46,7 +49,7 @@ struct PACKET_LOGIN
 struct PACKET_USER_DATA
 {
 	PACKET_HEADER header;
-	int count;
+	int userCount;
 	USER_DATA userData[20];
 };
 

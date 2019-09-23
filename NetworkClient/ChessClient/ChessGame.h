@@ -41,6 +41,9 @@ private:
 	SCENE_STATE sceneState;
 
 	ChessGame();
+	void DrawInRoom(HDC hdc);
+	void DrawBackground(HDC hdc);
+	void DrawChessBoard(HDC hdc);
 
 public:
 	int playerIndex;
@@ -51,6 +54,10 @@ public:
 	void Render();
 	void Release();
 	void MouseInput(int x, int y, int mouseState);
+	inline void SetSceneState(SCENE_STATE newSceneState)
+	{
+		sceneState = newSceneState;
+	}
 
 	inline static ChessGame* GetInstance()
 	{

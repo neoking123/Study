@@ -6,5 +6,6 @@ class Player
 {
 public:
 	string name;
+	int inRoomNum;
 };
 

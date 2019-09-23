@@ -17,11 +17,12 @@ void LobbyManager::DrawBackground(HDC hdc)
 	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBY_BACK)->Draw(hdc, 0, 0, 2, 2);
 }
 
-void LobbyManager::CreateRoom(string roomName)
+void LobbyManager::CreateRoom(string roomName, int inPlayerNum)
 {
 	Room* newRoom = new Room();
-	newRoom->Init(roomCount, roomName, (roomCount % 2) * ROOM_WIDTH + ROOM_MARGINE_WIDTH, (roomCount / 2) * ROOM_HEIGHT + ROOM_MARGINE_HEIGHT, 2);
+	newRoom->Init(roomCount, roomName, (roomCount % 2) * ROOM_WIDTH + ROOM_MARGINE_WIDTH, (roomCount / 2) * ROOM_HEIGHT + ROOM_MARGINE_HEIGHT, inPlayerNum, 2);
 	rooms.insert(make_pair(roomCount++, newRoom));
+	newRoom->inPlayerNum++;
 }
 
 void LobbyManager::DrawRooms(HDC hdc)
@@ -39,15 +40,20 @@ void LobbyManager::DrawRoomCreateButton(HDC hdc)
 
 void LobbyManager::CheckIsClickedRoomCB(int x, int y)
 {
+	if (isCreateRoom || roomNum >= maxRoomNum)
+		return;
+
 	stringstream ss;
 	ss << ChessGame::GetInstance()->playerIndex;
 	string s = ss.str();
 	if (x > 24 && x < 24 + BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBY_ROOM_BUTTON_CREATE)->GetSize().cx
 		&& y > 24 && y < 24 + BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBY_ROOM_BUTTON_CREATE)->GetSize().cy)
 	{
+		isCreateRoom = true;
 		string roomName = s + "님의 방";
 		CreateRoom(roomName);
 		SendCreateRoom(roomName);
+		ChessGame::GetInstance()->SetSceneState(SCENE_STATE::READY_SCENE);
 	}
 }
 
@@ -57,7 +63,7 @@ void LobbyManager::CheckIsClickedRoom(int x, int y)
 	{
 		if ((*iter).second->CheckIsClicked(x, y))
 		{
-			// 방 클릭
+			 //방 클릭
 		}
 	}
 }
@@ -85,8 +91,9 @@ void LobbyManager::SendCreateRoom(string roomName)
 	packet.header.type = PACKET_TYPE::PACKET_TYPE_CREATE_ROOM;
 	packet.header.len = sizeof(packet);
 	strcpy(packet.roomData.roomName, roomName.c_str());
+	packet.roomData.inPlayerNum = 1;
 
-	send(sock, (const char*)&packet, sizeof(packet), 0);
+	send(sock, (const char*)&packet, packet.header.len, 0);
 }
 
 LobbyManager::~LobbyManager()
@@ -98,6 +105,8 @@ void LobbyManager::Init(SOCKET sock)
 	this->sock = sock;
 	roomNum = 0;
 	roomCount = 0;
+	maxRoomNum = 0;
+	isCreateRoom = false;
 }
 
 void LobbyManager::Update()

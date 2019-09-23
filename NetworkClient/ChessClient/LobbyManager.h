@@ -12,7 +12,8 @@ private:
 	static LobbyManager* instance;
 
 	SOCKET sock;
-	
+	bool isCreateRoom;
+
 	LobbyManager();
 	void DrawBackground(HDC hdc);
 	void DrawRooms(HDC hdc);
@@ -23,6 +24,7 @@ private:
 public:
 	int roomNum;
 	int roomCount;
+	int maxRoomNum;
 	map<int, Room*> rooms;
 
 	~LobbyManager();
@@ -34,7 +36,7 @@ public:
 	void CheckIsClickedRoomCB(int x, int y);
 	void CheckIsClickedRoom(int x, int y);
 	void ClearRooms();
-	void CreateRoom(string roomName);
+	void CreateRoom(string roomName, int inPlayerNum = 0);
 
 	inline static LobbyManager* GetInstance()
 	{

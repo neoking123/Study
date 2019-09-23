@@ -22,7 +22,6 @@ class Room : public UIObject
 private:
 	string roomName;
 	string password;
-	int inPlayerNum;
 	int MaxInPlayerNum;
 	bool isSecret;
 	bool isStart;
@@ -41,10 +40,11 @@ private:
 
 public:
 	int roomNum;
+	int inPlayerNum;
 
 	Room();
 	~Room();
-	void Init(int roomNum, string name, int x, int y, int MaxInplayerNum, bool isSecret = false, string password = "");
+	void Init(int roomNum, string name, int x, int y, int curInplayerNum, int MaxInplayerNum, bool isSecret = false, string password = "");
 	virtual void Init(int x, int y) override;
 	virtual void Update() override;
 	virtual void Render(HDC hdc) override;
