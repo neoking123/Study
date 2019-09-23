@@ -90,16 +90,20 @@ void Room::DrawKeyIcon(HDC hdc)
 	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBY_ROOM_KEY_ICON)->Draw(hdc, transform.position.x + 190, transform.position.y + 45);
 }
 
-void Room::CheckIsCliked(int x, int y)
+bool Room::CheckIsClicked(int x, int y)
 {
+	bool isClicked = false;
 	if (button.CheckIsCliked(*this, x, y))
 	{
 		if (inPlayerNum < MaxInPlayerNum)
 		{
 			//roomName = "Enter Room!";
 			inPlayerNum++;
+			isClicked = true;
 		}
 	}
+
+	return isClicked;
 }
 
 void Room::CheckRoomState()

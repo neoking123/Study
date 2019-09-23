@@ -3,7 +3,8 @@
 #include "BitMapManager.h"
 #include "Room.h"
 #include "Macro.h"
-
+#include "..\..\Common\ChessPacket.h"
+#include "ChessGame.h"
 
 LobbyManager* LobbyManager::instance = nullptr;
 
@@ -19,16 +20,15 @@ void LobbyManager::DrawBackground(HDC hdc)
 void LobbyManager::CreateRoom(string roomName)
 {
 	Room* newRoom = new Room();
-	newRoom->Init(roomNum, roomName, (roomNum % 2) * ROOM_WIDTH + ROOM_MARGINE_WIDTH, (roomNum / 2) * ROOM_HEIGHT + ROOM_MARGINE_HEIGHT, 2);
-	rooms.push_back(newRoom);
-	roomNum++;
+	newRoom->Init(roomCount, roomName, (roomCount % 2) * ROOM_WIDTH + ROOM_MARGINE_WIDTH, (roomCount / 2) * ROOM_HEIGHT + ROOM_MARGINE_HEIGHT, 2);
+	rooms.insert(make_pair(roomCount++, newRoom));
 }
 
 void LobbyManager::DrawRooms(HDC hdc)
 {
 	for (auto iter = rooms.begin(); iter != rooms.end(); iter++)
 	{
-		(*iter)->Render(hdc);
+		(*iter).second->Render(hdc);
 	}
 }
 
@@ -40,12 +40,14 @@ void LobbyManager::DrawRoomCreateButton(HDC hdc)
 void LobbyManager::CheckIsClickedRoomCB(int x, int y)
 {
 	stringstream ss;
-	ss << roomNum;
+	ss << ChessGame::GetInstance()->playerIndex;
 	string s = ss.str();
 	if (x > 24 && x < 24 + BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBY_ROOM_BUTTON_CREATE)->GetSize().cx
 		&& y > 24 && y < 24 + BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBY_ROOM_BUTTON_CREATE)->GetSize().cy)
 	{
-		CreateRoom("Å×½ºÆ® ·ë" + s);
+		string roomName = s + "´ÔÀÇ ¹æ";
+		CreateRoom(roomName);
+		SendCreateRoom(roomName);
 	}
 }
 
@@ -53,25 +55,49 @@ void LobbyManager::CheckIsClickedRoom(int x, int y)
 {
 	for (auto iter = rooms.begin(); iter != rooms.end(); iter++)
 	{
-		(*iter)->CheckIsCliked(x, y);
+		if ((*iter).second->CheckIsClicked(x, y))
+		{
+			// ¹æ Å¬¸¯
+		}
 	}
+}
+
+void LobbyManager::ClearRooms()
+{
+	for (auto iter = rooms.begin(); iter != rooms.end(); iter++)
+	{
+		SAFE_DELETE((*iter).second);
+	}
+	rooms.clear();
 }
 
 void LobbyManager::UpdateRooms()
 {
 	for (auto iter = rooms.begin(); iter != rooms.end(); iter++)
 	{
-		(*iter)->Update();
+		(*iter).second->Update();
 	}
+}
+
+void LobbyManager::SendCreateRoom(string roomName)
+{
+	PACKET_CREATE_ROOM packet;
+	packet.header.type = PACKET_TYPE::PACKET_TYPE_CREATE_ROOM;
+	packet.header.len = sizeof(packet);
+	strcpy(packet.roomData.roomName, roomName.c_str());
+
+	send(sock, (const char*)&packet, sizeof(packet), 0);
 }
 
 LobbyManager::~LobbyManager()
 {
 }
 
-void LobbyManager::Init()
+void LobbyManager::Init(SOCKET sock)
 {
+	this->sock = sock;
 	roomNum = 0;
+	roomCount = 0;
 }
 
 void LobbyManager::Update()
@@ -90,6 +116,7 @@ void LobbyManager::Release()
 {
 	for (auto iter = rooms.begin(); iter != rooms.end(); iter++)
 	{
-		SAFE_DELETE(*iter);
+		SAFE_DELETE((*iter).second);
 	}
+	rooms.clear();
 }

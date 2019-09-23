@@ -3,6 +3,9 @@
 #include <map>
 #include "..\..\Common\ChessPacket.h"
 #include "ChessGame.h"
+#include "Player.h"
+#include "Macro.h"
+#include "LobbyManager.h"
 using namespace std;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -20,7 +23,10 @@ char g_szClassName[256] = "ChessClient";
 #define BUFSIZE 512
 #define WM_SOCKET (WM_USER+1)
 
+
 SOCKET sock;
+map<int, Player*> players;
+MOUSE_STATE mouseState = MOUSE_STATE::CLICK_UP;
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
@@ -46,11 +52,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	wndClass.style = CS_HREDRAW | CS_VREDRAW;
 	RegisterClass(&wndClass);
 
-	hWnd = CreateWindow(g_szClassName, g_szClassName, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+	hWnd = CreateWindow(g_szClassName, g_szClassName, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, CW_USEDEFAULT, CW_USEDEFAULT,
 		CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
 	ShowWindow(hWnd, nCmdShow);
-
-	ChessGame::GetInstance()->Init(hWnd);
 
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
@@ -84,11 +88,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 		return -1;
 	}
 
-	/*while (GetMessage(&Message, NULL, 0, 0))
-	{
-		TranslateMessage(&Message);
-		DispatchMessage(&Message);
-	}*/
+	ChessGame::GetInstance()->Init(hWnd, sock);
 
 	while (true)
 	{
@@ -108,35 +108,24 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	}
 
 	ChessGame::GetInstance()->Release();
+
 	closesocket(sock);
 	WSACleanup();
 
 	return (int)Message.wParam;
 }
 
-class Player
-{
-public:
-	int x;
-	int y;
-};
-
-map<int, Player*> players;
-int playerIndex = 0;
-
 void SendPos()
 {
 	PACKET_SEND_POS packet;
 	packet.header.type = PACKET_TYPE_SEND_POS;
 	packet.header.len = sizeof(packet);
-	packet.data.userIndex = playerIndex;
-	packet.data.x = players[playerIndex]->x;
-	packet.data.y = players[playerIndex]->y;
+	//packet.userData.userIndex = playerIndex;
+	//packet.userData.x = players[playerIndex]->x;
+	//packet.userData.y = players[playerIndex]->y;
 	send(sock, (const char*)&packet, sizeof(packet), 0);
 	send(sock, (const char*)&packet, sizeof(packet), 0);
 }
-
-MOUSE_STATE mouseState = MOUSE_STATE::CLICK_UP;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
@@ -167,43 +156,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 	case WM_SOCKET:
 		ProcessSocketMessage(hWnd, iMessage, wParam, lParam);
-		InvalidateRect(hWnd, NULL, true);
+		//InvalidateRect(hWnd, NULL, true);
 		return 0;
-
-	/*case WM_KEYDOWN:
-		switch (wParam)
-		{
-		case VK_LEFT:
-			players[playerIndex]->x -= 8;
-			SendPos();
-			break;
-		case VK_RIGHT:
-			players[playerIndex]->x += 8;
-			SendPos();
-			break;
-		case VK_UP:
-			players[playerIndex]->y -= 8;
-			SendPos();
-			break;
-		case VK_DOWN:
-			players[playerIndex]->y += 8;
-			SendPos();
-			break;
-		}
-		InvalidateRect(hWnd, NULL, true);
-		return 0;*/
-
-	/*case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		for (auto iter = players.begin(); iter != players.end(); iter++)
-		{
-			char szPrint[128];
-			wsprintf(szPrint, "%d", iter->first);
-			TextOut(hdc, iter->second->x, iter->second->y, szPrint, strlen(szPrint));
-
-		}
-		EndPaint(hWnd, &ps);
-		return 0;*/
 
 	case WM_DESTROY:
 		for (auto iter = players.begin(); iter != players.end(); iter++)
@@ -263,43 +217,68 @@ void ProcessPacket(char* buf, int len)
 
 	switch (header.type)
 	{
-	case PACKET_TYPE_LOGIN:
+	case PACKET_TYPE::PACKET_TYPE_LOGIN:
 	{
 		PACKET_LOGIN packet;
 		memcpy(&packet, buf, header.len);
-
-		playerIndex = packet.loginIndex;
+		ChessGame::GetInstance()->playerIndex = packet.loginIndex;
 	}
 	break;
 
-	case PACKET_TYPE_USER_DATA:
+	case PACKET_TYPE::PACKET_TYPE_USER_DATA:
 	{
 		PACKET_USER_DATA packet;
 		memcpy(&packet, buf, header.len);
 
 		for (auto iter = players.begin(); iter != players.end(); iter++)
 		{
-			delete iter->second;
+			SAFE_DELETE((*iter).second);
 		}
 		players.clear();
 
+		if (packet.count <= 0)
+			break;
+
 		for (int i = 0; i < packet.count; i++)
 		{
-			Player* pNew = new Player();
-			pNew->x = packet.data[i].x;
-			pNew->y = packet.data[i].y;
-			players.insert(make_pair(packet.data[i].userIndex, pNew));
+			Player* player = new Player();
+			player->name = packet.userData->userName;
+			//pNew->x = packet.userData[i].x;
+			//pNew->y = packet.userData[i].y;
+			players.insert(make_pair(packet.userData[i].userIndex, player));
 		}
+
 	}
 	break;
 
-	case PACKET_TYPE_SEND_POS:
+	case PACKET_TYPE::PACKET_TYPE_LOBBY_DATA:
+	{
+		PACKET_LOBBY_DATA packet;
+		memcpy(&packet, buf, header.len);
+
+		LobbyManager::GetInstance()->ClearRooms();
+
+		LobbyManager::GetInstance()->roomNum = packet.lobyData.roomNum;
+
+		if (LobbyManager::GetInstance()->roomNum <= 0)
+			break;
+
+		LobbyManager::GetInstance()->roomCount = 0;
+		for (int i = 0; i < LobbyManager::GetInstance()->roomNum; i++)
+		{
+			LobbyManager::GetInstance()->CreateRoom(packet.lobyData.roomsData[i].roomName);
+		}
+
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_SEND_POS:
 	{
 		PACKET_SEND_POS packet;
 		memcpy(&packet, buf, header.len);
 
-		players[packet.data.userIndex]->x = packet.data.x;
-		players[packet.data.userIndex]->y = packet.data.y;
+		//players[packet.userData.userIndex]->x = packet.userData.x;
+		//players[packet.userData.userIndex]->y = packet.userData.y;
 	}
 	break;
 	}

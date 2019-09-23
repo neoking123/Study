@@ -12,11 +12,12 @@ ChessGame::~ChessGame()
 {
 }
 
-void ChessGame::Init(HWND hWnd)
+void ChessGame::Init(HWND hWnd, SOCKET sock)
 {
 	lastTime = std::chrono::system_clock::now();
-
+	playerIndex = 0;
 	this->hWnd = hWnd;
+	this->sock = sock;
 	HDC hdc = GetDC(hWnd);
 	cursor = { 0, 0 };
 
@@ -25,7 +26,7 @@ void ChessGame::Init(HWND hWnd)
 	hOldBitmap = (HBITMAP)SelectObject(gameDC, hBitmap);
 
 	BitMapManager::GetInstance()->Init(gameDC);
-	LobbyManager::GetInstance()->Init();
+	LobbyManager::GetInstance()->Init(sock);
 
 	sceneState = SCENE_STATE::LOBY_SCENE;
 

@@ -32,6 +32,7 @@ private:
 	HBITMAP hBitmap;
 	HBITMAP hOldBitmap;
 	HWND hWnd;
+	SOCKET sock;
 	POINT cursor;
 
 	float elapseTime;
@@ -42,8 +43,10 @@ private:
 	ChessGame();
 
 public:
+	int playerIndex;
+
 	~ChessGame();
-	void Init(HWND hWnd);
+	void Init(HWND hWnd, SOCKET sock);
 	void Update();
 	void Render();
 	void Release();

@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <map>
 #include "..\..\Common\ChessPacket.h"
+#include "Macro.h"
+
 using namespace std;
 
 #define SERVERPORT 9000
@@ -15,13 +17,22 @@ class USER_INFO
 public:
 	int index;
 	char userBuf[BUFSIZE];
+	char userName[128];
+	int userNameLen;
 	int len;
-	int x;
-	int y;
+};
+
+class ROOM_INFO
+{
+public:
+	char roomName[128];
+	int roomNameLen;
 };
 
 int userIndex = 0;
+int roomNum = 0;
 map<SOCKET, USER_INFO*> connectedUsers;
+map<int, ROOM_INFO*> createdRooms;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void ProcessSocketMessage(HWND, UINT, WPARAM, LPARAM);
@@ -150,37 +161,82 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			err_display("WSAAsyncSelect()");
 		}
 
-		USER_INFO* pInfo = new USER_INFO();
-		pInfo->index = userIndex++;
-		pInfo->len = 0;
-		pInfo->x = rand() % 600;
-		pInfo->y = rand() % 400;
-		connectedUsers.insert(make_pair(client_sock, pInfo));
+		USER_INFO* playerInfo = new USER_INFO();
+		playerInfo->index = userIndex++;
+		playerInfo->len = 0;
+		strcpy(playerInfo->userName, "player1");
+		playerInfo->userNameLen = sizeof("player1");
+		//pInfo->x = rand() % 600;
+		//pInfo->y = rand() % 400;
+		connectedUsers.insert(make_pair(client_sock, playerInfo));
 
+		// 로그인 정보 전송
 		PACKET_LOGIN packet;
 		packet.header.type = PACKET_TYPE_LOGIN;
-		packet.header.len = sizeof(packet);
-		packet.loginIndex = pInfo->index;
+		packet.header.len = sizeof(PACKET_LOGIN);
+		packet.loginIndex = playerInfo->index;
 		send(client_sock, (const char*)&packet, packet.header.len, 0);
 
 		Sleep(500);
 
-		PACKET_USER_DATA user_packet;
-		user_packet.header.type = PACKET_TYPE_USER_DATA;
-		user_packet.header.len = sizeof(PACKET_HEADER) + sizeof(int) + sizeof(USER_DATA) * connectedUsers.size();
-		user_packet.count = connectedUsers.size();
+		// 유저 정보 전송
+		PACKET_USER_DATA userDatePacket;
+		userDatePacket.header.type = PACKET_TYPE_USER_DATA;
+		userDatePacket.count = connectedUsers.size();
 		int i = 0;
 		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++, i++)
 		{
-			user_packet.data[i].userIndex = iter->second->index;
-			user_packet.data[i].x = iter->second->x;
-			user_packet.data[i].y = iter->second->y;
+			userDatePacket.userData[i].userIndex = iter->second->index;
+			//user_packet.userData[i].x = iter->second->x;
+			//user_packet.userData[i].y = iter->second->y;
 		}
 
-		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++, i++)
+		int userNameSize = 0;
+		int k = 0;
+		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++, k++)
 		{
-			send(iter->first, (const char*)&user_packet, user_packet.header.len, 0);
+			strcpy(userDatePacket.userData[k].userName, iter->second->userName);
+			userNameSize += sizeof(char) * iter->second->userNameLen;
 		}
+
+		userDatePacket.header.len = sizeof(PACKET_HEADER) + sizeof(int) + sizeof(int) * connectedUsers.size() + userNameSize;
+
+		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+		{
+			send(iter->first, (const char*)&userDatePacket, userDatePacket.header.len, 0);
+		}
+
+		Sleep(500);
+
+		// 방 생성 테스트
+		/*ROOM_INFO* roomInfo = new ROOM_INFO();
+		strcpy(roomInfo->roomName, "testRoom");
+		roomInfo->roomNameLen = sizeof("testRoom");
+		createdRooms.insert(make_pair(roomNum++, roomInfo));
+
+		ROOM_INFO* roomInfo2 = new ROOM_INFO();
+		strcpy(roomInfo2->roomName, "testRoom2");
+		roomInfo2->roomNameLen = sizeof("testRoom2");
+		createdRooms.insert(make_pair(roomNum++, roomInfo2));*/
+
+		// 로비 정보 전송
+		PACKET_LOBBY_DATA lobbyDataPacket;
+		lobbyDataPacket.header.type = PACKET_TYPE::PACKET_TYPE_LOBBY_DATA;
+		int j = 0;
+		int roomNameSize = 0;
+		for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++, j++)
+		{
+			strcpy(lobbyDataPacket.lobyData.roomsData[j].roomName, createdRooms[j]->roomName);
+			//lobbyDataPacket.lobyData.roomsData[j].roomNameLen = createdRooms[j]->roomNameLen;
+			roomNameSize += sizeof(char) * createdRooms[j]->roomNameLen;
+		}
+		lobbyDataPacket.lobyData.roomNum = roomNum;
+		lobbyDataPacket.header.len = sizeof(PACKET_HEADER) + sizeof(int) + roomNum * sizeof(char) * 128;
+
+		send(client_sock, (const char*)&lobbyDataPacket, lobbyDataPacket.header.len, 0);
+
+		SAFE_DELETE(playerInfo);
+		//SAFE_DELETE(roomInfo);
 	}
 	break;
 
@@ -244,13 +300,13 @@ bool ProcessPacket(SOCKET sock, USER_INFO* userInfo, char* buf, int& len)
 
 	switch (header.type)
 	{
-	case PACKET_TYPE_SEND_POS:
+	case PACKET_TYPE::PACKET_TYPE_SEND_POS:
 	{
 		PACKET_SEND_POS packet;
 		memcpy(&packet, buf, header.len);
 
-		connectedUsers[sock]->x = packet.data.x;
-		connectedUsers[sock]->y = packet.data.y;
+		//connectedUsers[sock]->x = packet.userData.x;
+		//connectedUsers[sock]->y = packet.userData.y;
 
 		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
 		{
@@ -261,6 +317,21 @@ bool ProcessPacket(SOCKET sock, USER_INFO* userInfo, char* buf, int& len)
 		}
 	}
 	break;
+
+	case PACKET_TYPE::PACKET_TYPE_CREATE_ROOM:
+	{
+		PACKET_CREATE_ROOM packet;
+		memcpy(&packet, buf, header.len);
+
+		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+		{
+			send(iter->first, (const char*)&packet, header.len, 0);
+		}
+
+		// 방 생성 업데이트
+	}
+	break;
+
 	}
 
 	memcpy(&userInfo->userBuf, &userInfo->userBuf[header.len], userInfo->len - header.len);

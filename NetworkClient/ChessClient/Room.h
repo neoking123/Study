@@ -50,5 +50,5 @@ public:
 	virtual void Render(HDC hdc) override;
 	virtual void Release() override;
 
-	void CheckIsCliked(int x, int y);
+	bool CheckIsClicked(int x, int y);
 };

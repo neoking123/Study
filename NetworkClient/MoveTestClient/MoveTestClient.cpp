@@ -94,9 +94,9 @@ void SendPos()
 	PACKET_SEND_POS packet;
 	packet.header.wIndex = PACKET_INDEX_SEND_POS;
 	packet.header.wLen = sizeof(packet);
-	packet.data.iIndex = playerIndex;
-	packet.data.wX = players[playerIndex]->x;
-	packet.data.wY = players[playerIndex]->y;
+	packet.userData.iIndex = playerIndex;
+	packet.userData.wX = players[playerIndex]->x;
+	packet.userData.wY = players[playerIndex]->y;
 	send(sock, (const char*)&packet, sizeof(packet), 0);
 	send(sock, (const char*)&packet, sizeof(packet), 0);
 }
@@ -241,8 +241,8 @@ void ProcessPacket(char* szBuf, int len)
 		PACKET_SEND_POS packet;
 		memcpy(&packet, szBuf, header.wLen);
 
-		players[packet.data.iIndex]->x = packet.data.wX;
-		players[packet.data.iIndex]->y = packet.data.wY;
+		players[packet.userData.iIndex]->x = packet.userData.wX;
+		players[packet.userData.iIndex]->y = packet.userData.wY;
 	}
 	break;
 	}
