@@ -28,6 +28,9 @@
     <Filter Include="GameObject">
       <UniqueIdentifier>{d2a364f8-fbba-4d26-9028-9fa0a042eaad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ChessObjects">
+      <UniqueIdentifier>{6265ac7f-4b20-4993-bd3a-2e1e6b52c710}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ChessClient.cpp">
@@ -51,13 +54,31 @@
     <ClCompile Include="ButtonComponent.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="RoomCreateButton.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ChessPiece.cpp">
+      <Filter>ChessObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="King.cpp">
+      <Filter>ChessObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="ChessBoard.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Queen.cpp">
+      <Filter>ChessObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Rook.cpp">
+      <Filter>ChessObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Bishop.cpp">
+      <Filter>ChessObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Knight.cpp">
+      <Filter>ChessObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Pawn.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,20 +110,38 @@
     <ClInclude Include="UIObject.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="RoomCreateButton.h">
-      <Filter>UI</Filter>
-    </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
       <Filter>GameObject</Filter>
     </ClInclude>
-    <ClInclude Include="ChessPiece.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="InputComponent.h">
       <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ChessPiece.h">
+      <Filter>ChessObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="King.h">
+      <Filter>ChessObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="ChessBoard.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Queen.h">
+      <Filter>ChessObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Rook.h">
+      <Filter>ChessObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Bishop.h">
+      <Filter>ChessObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Knight.h">
+      <Filter>ChessObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Pawn.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -9,7 +9,7 @@ using namespace std;
 #define START_BUTTON_POSITION_X 800
 #define START_BUTTON_POSITION_Y 500
 
-class ChessPiece;
+class ChessBoard;
 
 enum MOUSE_STATE 
 {
@@ -32,8 +32,6 @@ class ChessGame
 private:
 	static ChessGame* instance;
 
-	ChessPiece* testPiece;
-
 	HDC gameDC;
 	HBITMAP hBitmap;
 	HBITMAP hOldBitmap;
@@ -45,6 +43,7 @@ private:
 	chrono::system_clock::time_point lastTime;
 
 	SCENE_STATE sceneState;
+	ChessBoard* chessBoard;
 
 	ChessGame();
 	void DrawInRoom(HDC hdc);

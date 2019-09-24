@@ -2,7 +2,8 @@
 #include "BitMapManager.h"
 #include "LobbyManager.h"
 #include "..\..\Common\ChessPacket.h"
-#include "ChessPiece.h"
+#include "Macro.h"
+#include "ChessBoard.h"
 
 ChessGame* ChessGame::instance = nullptr;
 
@@ -13,7 +14,7 @@ ChessGame::ChessGame()
 void ChessGame::DrawInRoom(HDC hdc)
 {
 	DrawBackground(hdc);
-	DrawChessBoard(hdc);
+	//DrawChessBoard(hdc);
 	DrawInfoBackground(hdc);
 	DrawInPlayerInfo(hdc);
 	DrawRoomNum(hdc);
@@ -33,7 +34,7 @@ void ChessGame::DrawChessBoard(HDC hdc)
 
 void ChessGame::DrawChessPieces(HDC hdc)
 {
-	testPiece->Render(hdc);
+	
 }
 
 void ChessGame::DrawInfoBackground(HDC hdc)
@@ -180,23 +181,23 @@ void ChessGame::DrawRoomState_Debug(HDC hdc)
 
 	if (isStart)
 	{
-		wsprintf(isStr, TEXT("게임 시작 : true"));
+		wsprintf(isStr, TEXT("게임 시작 : YES"));
 		TextOut(hdc, 820, 250, isStr, lstrlen(isStr));
 	}
 	else
 	{
-		wsprintf(isStr, TEXT("게임 시작 : false"));
+		wsprintf(isStr, TEXT("게임 시작 : NO"));
 		TextOut(hdc, 820, 250, isStr, lstrlen(isStr));
 	}
 	
 	if (canStart)
 	{
-		wsprintf(isStr, TEXT("게임 준비 : true"));
+		wsprintf(isStr, TEXT("게임 준비 : OK"));
 		TextOut(hdc, 820, 270, isStr, lstrlen(isStr));
 	}
 	else
 	{
-		wsprintf(isStr, TEXT("게임 준비 : false"));
+		wsprintf(isStr, TEXT("게임 준비 : NO"));
 		TextOut(hdc, 820, 270, isStr, lstrlen(isStr));
 	}
 
@@ -218,7 +219,7 @@ void ChessGame::CheckStart()
 void ChessGame::DrawInGame(HDC hdc)
 {
 	DrawBackground(hdc);
-	DrawChessBoard(hdc);
+	//DrawChessBoard(hdc);
 	DrawInfoBackground(hdc);
 	DrawInPlayerInfo(hdc);
 	DrawRoomNum(hdc);
@@ -227,7 +228,8 @@ void ChessGame::DrawInGame(HDC hdc)
 
 void ChessGame::InGameInit()
 {
-	testPiece->Init(nullptr, 100, 100, "testPiece", CHESSPIECE_COLOR::PIECE_WHITE, CHESS_PIECE_TYPE::PIECE_TYPE_KING);
+	chessBoard = new ChessBoard();
+	chessBoard->Init();
 }
 
 ChessGame::~ChessGame()
@@ -306,6 +308,7 @@ void ChessGame::Render()
 
 	case SCENE_STATE::READY_SCENE:
 		DrawInRoom(gameDC);
+		chessBoard->Render(gameDC);
 		break;
 
 	case SCENE_STATE::START_SCENE:
@@ -313,6 +316,7 @@ void ChessGame::Render()
 
 	case SCENE_STATE::INGAME_SCENE:
 		DrawInGame(gameDC);
+		chessBoard->Render(gameDC);
 		break;
 
 	case SCENE_STATE::RESULT_SCENE:
@@ -326,6 +330,7 @@ void ChessGame::Render()
 
 void ChessGame::Release()
 {
+	SAFE_DELETE(chessBoard);
 	LobbyManager::GetInstance()->Release();
 	BitMapManager::GetInstance()->Release();
 }
@@ -361,6 +366,7 @@ void ChessGame::MouseInput(int x, int y, int mouseState)
 		break;
 
 	case SCENE_STATE::INGAME_SCENE:
+		chessBoard->CheckIsClickedPiece(cursor.x, cursor.y);
 		break;
 
 	case SCENE_STATE::RESULT_SCENE:

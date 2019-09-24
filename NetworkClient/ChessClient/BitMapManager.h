@@ -6,14 +6,14 @@ using namespace std;
 enum BITMAP_RES
 {
 	CHESS_BOARD,
-	QUEEN_W,
 	KING_W,
+	QUEEN_W,
 	BISHOP_W,
 	KNIGHT_W,
 	ROOK_W,
 	PAWN_W,
-	QUEEN_B,
 	KING_B,
+	QUEEN_B,
 	BISHOP_B,
 	KNIGHT_B,
 	ROOK_B,

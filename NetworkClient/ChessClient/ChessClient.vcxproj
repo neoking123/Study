@@ -141,30 +141,42 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Bishop.cpp" />
     <ClCompile Include="BitMap.cpp" />
     <ClCompile Include="BitMapManager.cpp" />
     <ClCompile Include="ButtonComponent.cpp" />
+    <ClCompile Include="ChessBoard.cpp" />
     <ClCompile Include="ChessClient.cpp" />
     <ClCompile Include="ChessGame.cpp" />
     <ClCompile Include="ChessPiece.cpp" />
+    <ClCompile Include="King.cpp" />
+    <ClCompile Include="Knight.cpp" />
     <ClCompile Include="LobbyManager.cpp" />
+    <ClCompile Include="Pawn.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Queen.cpp" />
+    <ClCompile Include="Rook.cpp" />
     <ClCompile Include="Room.cpp" />
-    <ClCompile Include="RoomCreateButton.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bishop.h" />
     <ClInclude Include="BitMap.h" />
     <ClInclude Include="BitMapManager.h" />
     <ClInclude Include="ButtonComponent.h" />
+    <ClInclude Include="ChessBoard.h" />
     <ClInclude Include="ChessGame.h" />
     <ClInclude Include="ChessPiece.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="InputComponent.h" />
+    <ClInclude Include="King.h" />
+    <ClInclude Include="Knight.h" />
     <ClInclude Include="LobbyManager.h" />
     <ClInclude Include="Macro.h" />
+    <ClInclude Include="Pawn.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Queen.h" />
+    <ClInclude Include="Rook.h" />
     <ClInclude Include="Room.h" />
-    <ClInclude Include="RoomCreateButton.h" />
     <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="UIObject.h" />
   </ItemGroup>
