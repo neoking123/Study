@@ -6,6 +6,10 @@ using namespace std;
 #define FPS	60.0f
 #define INGAME_WIDTH 1280
 #define INGAME_HEIGHT 960
+#define START_BUTTON_POSITION_X 800
+#define START_BUTTON_POSITION_Y 500
+
+class ChessPiece;
 
 enum MOUSE_STATE 
 {
@@ -28,6 +32,8 @@ class ChessGame
 private:
 	static ChessGame* instance;
 
+	ChessPiece* testPiece;
+
 	HDC gameDC;
 	HBITMAP hBitmap;
 	HBITMAP hOldBitmap;
@@ -44,6 +50,17 @@ private:
 	void DrawInRoom(HDC hdc);
 	void DrawBackground(HDC hdc);
 	void DrawChessBoard(HDC hdc);
+	void DrawChessPieces(HDC hdc);
+	void DrawInfoBackground(HDC hdc);
+	void DrawInPlayerInfo(HDC hdc);
+	void DrawRoomNum(HDC hdc);
+	void DrawButton(HDC hdc);
+	bool CheckIsClickedStateButton(int x, int y);
+	void SendRoomState(int roomNum, bool isStart = false, bool canStart = false);
+	void DrawRoomState_Debug(HDC hdc);
+	void CheckStart();
+	void DrawInGame(HDC hdc);
+	void InGameInit();
 
 public:
 	int playerIndex;

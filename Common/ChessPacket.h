@@ -9,6 +9,8 @@ enum PACKET_TYPE
 	PACKET_TYPE_LOBBY_DATA,
 	PACKET_TYPE_SEND_POS,
 	PACKET_TYPE_CREATE_ROOM,
+	PACKET_TYPE_ENTER_ROOM,
+	PACKET_TYPE_ROOM_STATE
 };
 
 struct PACKET_HEADER
@@ -31,6 +33,9 @@ struct ROOM_DATA
 {
 	int inPlayerNum;
 	char roomName[32];
+	int inPlayer[2];
+	bool isStart;
+	bool canStart;
 };
 
 struct LOBY_DATA
@@ -69,6 +74,21 @@ struct PACKET_CREATE_ROOM
 {
 	PACKET_HEADER header;
 	ROOM_DATA roomData;
+};
+
+struct PACKET_ENTER_ROOM
+{
+	PACKET_HEADER header;
+	int roomNum;
+	int playerIndex;
+};
+
+struct PACKET_ROOM_STATE
+{
+	PACKET_HEADER header;
+	int roomNum;
+	bool isStart;
+	bool canStart;
 };
 
 

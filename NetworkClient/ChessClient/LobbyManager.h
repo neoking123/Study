@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <map>
 #include <string>
+#include "Room.h"
 using namespace std;
 
 class Room;
@@ -20,6 +21,7 @@ private:
 	void DrawRoomCreateButton(HDC hdc);
 	void UpdateRooms();
 	void SendCreateRoom(string roomName);
+	void SendEnterRoom(int roomNum);
 
 public:
 	int roomNum;
@@ -37,6 +39,13 @@ public:
 	void CheckIsClickedRoom(int x, int y);
 	void ClearRooms();
 	void CreateRoom(string roomName, int inPlayerNum = 0);
+	void SetInPlayer(int roomNum, int inPlayer0, int inPlayer1);
+	void SetIsStart(int roomNum, bool isStart);
+	int GetRoomNum(int playerIndex);
+	bool CheckIsRoomMaster(int playerIndex);
+	bool GetIsStart(int roomNum);
+	bool GetCanStart(int roomNum);
+	void SetCanStart(int roomNum, bool canStart);
 
 	inline static LobbyManager* GetInstance()
 	{

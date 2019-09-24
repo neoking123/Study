@@ -98,7 +98,7 @@ bool Room::CheckIsClicked(int x, int y)
 		if (inPlayerNum < MaxInPlayerNum)
 		{
 			//roomName = "Enter Room!";
-			inPlayerNum++;
+			//inPlayerNum++;
 			isClicked = true;
 		}
 	}
@@ -139,11 +139,12 @@ void Room::Init(int roomNum, string roomName, int x, int y, int curInplayerNum, 
 	transform.position.y = y;
 	roomState = ROOM_STATE::ROOM_WATING;
 	
-	inPlayerNum = 0;
+	inPlayerNum = curInplayerNum;
 	this->MaxInPlayerNum = MaxInPlayerNum;
 	this->isSecret = isSecret;
 	this->password = password;
 	isStart = false;
+	canStart = false;
 }
 
 void Room::Update()

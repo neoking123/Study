@@ -22,9 +22,7 @@ class Room : public UIObject
 private:
 	string roomName;
 	string password;
-	int MaxInPlayerNum;
 	bool isSecret;
-	bool isStart;
 	ROOM_STATE roomState;
 	ButtonComponent button;
 
@@ -41,6 +39,10 @@ private:
 public:
 	int roomNum;
 	int inPlayerNum;
+	int inPlayer[2] = { -1, -1 };
+	int MaxInPlayerNum;
+	bool isStart;
+	bool canStart;
 
 	Room();
 	~Room();
@@ -51,4 +53,9 @@ public:
 	virtual void Release() override;
 
 	bool CheckIsClicked(int x, int y);
+
+	inline void SetRoomState(ROOM_STATE newRoomState)
+	{
+		roomState = newRoomState;
+	}
 };

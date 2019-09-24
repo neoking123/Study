@@ -162,7 +162,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		for (auto iter = players.begin(); iter != players.end(); iter++)
 		{
-			delete iter->second;
+			SAFE_DELETE(iter->second);
 		}
 		players.clear();
 		PostQuitMessage(0);
@@ -232,7 +232,7 @@ void ProcessPacket(char* buf, int len)
 
 		for (auto iter = players.begin(); iter != players.end(); iter++)
 		{
-			SAFE_DELETE((*iter).second);
+			SAFE_DELETE(iter->second);
 		}
 		players.clear();
 
@@ -256,17 +256,24 @@ void ProcessPacket(char* buf, int len)
 		PACKET_LOBBY_DATA packet;
 		memcpy(&packet, buf, header.len);
 
-		LobbyManager::GetInstance()->ClearRooms();
-
 		LobbyManager::GetInstance()->roomNum = packet.lobyData.roomNum;
 		LobbyManager::GetInstance()->maxRoomNum = packet.lobyData.maxRoomNum;
+
 		if (LobbyManager::GetInstance()->roomNum <= 0)
 			break;
 
+		LobbyManager::GetInstance()->ClearRooms();
 		LobbyManager::GetInstance()->roomCount = 0;
 		for (int i = 0; i < LobbyManager::GetInstance()->roomNum; i++)
 		{
 			LobbyManager::GetInstance()->CreateRoom(packet.lobyData.roomsData[i].roomName, packet.lobyData.roomsData[i].inPlayerNum);
+		}
+
+		for (int i = 0; i < LobbyManager::GetInstance()->roomNum; i++)
+		{
+			LobbyManager::GetInstance()->SetInPlayer(i, packet.lobyData.roomsData[i].inPlayer[0], packet.lobyData.roomsData[i].inPlayer[1]);
+			LobbyManager::GetInstance()->SetIsStart(i, packet.lobyData.roomsData[i].isStart);
+			LobbyManager::GetInstance()->SetCanStart(i, packet.lobyData.roomsData[i].canStart);
 		}
 
 	}

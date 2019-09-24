@@ -146,6 +146,7 @@
     <ClCompile Include="ButtonComponent.cpp" />
     <ClCompile Include="ChessClient.cpp" />
     <ClCompile Include="ChessGame.cpp" />
+    <ClCompile Include="ChessPiece.cpp" />
     <ClCompile Include="LobbyManager.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Room.cpp" />
@@ -156,6 +157,9 @@
     <ClInclude Include="BitMapManager.h" />
     <ClInclude Include="ButtonComponent.h" />
     <ClInclude Include="ChessGame.h" />
+    <ClInclude Include="ChessPiece.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="InputComponent.h" />
     <ClInclude Include="LobbyManager.h" />
     <ClInclude Include="Macro.h" />
     <ClInclude Include="Player.h" />

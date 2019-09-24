@@ -29,6 +29,9 @@ class ROOM_INFO
 public:
 	char roomName[128];
 	int inPlayerNum;
+	int inPlayer[2] = {-1, -1};
+	bool isStart = false;
+	bool canStart = false;
 	//int roomNameLen;
 };
 
@@ -43,6 +46,7 @@ bool ProcessPacket(SOCKET sock, USER_INFO* pUser, char* szBuf, int& len);
 void err_display(const char* msg);
 void err_display(int errcode);
 void err_quit(const char* msg);
+void SendLobbyData();
 
 int main(int argc, char* argv[])
 {
@@ -227,22 +231,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		createdRooms.insert(make_pair(roomNum++, roomInfo2));*/
 
 		// 로비 정보 전송
-		PACKET_LOBBY_DATA lobbyDataPacket;
-		lobbyDataPacket.header.type = PACKET_TYPE::PACKET_TYPE_LOBBY_DATA;
-		int j = 0;
-		//int roomNameSize = 0;
-		for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++, j++)
-		{
-			strcpy(lobbyDataPacket.lobyData.roomsData[j].roomName, createdRooms[j]->roomName);
-			lobbyDataPacket.lobyData.roomsData[i].inPlayerNum = createdRooms[j]->inPlayerNum;
-			//lobbyDataPacket.lobyData.roomsData[j].roomNameLen = createdRooms[j]->roomNameLen;
-			//roomNameSize += sizeof(char) * createdRooms[j]->roomNameLen;
-		}
-		lobbyDataPacket.lobyData.roomNum = roomNum;
-		lobbyDataPacket.lobyData.maxRoomNum = MAX_ROOM_NUM;
-		lobbyDataPacket.header.len = sizeof(PACKET_HEADER) + sizeof(int) + sizeof(int) + sizeof(int) + roomNum * sizeof(char) * 32;
-
-		send(client_sock, (const char*)&lobbyDataPacket, lobbyDataPacket.header.len, 0);
+		SendLobbyData();
 	}
 	break;
 
@@ -341,23 +330,40 @@ bool ProcessPacket(SOCKET sock, USER_INFO* userInfo, char* buf, int& len)
 		ROOM_INFO* roomInfo = new ROOM_INFO();
 		strcpy(roomInfo->roomName, packet.roomData.roomName);
 		roomInfo->inPlayerNum = packet.roomData.inPlayerNum;
+		roomInfo->inPlayer[0] = packet.roomData.inPlayer[0];
 		createdRooms.insert(make_pair(roomNum, roomInfo));
+		roomNum++;
+		SendLobbyData();
+	}
+	break;
 
-		PACKET_LOBBY_DATA lobbyDataPacket;
-		lobbyDataPacket.header.type = PACKET_TYPE::PACKET_TYPE_LOBBY_DATA;
-		int i = 0;
-		for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++, i++)
+	case PACKET_TYPE::PACKET_TYPE_ENTER_ROOM:
+	{
+		PACKET_ENTER_ROOM packet;
+		memcpy(&packet, buf, header.len);
+		
+		for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++)
 		{
-			strcpy(lobbyDataPacket.lobyData.roomsData[i].roomName, createdRooms[i]->roomName);
+			if (iter->first == packet.roomNum)
+			{
+				iter->second->inPlayer[1] = packet.playerIndex;
+				iter->second->inPlayerNum = 2;
+			}
 		}
-		lobbyDataPacket.lobyData.roomNum = ++roomNum;
-		lobbyDataPacket.lobyData.maxRoomNum = MAX_ROOM_NUM;
-		lobbyDataPacket.header.len = sizeof(PACKET_HEADER) + sizeof(int) + sizeof(int) + sizeof(int) + roomNum * sizeof(char) * 32;
 
-		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
-		{
-			send(iter->first, (const char*)&lobbyDataPacket, lobbyDataPacket.header.len, 0);
-		}
+		SendLobbyData();
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_ROOM_STATE:
+	{
+		PACKET_ROOM_STATE packet;
+		memcpy(&packet, buf, header.len);
+
+		createdRooms[packet.roomNum]->isStart = packet.isStart;
+		createdRooms[packet.roomNum]->canStart = packet.canStart;
+
+		SendLobbyData();
 	}
 	break;
 
@@ -367,6 +373,30 @@ bool ProcessPacket(SOCKET sock, USER_INFO* userInfo, char* buf, int& len)
 	userInfo->len -= header.len;
 
 	return true;
+}
+
+void SendLobbyData()
+{
+	PACKET_LOBBY_DATA lobbyDataPacket;
+	lobbyDataPacket.header.type = PACKET_TYPE::PACKET_TYPE_LOBBY_DATA;
+	int i = 0;
+	for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++, i++)
+	{
+		strcpy(lobbyDataPacket.lobyData.roomsData[i].roomName, createdRooms[i]->roomName);
+		lobbyDataPacket.lobyData.roomsData[i].inPlayerNum = createdRooms[i]->inPlayerNum;
+		lobbyDataPacket.lobyData.roomsData[i].inPlayer[0] = createdRooms[i]->inPlayer[0];
+		lobbyDataPacket.lobyData.roomsData[i].inPlayer[1] = createdRooms[i]->inPlayer[1];
+		lobbyDataPacket.lobyData.roomsData[i].isStart = createdRooms[i]->isStart;
+		lobbyDataPacket.lobyData.roomsData[i].canStart = createdRooms[i]->canStart;
+	}
+	lobbyDataPacket.lobyData.roomNum = roomNum;
+	lobbyDataPacket.lobyData.maxRoomNum = MAX_ROOM_NUM;
+	lobbyDataPacket.header.len = sizeof(PACKET_HEADER) + sizeof(int) + sizeof(int) + roomNum * sizeof(ROOM_DATA);
+
+	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+	{
+		send(iter->first, (const char*)&lobbyDataPacket, lobbyDataPacket.header.len, 0);
+	}
 }
 
 // 소켓 함수 오류 출력

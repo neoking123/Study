@@ -25,6 +25,9 @@
     <Filter Include="UI">
       <UniqueIdentifier>{9f55c16d-a310-41b6-bdc9-8436e0188d0f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameObject">
+      <UniqueIdentifier>{d2a364f8-fbba-4d26-9028-9fa0a042eaad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ChessClient.cpp">
@@ -52,6 +55,9 @@
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ChessPiece.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -88,6 +94,15 @@
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="ChessPiece.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="InputComponent.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
