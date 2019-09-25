@@ -6,7 +6,8 @@ class Knight : public ChessPiece
 public:
 	Knight();
 	~Knight();
-	void Init(CHESSPIECE_COLOR pieceColor);
-	virtual void Moveto(int x, int y, int targetX, int targetY) override;
+	void Init(CHESS_PIECE_COLOR pieceColor);
+	virtual bool CheckMove(POINT curPos, POINT targetPos) override;
+	virtual bool CheckAttack(POINT curPos, ChessPiece& targetPiece, POINT targetPos) override;
 };
 

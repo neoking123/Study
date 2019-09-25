@@ -79,7 +79,7 @@
       <Filter>ChessObjects</Filter>
     </ClCompile>
     <ClCompile Include="Pawn.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>ChessObjects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -141,7 +141,7 @@
       <Filter>ChessObjects</Filter>
     </ClInclude>
     <ClInclude Include="Pawn.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>ChessObjects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

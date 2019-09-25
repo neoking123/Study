@@ -330,6 +330,7 @@ void ChessGame::Render()
 
 void ChessGame::Release()
 {
+	chessBoard->Release();
 	SAFE_DELETE(chessBoard);
 	LobbyManager::GetInstance()->Release();
 	BitMapManager::GetInstance()->Release();
@@ -339,13 +340,11 @@ void ChessGame::MouseInput(int x, int y, int mouseState)
 {
 	if (mouseState == MOUSE_STATE::CLICK_DOWN)
 	{
-		cursor.x = x;
-		cursor.y = y;
+		cursor = { x, y };
 	}
 	else if(mouseState == MOUSE_STATE::CLICK_UP)
 	{
-		cursor.x = 0;
-		cursor.y = 0;
+		cursor = { 0, 0 };
 	}
 
 	switch (sceneState)
@@ -366,7 +365,7 @@ void ChessGame::MouseInput(int x, int y, int mouseState)
 		break;
 
 	case SCENE_STATE::INGAME_SCENE:
-		chessBoard->CheckIsClickedPiece(cursor.x, cursor.y);
+		chessBoard->MouseInput(cursor.x, cursor.y);
 		break;
 
 	case SCENE_STATE::RESULT_SCENE:

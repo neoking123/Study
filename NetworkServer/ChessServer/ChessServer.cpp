@@ -14,6 +14,23 @@ using namespace std;
 #define MAX_ROOM_NUM 10
 char windowClassName[256] = "ChessServer";
 
+enum CHESS_PIECES
+{
+	KING_W,
+	QUEEN_W,
+	ROOK_W,
+	BISHOP_W,
+	KNIGHT_W,
+	PAWN_W,
+	NONE,
+	KING_B,
+	QUEEN_B,
+	ROOK_B,
+	BISHOP_B,
+	KNIGHT_B,
+	PAWN_B
+};
+
 class USER_INFO
 {
 public:
@@ -39,6 +56,7 @@ int userIndex = 0;
 int roomNum = 0;
 map<SOCKET, USER_INFO*> connectedUsers;
 map<int, ROOM_INFO*> createdRooms;
+int board[8][8];
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void ProcessSocketMessage(HWND, UINT, WPARAM, LPARAM);
@@ -47,6 +65,7 @@ void err_display(const char* msg);
 void err_display(int errcode);
 void err_quit(const char* msg);
 void SendLobbyData();
+void InitChessBoard();
 
 int main(int argc, char* argv[])
 {
@@ -102,6 +121,9 @@ int main(int argc, char* argv[])
 	retval = WSAAsyncSelect(listen_sock, hWnd, WM_SOCKET, FD_ACCEPT | FD_CLOSE);
 	if (retval == SOCKET_ERROR)
 		err_quit("WSAAsyncSelect()");
+
+	// 보드 초기화
+	void InitChessBoard();
 
 	// 메시지 루프
 	MSG msg;
@@ -327,6 +349,7 @@ bool ProcessPacket(SOCKET sock, USER_INFO* userInfo, char* buf, int& len)
 		if (roomNum >= MAX_ROOM_NUM)
 			break;
 
+
 		ROOM_INFO* roomInfo = new ROOM_INFO();
 		strcpy(roomInfo->roomName, packet.roomData.roomName);
 		roomInfo->inPlayerNum = packet.roomData.inPlayerNum;
@@ -364,6 +387,47 @@ bool ProcessPacket(SOCKET sock, USER_INFO* userInfo, char* buf, int& len)
 		createdRooms[packet.roomNum]->canStart = packet.canStart;
 
 		SendLobbyData();
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_MOVE_TO:
+	{
+		PACKET_MOVE_TO packet;
+		memcpy(&packet, buf, header.len);
+
+		POINT curPos = packet.moveDate.curPos;
+		POINT targetPos = packet.moveDate.targetPos;
+
+		// 이동 가능한지 체크
+
+		board[targetPos.y][targetPos.x] = board[curPos.y][curPos.x];
+		board[curPos.y][curPos.x] = CHESS_PIECES::NONE;
+
+
+		// 해당 방에 패킷 전송
+		for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++)
+		{
+			if (iter->first == packet.roomNum)
+			{
+				for (auto userIter = connectedUsers.begin(); userIter != connectedUsers.end(); userIter++)
+				{
+					if (userIter->second->index == iter->second->inPlayer[0] 
+						|| userIter->second->index == iter->second->inPlayer[1])
+					{
+						send(userIter->first, (const char*)&packet, header.len, 0);
+					}
+				}
+			}
+		}
+
+		// 이동 가능하면 send
+		/*for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+		{
+			if (iter->second->inRoomNum == packet.roomNum)
+			{
+				send(iter->first, (const char*)&packet, header.len, 0);
+			}
+		}*/
 	}
 	break;
 
@@ -438,4 +502,52 @@ void err_quit(const char* msg)
 	MessageBox(NULL, (LPCTSTR)IpMsgBuf, msg, MB_ICONERROR);
 	LocalFree(IpMsgBuf);
 	exit(1);
+}
+
+void InitChessBoard()
+{
+
+	for (int y = 0; y < 8; y++)
+	{
+		for (int x = 0; x < 8; x++)
+		{
+			board[y][x] = CHESS_PIECES::NONE;
+		}
+	}
+
+	board[0][0] = CHESS_PIECES::ROOK_B;
+	board[0][1] = CHESS_PIECES::KNIGHT_B;
+	board[0][2] = CHESS_PIECES::BISHOP_B;
+	board[0][3] = CHESS_PIECES::QUEEN_B;
+	board[0][4] = CHESS_PIECES::KING_B;
+	board[0][5] = CHESS_PIECES::BISHOP_B;
+	board[0][6] = CHESS_PIECES::KNIGHT_B;
+	board[0][7] = CHESS_PIECES::ROOK_B;
+
+	board[1][0] = CHESS_PIECES::PAWN_B;
+	board[1][1] = CHESS_PIECES::PAWN_B;
+	board[1][2] = CHESS_PIECES::PAWN_B;
+	board[1][3] = CHESS_PIECES::PAWN_B;
+	board[1][4] = CHESS_PIECES::PAWN_B;
+	board[1][5] = CHESS_PIECES::PAWN_B;
+	board[1][6] = CHESS_PIECES::PAWN_B;
+	board[1][7] = CHESS_PIECES::PAWN_B;
+
+	board[7][0] = CHESS_PIECES::ROOK_W;
+	board[7][1] = CHESS_PIECES::KNIGHT_W;
+	board[7][2] = CHESS_PIECES::BISHOP_W;
+	board[7][3] = CHESS_PIECES::QUEEN_W;
+	board[7][4] = CHESS_PIECES::KING_W;
+	board[7][5] = CHESS_PIECES::BISHOP_W;
+	board[7][6] = CHESS_PIECES::KNIGHT_W;
+	board[7][7] = CHESS_PIECES::ROOK_W;
+
+	board[6][0] = CHESS_PIECES::PAWN_W;
+	board[6][1] = CHESS_PIECES::PAWN_W;
+	board[6][2] = CHESS_PIECES::PAWN_W;
+	board[6][3] = CHESS_PIECES::PAWN_W;
+	board[6][4] = CHESS_PIECES::PAWN_W;
+	board[6][5] = CHESS_PIECES::PAWN_W;
+	board[6][6] = CHESS_PIECES::PAWN_W;
+	board[6][7] = CHESS_PIECES::PAWN_W;
 }

@@ -70,6 +70,17 @@ public:
 	void Render();
 	void Release();
 	void MouseInput(int x, int y, int mouseState);
+	
+	inline ChessBoard& GetChessBoard()
+	{
+		return *chessBoard;
+	}
+	
+	inline SOCKET GetSock()
+	{
+		return sock;
+	}
+
 	inline void SetSceneState(SCENE_STATE newSceneState)
 	{
 		sceneState = newSceneState;

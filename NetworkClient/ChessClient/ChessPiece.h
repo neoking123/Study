@@ -1,4 +1,5 @@
 #pragma once
+#include <Windows.h>
 
 #define CHESS_PIECE_SIZE 77
 
@@ -13,7 +14,7 @@ enum CHESS_PIECE_TYPE
 	PIECE_TYPE_NONE
 };
 
-enum CHESSPIECE_COLOR
+enum CHESS_PIECE_COLOR
 {
 	PIECE_BLACK,
 	PIECE_WHITE,
@@ -25,7 +26,7 @@ class BitMap;
 class ChessPiece
 {
 protected:
-	CHESSPIECE_COLOR pieceColor = CHESSPIECE_COLOR::PIECE_NONE;
+	CHESS_PIECE_COLOR pieceColor = CHESS_PIECE_COLOR::PIECE_NONE;
 	CHESS_PIECE_TYPE pieceType = CHESS_PIECE_TYPE::PIECE_TYPE_NONE;
 	
 public:
@@ -34,8 +35,10 @@ public:
 	ChessPiece();
 	~ChessPiece();
 
-	virtual void Moveto(int x, int y, int targetX, int targetY) = 0;
-	inline virtual CHESSPIECE_COLOR GetColor() const
+	virtual bool CheckMove(POINT curPos, POINT targetPos) = 0;
+	virtual bool CheckAttack(POINT curPos, ChessPiece& targetPiece, POINT targetPos) = 0;
+
+	inline virtual CHESS_PIECE_COLOR GetColor() const
 	{
 		return pieceColor;
 	}

@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "Macro.h"
 #include "LobbyManager.h"
+#include "ChessBoard.h"
 using namespace std;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -276,6 +277,15 @@ void ProcessPacket(char* buf, int len)
 			LobbyManager::GetInstance()->SetCanStart(i, packet.lobyData.roomsData[i].canStart);
 		}
 
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_MOVE_TO:
+	{
+		PACKET_MOVE_TO packet;
+		memcpy(&packet, buf, header.len);
+
+		ChessGame::GetInstance()->GetChessBoard().MoveTo(packet.moveDate.curPos, packet.moveDate.targetPos);
 	}
 	break;
 

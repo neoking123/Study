@@ -10,7 +10,8 @@ enum PACKET_TYPE
 	PACKET_TYPE_SEND_POS,
 	PACKET_TYPE_CREATE_ROOM,
 	PACKET_TYPE_ENTER_ROOM,
-	PACKET_TYPE_ROOM_STATE
+	PACKET_TYPE_ROOM_STATE,
+	PACKET_TYPE_MOVE_TO,
 };
 
 struct PACKET_HEADER
@@ -43,6 +44,14 @@ struct LOBY_DATA
 	int roomNum;
 	int maxRoomNum;
 	ROOM_DATA roomsData[20];
+};
+
+struct MOVE_DATA
+{
+	int pieceType;
+	int pieceColor;
+	POINT curPos;
+	POINT targetPos;
 };
 
 struct PACKET_LOGIN
@@ -91,5 +100,11 @@ struct PACKET_ROOM_STATE
 	bool canStart;
 };
 
+struct PACKET_MOVE_TO
+{
+	PACKET_HEADER header;
+	int roomNum;
+	MOVE_DATA moveDate;
+};
 
 #pragma pack()
