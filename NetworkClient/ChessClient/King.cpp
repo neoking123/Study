@@ -29,7 +29,7 @@ void King::Init(CHESS_PIECE_COLOR pieceColor)
 bool King::CheckMove(POINT curPos, POINT targetPos)
 {
 	if ((targetPos.x >= curPos.x - 1 && targetPos.x <= curPos.x + 1)
-		|| (targetPos.y >= curPos.y - 1 && targetPos.y <= curPos.y + 1))
+		&& (targetPos.y >= curPos.y - 1 && targetPos.y <= curPos.y + 1))
 	{
 		return true;
 	}
@@ -42,7 +42,7 @@ bool King::CheckMove(POINT curPos, POINT targetPos)
 bool King::CheckAttack(POINT curPos, ChessPiece & targetPiece, POINT targetPos)
 {
 	if ((targetPos.x >= curPos.x - 1 && targetPos.x <= curPos.x + 1)
-		|| (targetPos.y >= curPos.y - 1 && targetPos.y <= curPos.y + 1)
+		&& (targetPos.y >= curPos.y - 1 && targetPos.y <= curPos.y + 1)
 		&& targetPiece.GetColor() != pieceColor)
 	{
 		return true;

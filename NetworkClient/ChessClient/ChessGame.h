@@ -9,8 +9,6 @@ using namespace std;
 #define START_BUTTON_POSITION_X 800
 #define START_BUTTON_POSITION_Y 500
 
-class ChessBoard;
-
 enum MOUSE_STATE 
 {
 	CLICK_DOWN,
@@ -43,7 +41,6 @@ private:
 	chrono::system_clock::time_point lastTime;
 
 	SCENE_STATE sceneState;
-	ChessBoard* chessBoard;
 
 	ChessGame();
 	void DrawInRoom(HDC hdc);
@@ -70,11 +67,6 @@ public:
 	void Render();
 	void Release();
 	void MouseInput(int x, int y, int mouseState);
-	
-	inline ChessBoard& GetChessBoard()
-	{
-		return *chessBoard;
-	}
 	
 	inline SOCKET GetSock()
 	{

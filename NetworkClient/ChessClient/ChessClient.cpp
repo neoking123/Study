@@ -285,7 +285,7 @@ void ProcessPacket(char* buf, int len)
 		PACKET_MOVE_TO packet;
 		memcpy(&packet, buf, header.len);
 
-		ChessGame::GetInstance()->GetChessBoard().MoveTo(packet.moveDate.curPos, packet.moveDate.targetPos);
+		ChessBoard::GetInstance()->MoveTo(packet.moveDate.curPos, packet.moveDate.targetPos);
 	}
 	break;
 

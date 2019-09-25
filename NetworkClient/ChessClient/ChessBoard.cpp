@@ -12,6 +12,8 @@
 #include "Knight.h"
 #include "Pawn.h"
 
+ChessBoard* ChessBoard::instance = nullptr;
+
 bool ChessBoard::CheckMove(ChessPiece& piece, POINT curPos, POINT targetPos)
 {
 	if (piece.CheckMove(curPos, targetPos))
@@ -87,12 +89,12 @@ void ChessBoard::InitPieces()
 	rook2_w->Init(CHESS_PIECE_COLOR::PIECE_WHITE);
 	board[7][7] = rook2_w;
 
-	/*for (int i = 0; i < 8; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		Pawn* pawn_w = new Pawn();
 		pawn_w->Init(CHESS_PIECE_COLOR::PIECE_WHITE);
 		board[6][i] = pawn_w;
-	}*/
+	}
 	
 	King* king_b = new King();
 	king_b->Init(CHESS_PIECE_COLOR::PIECE_BLACK);
@@ -101,7 +103,7 @@ void ChessBoard::InitPieces()
 	Queen* queen_b = new Queen();
 	queen_b->Init(CHESS_PIECE_COLOR::PIECE_BLACK);
 	board[0][3] = queen_b;
-
+	
 	Bishop* bishop1_b = new Bishop();
 	bishop1_b->Init(CHESS_PIECE_COLOR::PIECE_BLACK);
 	board[0][2] = bishop1_b;
@@ -202,8 +204,7 @@ void ChessBoard::MouseInput(int x, int y)
 				}
 				else
 				{
-					if (CheckAttack(*board[clickFirstPos.y][clickFirstPos.x], clickFirstPos, *board[clickSecondPos.y][clickSecondPos.x], clickSecondPos)
-						|| CheckMove(*board[clickFirstPos.y][clickFirstPos.x], clickFirstPos, clickSecondPos))
+					if (CheckAttack(*board[clickFirstPos.y][clickFirstPos.x], clickFirstPos, *board[clickSecondPos.y][clickSecondPos.x], clickSecondPos))
 					{
 						SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
 					}
@@ -224,6 +225,14 @@ void ChessBoard::MoveTo(POINT curPos, POINT targetPos)
 	SAFE_DELETE(board[targetPos.y][targetPos.x]);
 	board[targetPos.y][targetPos.x] = board[curPos.y][curPos.x];
 	board[curPos.y][curPos.x] = nullptr;
+}
+
+bool ChessBoard::IsExist(POINT pos)
+{
+	if (board[pos.y][pos.x] == nullptr)
+		return false;
+	else
+		return true;
 }
 
 bool ChessBoard::CheckIsClickedPiece(int cusrsorX, int cursorY)

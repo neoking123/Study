@@ -3,6 +3,9 @@
 
 class Pawn : public ChessPiece
 {
+private:
+	bool isFirst;
+
 public:
 	Pawn();
 	~Pawn();

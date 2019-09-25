@@ -28,6 +28,8 @@ struct ClickCheck
 class ChessBoard
 {
 private:
+	static ChessBoard* instance;
+
 	BitMap* bitmap;
 	ChessPiece* board[8][8];
 	CLICK_STATE clickState;
@@ -39,6 +41,8 @@ private:
 	int clickSecondType;
 	int clickSecondColor;
 
+	ChessBoard();
+
 	bool CheckMove(ChessPiece& piece, POINT curPos, POINT targetPos);
 	bool CheckAttack(ChessPiece & curPiece, POINT curPos, ChessPiece & targetPiece, POINT targetPos);
 	void DrawPieces(HDC hdc);
@@ -47,7 +51,7 @@ private:
 	void SendMoveTo(int type, int color, POINT curPos, POINT targetPos);
 
 public:
-	ChessBoard();
+	
 	~ChessBoard();
 
 	void Init();
@@ -56,6 +60,25 @@ public:
 	void Release();
 	void MouseInput(int x, int y);
 	void MoveTo(POINT curPos, POINT targetPos);
+	bool IsExist(POINT pos);
+
+	inline static ChessBoard* GetInstance()
+	{
+		if (instance == nullptr)
+		{
+			instance = new ChessBoard();
+		}
+		return instance;
+	}
+
+	inline static void FreeInstance()
+	{
+		if (instance != nullptr)
+		{
+			delete instance;
+			instance = nullptr;
+		}
+	}
 	
 };
 

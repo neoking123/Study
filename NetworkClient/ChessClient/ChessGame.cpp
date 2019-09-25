@@ -228,8 +228,7 @@ void ChessGame::DrawInGame(HDC hdc)
 
 void ChessGame::InGameInit()
 {
-	chessBoard = new ChessBoard();
-	chessBoard->Init();
+	ChessBoard::GetInstance()->Init();
 }
 
 ChessGame::~ChessGame()
@@ -308,7 +307,7 @@ void ChessGame::Render()
 
 	case SCENE_STATE::READY_SCENE:
 		DrawInRoom(gameDC);
-		chessBoard->Render(gameDC);
+		ChessBoard::GetInstance()->Render(gameDC);
 		break;
 
 	case SCENE_STATE::START_SCENE:
@@ -316,7 +315,7 @@ void ChessGame::Render()
 
 	case SCENE_STATE::INGAME_SCENE:
 		DrawInGame(gameDC);
-		chessBoard->Render(gameDC);
+		ChessBoard::GetInstance()->Render(gameDC);
 		break;
 
 	case SCENE_STATE::RESULT_SCENE:
@@ -330,8 +329,7 @@ void ChessGame::Render()
 
 void ChessGame::Release()
 {
-	chessBoard->Release();
-	SAFE_DELETE(chessBoard);
+	ChessBoard::GetInstance()->Release();
 	LobbyManager::GetInstance()->Release();
 	BitMapManager::GetInstance()->Release();
 }
@@ -365,7 +363,7 @@ void ChessGame::MouseInput(int x, int y, int mouseState)
 		break;
 
 	case SCENE_STATE::INGAME_SCENE:
-		chessBoard->MouseInput(cursor.x, cursor.y);
+		ChessBoard::GetInstance()->MouseInput(cursor.x, cursor.y);
 		break;
 
 	case SCENE_STATE::RESULT_SCENE:
