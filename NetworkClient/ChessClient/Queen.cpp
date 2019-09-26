@@ -281,7 +281,9 @@ void Queen::DrawMovablePos(HDC hdc, POINT curPos)
 	int j = curPos.y;
 	for (; i < 8; i++, j++)
 	{
-		// x,y 범위 예외 처리 할것
+		if (j >= 8)
+			break;
+
 		if (ChessBoard::GetInstance()->GetPiece({ i, j }) == nullptr)
 		{
 			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, i * CHESS_PIECE_SIZE + 24, j * CHESS_PIECE_SIZE + 24);
@@ -301,6 +303,9 @@ void Queen::DrawMovablePos(HDC hdc, POINT curPos)
 	j = curPos.y;
 	for (; i < 8; i++, j--)
 	{
+		if (j < 0)
+			break;
+
 		if (ChessBoard::GetInstance()->GetPiece({ i, j }) == nullptr)
 		{
 			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, i * CHESS_PIECE_SIZE + 24, j * CHESS_PIECE_SIZE + 24);
@@ -320,6 +325,9 @@ void Queen::DrawMovablePos(HDC hdc, POINT curPos)
 	j = curPos.y;
 	for (; i >= 0; i--, j--)
 	{
+		if (j < 0)
+			break;
+
 		if (ChessBoard::GetInstance()->GetPiece({ i, j }) == nullptr)
 		{
 			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, i * CHESS_PIECE_SIZE + 24, j * CHESS_PIECE_SIZE + 24);
@@ -339,6 +347,9 @@ void Queen::DrawMovablePos(HDC hdc, POINT curPos)
 	j = curPos.y;
 	for (; i >= 0; i--, j++)
 	{
+		if (j >= 8)
+			break;
+
 		if (ChessBoard::GetInstance()->GetPiece({ i, j }) == nullptr)
 		{
 			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, i * CHESS_PIECE_SIZE + 24, j * CHESS_PIECE_SIZE + 24);

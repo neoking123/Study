@@ -379,13 +379,9 @@ bool ProcessPacket(SOCKET sock, USER_INFO* userInfo, char* buf, int& len)
 		POINT curPos = packet.moveDate.curPos;
 		POINT targetPos = packet.moveDate.targetPos;
 
-		// 이동 가능한지 체크
-
 		board[targetPos.y][targetPos.x] = board[curPos.y][curPos.x];
 		board[curPos.y][curPos.x] = CHESS_PIECES::NONE;
 
-
-		// 해당 방에 패킷 전송
 		for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++)
 		{
 			if (iter->first == packet.roomNum)
@@ -400,15 +396,6 @@ bool ProcessPacket(SOCKET sock, USER_INFO* userInfo, char* buf, int& len)
 				}
 			}
 		}
-
-		// 이동 가능하면 send
-		/*for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
-		{
-			if (iter->second->inRoomNum == packet.roomNum)
-			{
-				send(iter->first, (const char*)&packet, header.len, 0);
-			}
-		}*/
 	}
 	break;
 
