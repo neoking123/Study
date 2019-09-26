@@ -52,3 +52,9 @@ bool King::CheckAttack(POINT curPos, ChessPiece & targetPiece, POINT targetPos)
 		return false;
 	}
 }
+
+void King::DrawMovablePos(HDC hdc, POINT curPos)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, curPos.y * CHESS_PIECE_SIZE + 24);
+
+}

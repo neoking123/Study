@@ -34,6 +34,7 @@ private:
 	ChessPiece* board[8][8];
 	CLICK_STATE clickState;
 
+	int playerColor;
 	POINT clickFirstPos;
 	POINT clickSecondPos;
 	int clickFirstType;
@@ -46,6 +47,7 @@ private:
 	bool CheckMove(ChessPiece& piece, POINT curPos, POINT targetPos);
 	bool CheckAttack(ChessPiece & curPiece, POINT curPos, ChessPiece & targetPiece, POINT targetPos);
 	void DrawPieces(HDC hdc);
+	void DrawPieceMovablePos(HDC hdc);
 	void InitPieces();
 	bool CheckIsClickedPiece(int cusrsorX, int cursorY);
 	void SendMoveTo(int type, int color, POINT curPos, POINT targetPos);
@@ -61,6 +63,21 @@ public:
 	void MouseInput(int x, int y);
 	void MoveTo(POINT curPos, POINT targetPos);
 	bool IsExist(POINT pos);
+
+	inline ChessPiece* GetPiece(POINT pos)
+	{
+		return board[pos.y][pos.x];
+	}
+
+	inline int GetPlayerColor()
+	{
+		return playerColor;
+	}
+
+	inline void SetPlayerColor(int playerColor)
+	{
+		this->playerColor = playerColor;
+	}
 
 	inline static ChessBoard* GetInstance()
 	{

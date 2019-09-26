@@ -323,24 +323,6 @@ bool ProcessPacket(SOCKET sock, USER_INFO* userInfo, char* buf, int& len)
 
 	switch (header.type)
 	{
-	case PACKET_TYPE::PACKET_TYPE_SEND_POS:
-	{
-		PACKET_SEND_POS packet;
-		memcpy(&packet, buf, header.len);
-
-		//connectedUsers[sock]->x = packet.userData.x;
-		//connectedUsers[sock]->y = packet.userData.y;
-
-		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
-		{
-			//if (iter->first == sock)
-				//continue;
-
-			send(iter->first, (const char*)&packet, header.len, 0);
-		}
-	}
-	break;
-
 	case PACKET_TYPE::PACKET_TYPE_CREATE_ROOM:
 	{
 		PACKET_CREATE_ROOM packet;
@@ -348,7 +330,6 @@ bool ProcessPacket(SOCKET sock, USER_INFO* userInfo, char* buf, int& len)
 
 		if (roomNum >= MAX_ROOM_NUM)
 			break;
-
 
 		ROOM_INFO* roomInfo = new ROOM_INFO();
 		strcpy(roomInfo->roomName, packet.roomData.roomName);

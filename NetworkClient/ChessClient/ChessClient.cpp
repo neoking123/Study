@@ -116,18 +116,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	return (int)Message.wParam;
 }
 
-void SendPos()
-{
-	PACKET_SEND_POS packet;
-	packet.header.type = PACKET_TYPE_SEND_POS;
-	packet.header.len = sizeof(packet);
-	//packet.userData.userIndex = playerIndex;
-	//packet.userData.x = players[playerIndex]->x;
-	//packet.userData.y = players[playerIndex]->y;
-	send(sock, (const char*)&packet, sizeof(packet), 0);
-	send(sock, (const char*)&packet, sizeof(packet), 0);
-}
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc;
@@ -244,8 +232,6 @@ void ProcessPacket(char* buf, int len)
 		{
 			Player* player = new Player();
 			player->name = packet.userData->userName;
-			//pNew->x = packet.userData[i].x;
-			//pNew->y = packet.userData[i].y;
 			players.insert(make_pair(packet.userData[i].userIndex, player));
 		}
 
@@ -285,17 +271,8 @@ void ProcessPacket(char* buf, int len)
 		PACKET_MOVE_TO packet;
 		memcpy(&packet, buf, header.len);
 
+		ChessGame::GetInstance()->curTurn = packet.turn;
 		ChessBoard::GetInstance()->MoveTo(packet.moveDate.curPos, packet.moveDate.targetPos);
-	}
-	break;
-
-	case PACKET_TYPE::PACKET_TYPE_SEND_POS:
-	{
-		PACKET_SEND_POS packet;
-		memcpy(&packet, buf, header.len);
-
-		//players[packet.userData.userIndex]->x = packet.userData.x;
-		//players[packet.userData.userIndex]->y = packet.userData.y;
 	}
 	break;
 	}

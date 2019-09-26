@@ -146,3 +146,76 @@ bool Rook::CheckAttack(POINT curPos, ChessPiece & targetPiece, POINT targetPos)
 		return false;
 	}
 }
+
+void Rook::DrawMovablePos(HDC hdc, POINT curPos)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, curPos.y * CHESS_PIECE_SIZE + 24);
+
+	for (int i = curPos.x; i < 8; i++)
+	{
+		if (ChessBoard::GetInstance()->GetPiece({ i, curPos.y }) == nullptr)
+		{
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, i * CHESS_PIECE_SIZE + 24, curPos.y * CHESS_PIECE_SIZE + 24);
+		}
+		else if(ChessBoard::GetInstance()->GetPiece({ i, curPos.y })->GetColor() != pieceColor)
+		{ 
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, i * CHESS_PIECE_SIZE + 24, curPos.y * CHESS_PIECE_SIZE + 24);
+			break;
+		}
+		else if(ChessBoard::GetInstance()->GetPiece({ i, curPos.y }) != this)
+		{
+			break;
+		}
+	}
+
+	for (int i = curPos.x; i >= 0; i--)
+	{
+		if (ChessBoard::GetInstance()->GetPiece({ i, curPos.y }) == nullptr)
+		{
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, i * CHESS_PIECE_SIZE + 24, curPos.y * CHESS_PIECE_SIZE + 24);
+		}
+		else if (ChessBoard::GetInstance()->GetPiece({ i, curPos.y })->GetColor() != pieceColor)
+		{
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, i * CHESS_PIECE_SIZE + 24, curPos.y * CHESS_PIECE_SIZE + 24);
+			break;
+		}
+		else if (ChessBoard::GetInstance()->GetPiece({ i, curPos.y }) != this)
+		{
+			break;
+		}
+	}
+
+	for (int i = curPos.y; i < 8; i++)
+	{
+		if (ChessBoard::GetInstance()->GetPiece({ curPos.x, i }) == nullptr)
+		{
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, i * CHESS_PIECE_SIZE + 24);
+		}
+		else if (ChessBoard::GetInstance()->GetPiece({ curPos.x, i })->GetColor() != pieceColor)
+		{
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, i * CHESS_PIECE_SIZE + 24);
+			break;
+		}
+		else if (ChessBoard::GetInstance()->GetPiece({ curPos.x, i }) != this)
+		{
+			break;
+		}
+	}
+
+	for (int i = curPos.y; i >= 0; i--)
+	{
+		if (ChessBoard::GetInstance()->GetPiece({ curPos.x, i }) == nullptr)
+		{
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, i * CHESS_PIECE_SIZE + 24);
+		}
+		else if (ChessBoard::GetInstance()->GetPiece({ curPos.x, i })->GetColor() != pieceColor)
+		{
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, i * CHESS_PIECE_SIZE + 24);
+			break;
+		}
+		else if (ChessBoard::GetInstance()->GetPiece({ curPos.x, i }) != this)
+		{
+			break;
+		}
+	}
+}

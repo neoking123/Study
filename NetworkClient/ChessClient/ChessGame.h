@@ -41,7 +41,7 @@ private:
 	chrono::system_clock::time_point lastTime;
 
 	SCENE_STATE sceneState;
-
+	
 	ChessGame();
 	void DrawInRoom(HDC hdc);
 	void DrawBackground(HDC hdc);
@@ -51,6 +51,7 @@ private:
 	void DrawInPlayerInfo(HDC hdc);
 	void DrawRoomNum(HDC hdc);
 	void DrawButton(HDC hdc);
+	void DrawCurTurn(HDC hdc);
 	bool CheckIsClickedStateButton(int x, int y);
 	void SendRoomState(int roomNum, bool isStart = false, bool canStart = false);
 	void DrawRoomState_Debug(HDC hdc);
@@ -60,6 +61,7 @@ private:
 
 public:
 	int playerIndex;
+	int curTurn;
 
 	~ChessGame();
 	void Init(HWND hWnd, SOCKET sock);
@@ -67,6 +69,11 @@ public:
 	void Render();
 	void Release();
 	void MouseInput(int x, int y, int mouseState);
+
+	inline HDC GetGameDC()
+	{
+		return gameDC;
+	}
 	
 	inline SOCKET GetSock()
 	{

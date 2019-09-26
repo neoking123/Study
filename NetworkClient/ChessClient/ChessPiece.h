@@ -37,6 +37,7 @@ public:
 
 	virtual bool CheckMove(POINT curPos, POINT targetPos) = 0;
 	virtual bool CheckAttack(POINT curPos, ChessPiece& targetPiece, POINT targetPos) = 0;
+	virtual void DrawMovablePos(HDC hdc, POINT curPos) = 0;
 
 	inline virtual CHESS_PIECE_COLOR GetColor() const
 	{

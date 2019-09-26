@@ -47,6 +47,14 @@ void ChessBoard::DrawPieces(HDC hdc)
 	}
 }
 
+void ChessBoard::DrawPieceMovablePos(HDC hdc)
+{
+	if (clickState == CLICK_STATE::CLICK_FIRST)
+	{
+		board[clickFirstPos.y][clickFirstPos.x]->DrawMovablePos(hdc, clickFirstPos);
+	}
+}
+
 void ChessBoard::InitPieces()
 {
 	for (int y = 0; y < 8; y++)
@@ -157,12 +165,14 @@ void ChessBoard::Init()
 	clickFirstColor = CHESS_PIECE_COLOR::PIECE_NONE;
 	clickSecondType = CHESS_PIECE_TYPE::PIECE_TYPE_NONE;
 	clickSecondColor = CHESS_PIECE_COLOR::PIECE_NONE;
+	playerColor = CHESS_PIECE_COLOR::PIECE_NONE;
 }
 
 void ChessBoard::Render(HDC hdc)
 {
 	bitmap->Draw(hdc, 24, 24);
 	DrawPieces(hdc);
+	DrawPieceMovablePos(hdc);
 }
 
 void ChessBoard::Release()
@@ -178,16 +188,17 @@ void ChessBoard::Release()
 
 void ChessBoard::MouseInput(int x, int y)
 {
-	//ClickCheck cc;
+	if (ChessGame::GetInstance()->curTurn == ChessGame::GetInstance()->playerIndex)
+		return;
 
 	if (CheckIsClickedPiece(x, y))
 	{
-		//cc = CheckIsClickedPiece(x, y);
-
 		switch (clickState)
 		{
 		case CLICK_STATE::CLICK_NONE:
 			clickState = CLICK_STATE::CLICK_FIRST;
+			// bool flag
+			//board[clickFirstPos.y][clickFirstPos.x]->DrawMovablePos();
 			break;
 
 		case CLICK_STATE::CLICK_FIRST:
@@ -200,6 +211,7 @@ void ChessBoard::MouseInput(int x, int y)
 					if (CheckMove(*board[clickFirstPos.y][clickFirstPos.x], clickFirstPos, clickSecondPos))
 					{
 						SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
+						ChessGame::GetInstance()->curTurn = ChessGame::GetInstance()->playerIndex;
 					}
 				}
 				else
@@ -207,6 +219,7 @@ void ChessBoard::MouseInput(int x, int y)
 					if (CheckAttack(*board[clickFirstPos.y][clickFirstPos.x], clickFirstPos, *board[clickSecondPos.y][clickSecondPos.x], clickSecondPos))
 					{
 						SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
+						ChessGame::GetInstance()->curTurn = ChessGame::GetInstance()->playerIndex;
 					}
 				}
 			}
@@ -237,8 +250,6 @@ bool ChessBoard::IsExist(POINT pos)
 
 bool ChessBoard::CheckIsClickedPiece(int cusrsorX, int cursorY)
 {
-	//ClickCheck cc = { {-1, -1} , false, CHESS_PIECE_TYPE::PIECE_TYPE_NONE, CHESSPIECE_COLOR::PIECE_NONE };
-
 	for (int y = 0; y < 8; y++)
 	{
 		for (int x = 0; x < 8; x++)
@@ -250,6 +261,9 @@ bool ChessBoard::CheckIsClickedPiece(int cusrsorX, int cursorY)
 				{
 					if (board[y][x] != nullptr)
 					{
+						if (playerColor != board[y][x]->GetColor())
+							return false;
+
 						clickFirstPos = { x, y };
 						clickFirstType = board[y][x]->GetType();
 						clickFirstColor = board[y][x]->GetColor();
@@ -279,6 +293,7 @@ void ChessBoard::SendMoveTo(int type, int color, POINT curPos, POINT targetPos)
 	packet.header.type = PACKET_TYPE::PACKET_TYPE_MOVE_TO;
 	packet.header.len = sizeof(packet);
 	packet.roomNum = LobbyManager::GetInstance()->GetRoomNum(ChessGame::GetInstance()->playerIndex);
+	packet.turn = ChessGame::GetInstance()->playerIndex;
 	packet.moveDate.curPos = curPos;
 	packet.moveDate.targetPos = targetPos;
 	packet.moveDate.pieceType = type;

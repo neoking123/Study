@@ -5,6 +5,7 @@
 #include "Macro.h"
 #include "..\..\Common\ChessPacket.h"
 #include "ChessGame.h"
+#include "ChessBoard.h"
 
 LobbyManager* LobbyManager::instance = nullptr;
 
@@ -54,6 +55,7 @@ void LobbyManager::CheckIsClickedRoomCB(int x, int y)
 		CreateRoom(roomName);
 		SendCreateRoom(roomName);
 		ChessGame::GetInstance()->SetSceneState(SCENE_STATE::READY_SCENE);
+		ChessBoard::GetInstance()->SetPlayerColor(1);
 	}
 }
 
@@ -65,6 +67,8 @@ void LobbyManager::CheckIsClickedRoom(int x, int y)
 		{
 			SendEnterRoom(iter->first);
 			ChessGame::GetInstance()->SetSceneState(SCENE_STATE::READY_SCENE);
+			ChessGame::GetInstance()->curTurn = ChessGame::GetInstance()->playerIndex;
+			ChessBoard::GetInstance()->SetPlayerColor(0);
 		}
 	}
 }

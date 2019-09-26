@@ -108,29 +108,86 @@ bool Pawn::CheckAttack(POINT curPos, ChessPiece & targetPiece, POINT targetPos)
 {
 	if (pieceColor == CHESS_PIECE_COLOR::PIECE_WHITE)
 	{
+		if ((targetPos.y == curPos.y - 1 && (targetPos.x == curPos.x - 1 || targetPos.x == curPos.x + 1))
+			&& targetPiece.GetColor() != pieceColor)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else if (pieceColor == CHESS_PIECE_COLOR::PIECE_BLACK)
+	{
+		if ((targetPos.y == curPos.y + 1 && (targetPos.x == curPos.x - 1 || targetPos.x == curPos.x + 1))
+			&& targetPiece.GetColor() != pieceColor)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+}
+
+void Pawn::DrawMovablePos(HDC hdc, POINT curPos)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, curPos.y * CHESS_PIECE_SIZE + 24);
+
+	if (pieceColor == CHESS_PIECE_COLOR::PIECE_WHITE)
+	{
 		if (!isFirst)
 		{
-			if ( (targetPos.y == curPos.y - 1 && (targetPos.x == curPos.x - 1 || targetPos.x == curPos.x + 1) && targetPiece.GetColor() != pieceColor)
-				|| (targetPos.y == curPos.y - 2 && targetPiece.GetColor() != pieceColor))
+			if (ChessBoard::GetInstance()->GetPiece({ curPos.x, curPos.y - 1 }) == nullptr
+				&& ChessBoard::GetInstance()->GetPiece({ curPos.x, curPos.y - 2 }) == nullptr)
 			{
-				isFirst = true;
-				return true;
+				BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, (curPos.y - 1) * CHESS_PIECE_SIZE + 24);
+				BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, (curPos.y - 2) * CHESS_PIECE_SIZE + 24);
 			}
-			else
+			else if (ChessBoard::GetInstance()->GetPiece({ curPos.x, curPos.y - 1 }) == nullptr)
 			{
-				return false;
+				BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, (curPos.y - 1) * CHESS_PIECE_SIZE + 24);
+			}
+
+			if (ChessBoard::GetInstance()->GetPiece({ curPos.x - 1, curPos.y - 1 }) != nullptr)
+			{
+				if (ChessBoard::GetInstance()->GetPiece({ curPos.x - 1, curPos.y - 1 })->GetColor() != pieceColor)
+				{
+					BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, (curPos.x - 1) * CHESS_PIECE_SIZE + 24, (curPos.y - 1) * CHESS_PIECE_SIZE + 24);
+				}
+			}
+
+			if (ChessBoard::GetInstance()->GetPiece({ curPos.x + 1, curPos.y - 1 }) != nullptr)
+			{
+				if (ChessBoard::GetInstance()->GetPiece({ curPos.x + 1, curPos.y - 1 })->GetColor() != pieceColor)
+				{
+					BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, (curPos.x + 1) * CHESS_PIECE_SIZE + 24, (curPos.y - 1) * CHESS_PIECE_SIZE + 24);
+				}
 			}
 		}
 		else
 		{
-			if ((targetPos.y == curPos.y - 1 && (targetPos.x == curPos.x - 1 || targetPos.x == curPos.x + 1))
-				&& targetPiece.GetColor() != pieceColor)
+			if (ChessBoard::GetInstance()->GetPiece({ curPos.x, curPos.y - 1 }) == nullptr)
 			{
-				return true;
+				BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, (curPos.y - 1) * CHESS_PIECE_SIZE + 24);
 			}
-			else
+
+			if (ChessBoard::GetInstance()->GetPiece({ curPos.x - 1, curPos.y - 1 }) != nullptr)
 			{
-				return false;
+				if (ChessBoard::GetInstance()->GetPiece({ curPos.x - 1, curPos.y - 1 })->GetColor() != pieceColor)
+				{
+					BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, (curPos.x - 1) * CHESS_PIECE_SIZE + 24, (curPos.y - 1) * CHESS_PIECE_SIZE + 24);
+				}
+			}
+
+			if (ChessBoard::GetInstance()->GetPiece({ curPos.x + 1, curPos.y - 1 }) != nullptr)
+			{
+				if (ChessBoard::GetInstance()->GetPiece({ curPos.x + 1, curPos.y - 1 })->GetColor() != pieceColor)
+				{
+					BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, (curPos.x + 1) * CHESS_PIECE_SIZE + 24, (curPos.y - 1) * CHESS_PIECE_SIZE + 24);
+				}
 			}
 		}
 	}
@@ -138,27 +195,54 @@ bool Pawn::CheckAttack(POINT curPos, ChessPiece & targetPiece, POINT targetPos)
 	{
 		if (!isFirst)
 		{
-			if ( (targetPos.y == curPos.y + 1 && (targetPos.x == curPos.x - 1 || targetPos.x == curPos.x + 1) && targetPiece.GetColor() != pieceColor)
-				|| (targetPos.y == curPos.y + 2 && targetPiece.GetColor() != pieceColor))
+			if (ChessBoard::GetInstance()->GetPiece({ curPos.x, curPos.y +1 }) == nullptr
+				&& ChessBoard::GetInstance()->GetPiece({ curPos.x, curPos.y + 2 }) == nullptr)
 			{
-				isFirst = true;
-				return true;
+				BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, (curPos.y + 1) * CHESS_PIECE_SIZE + 24);
+				BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, (curPos.y + 2) * CHESS_PIECE_SIZE + 24);
 			}
-			else
+			else if (ChessBoard::GetInstance()->GetPiece({ curPos.x, curPos.y + 1 }) == nullptr)
 			{
-				return false;
+				BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, (curPos.y + 1) * CHESS_PIECE_SIZE + 24);
+			}
+
+			if (ChessBoard::GetInstance()->GetPiece({ curPos.x - 1, curPos.y + 1 }) != nullptr)
+			{
+				if (ChessBoard::GetInstance()->GetPiece({ curPos.x - 1, curPos.y + 1 })->GetColor() != pieceColor)
+				{
+					BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, (curPos.x - 1) * CHESS_PIECE_SIZE + 24, (curPos.y + 1) * CHESS_PIECE_SIZE + 24);
+				}
+			}
+
+			if (ChessBoard::GetInstance()->GetPiece({ curPos.x + 1, curPos.y + 1 }) != nullptr)
+			{
+				if (ChessBoard::GetInstance()->GetPiece({ curPos.x + 1, curPos.y + 1 })->GetColor() != pieceColor)
+				{
+					BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, (curPos.x + 1) * CHESS_PIECE_SIZE + 24, (curPos.y + 1) * CHESS_PIECE_SIZE + 24);
+				}
 			}
 		}
 		else
 		{
-			if ((targetPos.y == curPos.y + 1 && (targetPos.x == curPos.x - 1 || targetPos.x == curPos.x + 1))
-				&& targetPiece.GetColor() != pieceColor)
+			if (ChessBoard::GetInstance()->GetPiece({ curPos.x, curPos.y + 1 }) == nullptr)
 			{
-				return true;
+				BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, curPos.x * CHESS_PIECE_SIZE + 24, (curPos.y + 1) * CHESS_PIECE_SIZE + 24);
 			}
-			else
+
+			if (ChessBoard::GetInstance()->GetPiece({ curPos.x - 1, curPos.y + 1 }) != nullptr)
 			{
-				return false;
+				if (ChessBoard::GetInstance()->GetPiece({ curPos.x - 1, curPos.y + 1 })->GetColor() != pieceColor)
+				{
+					BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, (curPos.x - 1) * CHESS_PIECE_SIZE + 24, (curPos.y + 1) * CHESS_PIECE_SIZE + 24);
+				}
+			}
+
+			if (ChessBoard::GetInstance()->GetPiece({ curPos.x + 1, curPos.y + 1 }) != nullptr)
+			{
+				if (ChessBoard::GetInstance()->GetPiece({ curPos.x + 1, curPos.y + 1 })->GetColor() != pieceColor)
+				{
+					BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::MOVABLE_POS)->Draw(hdc, (curPos.x + 1) * CHESS_PIECE_SIZE + 24, (curPos.y + 1) * CHESS_PIECE_SIZE + 24);
+				}
 			}
 		}
 	}

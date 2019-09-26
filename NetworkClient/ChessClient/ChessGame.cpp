@@ -51,6 +51,9 @@ void ChessGame::DrawInPlayerInfo(HDC hdc)
 	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBY_PLAYER_INFO)->Draw(hdc, 810, 75);
 	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBY_PLAYER_INFO)->Draw(hdc, 810, 100);
 
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::IN_ROOM_PLAYER_COLOR_W)->Draw(hdc, 910, 77);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::IN_ROOM_PLAYER_COLOR_B)->Draw(hdc, 910, 102);
+
 	TCHAR inPlayer0[128];
 	TCHAR inPlayer1[128];
 	TCHAR roomMaster[128];
@@ -114,6 +117,46 @@ void ChessGame::DrawButton(HDC hdc)
 		BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BUTTON_READY)->Draw(hdc, START_BUTTON_POSITION_X, START_BUTTON_POSITION_Y);
 	}
 	
+}
+
+void ChessGame::DrawCurTurn(HDC hdc)
+{
+	TCHAR turn[128];
+	HFONT myFont = CreateFont(20, 0, 0, 0, 1000, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "Arial");
+	HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
+	SetTextColor(hdc, RGB(255, 255, 255));
+	SetBkColor(hdc, RGB(0, 122, 244));
+
+	wsprintf(turn, TEXT("ÇöÀç ÅÏ : "));
+	TextOut(hdc, 820, 150, turn, lstrlen(turn));
+
+	if (curTurn != playerIndex)
+	{
+		if (ChessBoard::GetInstance()->GetPlayerColor() == 0)
+		{
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::IN_ROOM_PLAYER_COLOR_B)->Draw(hdc, 880, 150);
+		}
+		else if (ChessBoard::GetInstance()->GetPlayerColor() == 1)
+		{
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::IN_ROOM_PLAYER_COLOR_W)->Draw(hdc, 880, 150);
+		}
+	}
+	else
+	{
+		if (ChessBoard::GetInstance()->GetPlayerColor() == 0)
+		{
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::IN_ROOM_PLAYER_COLOR_W)->Draw(hdc, 880, 150);
+		}
+		else if (ChessBoard::GetInstance()->GetPlayerColor() == 1)
+		{
+			BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::IN_ROOM_PLAYER_COLOR_B)->Draw(hdc, 880, 150);
+		}
+	}
+
+	SetTextColor(hdc, RGB(0, 0, 0));
+	SetBkColor(hdc, RGB(255, 255, 255));
+	SelectObject(hdc, oldFont);
+	DeleteObject(myFont);
 }
 
 bool ChessGame::CheckIsClickedStateButton(int x, int y)
@@ -222,6 +265,7 @@ void ChessGame::DrawInGame(HDC hdc)
 	//DrawChessBoard(hdc);
 	DrawInfoBackground(hdc);
 	DrawInPlayerInfo(hdc);
+	DrawCurTurn(hdc);
 	DrawRoomNum(hdc);
 	DrawChessPieces(hdc);
 }
@@ -243,6 +287,7 @@ void ChessGame::Init(HWND hWnd, SOCKET sock)
 	this->sock = sock;
 	HDC hdc = GetDC(hWnd);
 	cursor = { 0, 0 };
+	curTurn = -1;
 
 	gameDC = CreateCompatibleDC(hdc);
 	hBitmap = CreateCompatibleBitmap(hdc, INGAME_WIDTH, INGAME_HEIGHT);
