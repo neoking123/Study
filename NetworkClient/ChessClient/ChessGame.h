@@ -52,6 +52,7 @@ private:
 	void DrawRoomNum(HDC hdc);
 	void DrawButton(HDC hdc);
 	void DrawCurTurn(HDC hdc);
+	void DrawCheckState(HDC hdc);
 	bool CheckIsClickedStateButton(int x, int y);
 	void SendRoomState(int roomNum, bool isStart = false, bool canStart = false);
 	void DrawRoomState_Debug(HDC hdc);

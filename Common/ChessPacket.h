@@ -98,6 +98,7 @@ struct PACKET_MOVE_TO
 	PACKET_HEADER header;
 	int roomNum;
 	int turn;
+	bool check;
 	MOVE_DATA moveDate;
 };
 

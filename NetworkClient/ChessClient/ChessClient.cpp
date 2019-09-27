@@ -272,6 +272,7 @@ void ProcessPacket(char* buf, int len)
 		memcpy(&packet, buf, header.len);
 
 		ChessGame::GetInstance()->curTurn = packet.turn;
+		ChessBoard::GetInstance()->checkState = packet.check;
 		ChessBoard::GetInstance()->MoveTo(packet.moveDate.curPos, packet.moveDate.targetPos);
 	}
 	break;

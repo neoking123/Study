@@ -159,6 +159,26 @@ void ChessGame::DrawCurTurn(HDC hdc)
 	DeleteObject(myFont);
 }
 
+void ChessGame::DrawCheckState(HDC hdc)
+{
+	if (ChessBoard::GetInstance()->checkState != playerIndex)
+		return;
+
+	TCHAR check[128];
+	HFONT myFont = CreateFont(20, 0, 0, 0, 1000, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "Arial");
+	HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
+	SetTextColor(hdc, RGB(255, 255, 255));
+	SetBkColor(hdc, RGB(0, 122, 244));
+
+	wsprintf(check, TEXT("""CHECK!!"""));
+	TextOut(hdc, 830, 180, check, lstrlen(check));
+
+	SetTextColor(hdc, RGB(0, 0, 0));
+	SetBkColor(hdc, RGB(255, 255, 255));
+	SelectObject(hdc, oldFont);
+	DeleteObject(myFont);
+}
+
 bool ChessGame::CheckIsClickedStateButton(int x, int y)
 {
 	if (x > START_BUTTON_POSITION_X && x < START_BUTTON_POSITION_X + BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BUTTON_START)->GetSize().cx
@@ -268,6 +288,7 @@ void ChessGame::DrawInGame(HDC hdc)
 	DrawCurTurn(hdc);
 	DrawRoomNum(hdc);
 	DrawChessPieces(hdc);
+	DrawCheckState(hdc);
 }
 
 void ChessGame::InGameInit()

@@ -41,6 +41,7 @@ private:
 	int clickFirstColor;
 	int clickSecondType;
 	int clickSecondColor;
+	
 
 	ChessBoard();
 
@@ -51,9 +52,17 @@ private:
 	void InitPieces();
 	bool CheckIsClickedPiece(int cusrsorX, int cursorY);
 	void SendMoveTo(int type, int color, POINT curPos, POINT targetPos);
+	ChessPiece* FindMyKing(POINT& kingPos);
+	ChessPiece* FindEnemyKing(POINT& kingPos);
+	bool CanBeAttackedMyKing(ChessPiece* king, POINT& kingPos);
+	bool CanBeAttackedEnemyKing(ChessPiece* king, POINT& kingPos);
+	bool IsEnemyCheck();
+	bool AmICheck();
+	ChessPiece* MoveToTemp(POINT curPos, POINT targetPos);
 
 public:
-	
+	int checkState;
+
 	~ChessBoard();
 
 	void Init();

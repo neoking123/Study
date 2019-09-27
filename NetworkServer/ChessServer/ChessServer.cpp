@@ -301,7 +301,6 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 }
 
-
 // 패킷 처리 함수
 bool ProcessPacket(SOCKET sock, USER_INFO* userInfo, char* buf, int& len)
 {

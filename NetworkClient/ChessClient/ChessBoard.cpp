@@ -166,6 +166,7 @@ void ChessBoard::Init()
 	clickSecondType = CHESS_PIECE_TYPE::PIECE_TYPE_NONE;
 	clickSecondColor = CHESS_PIECE_COLOR::PIECE_NONE;
 	playerColor = CHESS_PIECE_COLOR::PIECE_NONE;
+	checkState = -1;
 }
 
 void ChessBoard::Render(HDC hdc)
@@ -210,16 +211,46 @@ void ChessBoard::MouseInput(int x, int y)
 				{
 					if (CheckMove(*board[clickFirstPos.y][clickFirstPos.x], clickFirstPos, clickSecondPos))
 					{
-						SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
-						ChessGame::GetInstance()->curTurn = ChessGame::GetInstance()->playerIndex;
+						MoveTo(clickFirstPos, clickSecondPos);
+						if (!AmICheck())
+						{
+							if (IsEnemyCheck())
+							{
+								checkState = ChessGame::GetInstance()->playerIndex;
+							}
+							MoveTo(clickSecondPos, clickFirstPos);
+							SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
+							ChessGame::GetInstance()->curTurn = ChessGame::GetInstance()->playerIndex;
+						}
+						else
+						{
+							MoveTo(clickSecondPos, clickFirstPos);
+						}
 					}
 				}
 				else
 				{
 					if (CheckAttack(*board[clickFirstPos.y][clickFirstPos.x], clickFirstPos, *board[clickSecondPos.y][clickSecondPos.x], clickSecondPos))
 					{
-						SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
-						ChessGame::GetInstance()->curTurn = ChessGame::GetInstance()->playerIndex;
+						ChessPiece* targetPiece = MoveToTemp(clickFirstPos, clickSecondPos);
+						if (!AmICheck())
+						{
+							if (IsEnemyCheck())
+							{
+								checkState = ChessGame::GetInstance()->playerIndex;
+							}
+
+							MoveToTemp(clickSecondPos, clickFirstPos);
+							board[clickSecondPos.y][clickSecondPos.x] = targetPiece;
+							SAFE_DELETE(targetPiece);
+							SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
+							ChessGame::GetInstance()->curTurn = ChessGame::GetInstance()->playerIndex;
+						}
+						else
+						{
+							MoveToTemp(clickSecondPos, clickFirstPos);
+							board[clickSecondPos.y][clickSecondPos.x] = targetPiece;
+						}
 					}
 				}
 			}
@@ -294,9 +325,136 @@ void ChessBoard::SendMoveTo(int type, int color, POINT curPos, POINT targetPos)
 	packet.header.len = sizeof(packet);
 	packet.roomNum = LobbyManager::GetInstance()->GetRoomNum(ChessGame::GetInstance()->playerIndex);
 	packet.turn = ChessGame::GetInstance()->playerIndex;
+	packet.check = checkState;
 	packet.moveDate.curPos = curPos;
 	packet.moveDate.targetPos = targetPos;
 	packet.moveDate.pieceType = type;
 	packet.moveDate.pieceColor = color;
 	send(ChessGame::GetInstance()->GetSock(), (const char*)&packet, packet.header.len, 0);
+}
+
+ChessPiece* ChessBoard::FindMyKing(POINT& kingPos)
+{
+	ChessPiece* myKing = nullptr;
+	
+	for (int y = 0; y < 8; y++)
+	{
+		for (int x = 0; x < 8; x++)
+		{
+			if (board[y][x] != nullptr)
+			{
+				if (board[y][x]->GetColor() == playerColor && board[y][x]->GetType() == CHESS_PIECE_TYPE::PIECE_TYPE_KING)
+				{
+					myKing = board[y][x];
+					kingPos = { x, y };
+					return myKing;
+				}
+			}
+		}
+	}
+}
+
+ChessPiece* ChessBoard::FindEnemyKing(POINT & kingPos)
+{
+	ChessPiece* enemyKing = nullptr;
+
+	for (int y = 0; y < 8; y++)
+	{
+		for (int x = 0; x < 8; x++)
+		{
+			if (board[y][x] != nullptr)
+			{
+				if (board[y][x]->GetColor() != playerColor && board[y][x]->GetType() == CHESS_PIECE_TYPE::PIECE_TYPE_KING)
+				{
+					enemyKing = board[y][x];
+					kingPos = { x, y };
+					return enemyKing;
+				}
+			}
+		}
+	}
+}
+
+bool ChessBoard::CanBeAttackedMyKing(ChessPiece * king, POINT & kingPos)
+{
+	for (int y = 0; y < 8; y++)
+	{
+		for (int x = 0; x < 8; x++)
+		{
+			if (board[y][x] != nullptr)
+			{
+				if (board[y][x]->GetColor() != playerColor)
+				{
+					if (board[y][x]->CheckAttack({ x, y }, *king, kingPos))
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool ChessBoard::CanBeAttackedEnemyKing(ChessPiece * king, POINT & kingPos)
+{
+	for (int y = 0; y < 8; y++)
+	{
+		for (int x = 0; x < 8; x++)
+		{
+			if (board[y][x] != nullptr)
+			{
+				if (board[y][x]->GetColor() == playerColor)
+				{
+					if (board[y][x]->CheckAttack({ x, y }, *king, kingPos))
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool ChessBoard::IsEnemyCheck()
+{
+	ChessPiece* king = nullptr;
+	POINT kingPos = { -1, -1 };
+
+	king = FindEnemyKing(kingPos);
+
+	if (CanBeAttackedEnemyKing(king, kingPos))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool ChessBoard::AmICheck()
+{
+	ChessPiece* king = nullptr;
+	POINT kingPos = { -1, -1 };
+
+	king = FindMyKing(kingPos);
+
+	if (CanBeAttackedMyKing(king, kingPos))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+ChessPiece * ChessBoard::MoveToTemp(POINT curPos, POINT targetPos)
+{
+	ChessPiece* targetPiece = board[targetPos.y][targetPos.x];
+	//SAFE_DELETE(board[targetPos.y][targetPos.x]);
+	board[targetPos.y][targetPos.x] = board[curPos.y][curPos.x];
+	board[curPos.y][curPos.x] = nullptr;
+
+	return targetPiece;
 }
