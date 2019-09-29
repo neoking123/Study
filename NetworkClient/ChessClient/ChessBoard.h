@@ -57,11 +57,16 @@ private:
 	bool CanBeAttackedMyKing(ChessPiece* king, POINT& kingPos);
 	bool CanBeAttackedEnemyKing(ChessPiece* king, POINT& kingPos);
 	bool IsEnemyCheck();
+	bool IsEnemyCheckmate();
+	bool CanKingMove(POINT& kingPos);
+	void IsCheckIfKingMove(POINT& kingPos, POINT& targetPos, ChessPiece* targetPiece, int& checkCount);
 	bool AmICheck();
+	void RunClick();
 	ChessPiece* MoveToTemp(POINT curPos, POINT targetPos);
 
 public:
-	int checkState;
+	bool checkState;
+	int checkmate;
 
 	~ChessBoard();
 

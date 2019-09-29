@@ -60,7 +60,7 @@ int board[8][8];
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void ProcessSocketMessage(HWND, UINT, WPARAM, LPARAM);
-bool ProcessPacket(SOCKET sock, USER_INFO* pUser, char* szBuf, int& len);
+bool ProcessPacket(USER_INFO* pUser, char* szBuf, int& len);
 void err_display(const char* msg);
 void err_display(int errcode);
 void err_quit(const char* msg);
@@ -273,10 +273,9 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		while (true)
 		{
-			if (!ProcessPacket(wParam, user, buf, retval))
+			if (!ProcessPacket(user, buf, retval))
 			{
 				Sleep(100);
-				//SendMessage(hWnd, uMsg, wParam, lParam);
 				break;
 			}
 			else
@@ -294,6 +293,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		int addrlen = sizeof(clientaddr);;
 		getpeername(wParam, (SOCKADDR*)&clientaddr, &addrlen);
 		closesocket(wParam);
+		SAFE_DELETE(connectedUsers[wParam]);
 		connectedUsers.erase(wParam);
 		printf("[Chess Server] 클라이언트 종료: IP 주소=%s, 포트번호=%d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 		
@@ -302,7 +302,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 // 패킷 처리 함수
-bool ProcessPacket(SOCKET sock, USER_INFO* userInfo, char* buf, int& len)
+bool ProcessPacket(USER_INFO* userInfo, char* buf, int& len)
 {
 	if (len > 0)
 	{

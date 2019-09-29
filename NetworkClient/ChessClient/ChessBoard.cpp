@@ -166,7 +166,8 @@ void ChessBoard::Init()
 	clickSecondType = CHESS_PIECE_TYPE::PIECE_TYPE_NONE;
 	clickSecondColor = CHESS_PIECE_COLOR::PIECE_NONE;
 	playerColor = CHESS_PIECE_COLOR::PIECE_NONE;
-	checkState = -1;
+	checkState = false;
+	checkmate = -1;
 }
 
 void ChessBoard::Render(HDC hdc)
@@ -198,62 +199,12 @@ void ChessBoard::MouseInput(int x, int y)
 		{
 		case CLICK_STATE::CLICK_NONE:
 			clickState = CLICK_STATE::CLICK_FIRST;
-			// bool flag
-			//board[clickFirstPos.y][clickFirstPos.x]->DrawMovablePos();
 			break;
 
 		case CLICK_STATE::CLICK_FIRST:
 			clickState = CLICK_STATE::CLICK_NONE;
 			
-			if ((clickFirstPos.x != clickSecondPos.x) || (clickFirstPos.y != clickSecondPos.y))
-			{
-				if (board[clickSecondPos.y][clickSecondPos.x] == nullptr)
-				{
-					if (CheckMove(*board[clickFirstPos.y][clickFirstPos.x], clickFirstPos, clickSecondPos))
-					{
-						MoveTo(clickFirstPos, clickSecondPos);
-						if (!AmICheck())
-						{
-							if (IsEnemyCheck())
-							{
-								checkState = ChessGame::GetInstance()->playerIndex;
-							}
-							MoveTo(clickSecondPos, clickFirstPos);
-							SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
-							ChessGame::GetInstance()->curTurn = ChessGame::GetInstance()->playerIndex;
-						}
-						else
-						{
-							MoveTo(clickSecondPos, clickFirstPos);
-						}
-					}
-				}
-				else
-				{
-					if (CheckAttack(*board[clickFirstPos.y][clickFirstPos.x], clickFirstPos, *board[clickSecondPos.y][clickSecondPos.x], clickSecondPos))
-					{
-						ChessPiece* targetPiece = MoveToTemp(clickFirstPos, clickSecondPos);
-						if (!AmICheck())
-						{
-							if (IsEnemyCheck())
-							{
-								checkState = ChessGame::GetInstance()->playerIndex;
-							}
-
-							MoveToTemp(clickSecondPos, clickFirstPos);
-							board[clickSecondPos.y][clickSecondPos.x] = targetPiece;
-							SAFE_DELETE(targetPiece);
-							SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
-							ChessGame::GetInstance()->curTurn = ChessGame::GetInstance()->playerIndex;
-						}
-						else
-						{
-							MoveToTemp(clickSecondPos, clickFirstPos);
-							board[clickSecondPos.y][clickSecondPos.x] = targetPiece;
-						}
-					}
-				}
-			}
+			RunClick();
 			
 			clickFirstPos = { -1, -1 };
 			clickSecondPos = { -1, -1 };
@@ -326,6 +277,7 @@ void ChessBoard::SendMoveTo(int type, int color, POINT curPos, POINT targetPos)
 	packet.roomNum = LobbyManager::GetInstance()->GetRoomNum(ChessGame::GetInstance()->playerIndex);
 	packet.turn = ChessGame::GetInstance()->playerIndex;
 	packet.check = checkState;
+	packet.checkmate = checkmate;
 	packet.moveDate.curPos = curPos;
 	packet.moveDate.targetPos = targetPos;
 	packet.moveDate.pieceType = type;
@@ -434,6 +386,155 @@ bool ChessBoard::IsEnemyCheck()
 	return false;
 }
 
+bool ChessBoard::IsEnemyCheckmate()
+{
+	ChessPiece* king = nullptr;
+	POINT kingPos = { -1, -1 };
+
+	king = FindEnemyKing(kingPos);
+
+	if (!CanKingMove(kingPos) && checkState)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool ChessBoard::CanKingMove(POINT& kingPos)
+{
+	int checkCount = 0;
+	ChessPiece* targetPiece;
+	POINT targetPos;
+
+	if (kingPos.x - 1 > 0 && kingPos.y - 1 > 0)
+	{
+		targetPiece = board[kingPos.y - 1][kingPos.x - 1];
+		targetPos = { kingPos.x - 1, kingPos.y - 1 };
+		IsCheckIfKingMove(kingPos, targetPos, targetPiece, checkCount);
+	}
+	else
+	{
+		checkCount++;
+	}
+	
+	if (kingPos.y - 1 > 0)
+	{
+		targetPiece = board[kingPos.y - 1][kingPos.x];
+		targetPos = { kingPos.x, kingPos.y - 1 };
+		IsCheckIfKingMove(kingPos, targetPos, targetPiece, checkCount);
+	}
+	else
+	{
+		checkCount++;
+	}
+	
+	if (kingPos.x + 1 < 8 && kingPos.y - 1 > 0)
+	{
+		targetPiece = board[kingPos.y - 1][kingPos.x + 1];
+		targetPos = { kingPos.x + 1, kingPos.y - 1 };
+		IsCheckIfKingMove(kingPos, targetPos, targetPiece, checkCount);
+	}
+	else
+	{
+		checkCount++;
+	}
+	
+	if (kingPos.x - 1 > 0)
+	{
+		targetPiece = board[kingPos.y][kingPos.x - 1];
+		targetPos = { kingPos.x - 1, kingPos.y };
+		IsCheckIfKingMove(kingPos, targetPos, targetPiece, checkCount);
+	}
+	else
+	{
+		checkCount++;
+	}
+	
+	if (kingPos.x + 1 < 8)
+	{
+		targetPiece = board[kingPos.y][kingPos.x + 1];
+		targetPos = { kingPos.x + 1, kingPos.y };
+		IsCheckIfKingMove(kingPos, targetPos, targetPiece, checkCount);
+	}
+	else
+	{
+		checkCount++;
+	}
+	
+	if (kingPos.x - 1 > 0 && kingPos.y + 1 < 8)
+	{
+		targetPiece = board[kingPos.y + 1][kingPos.x - 1];
+		targetPos = { kingPos.x - 1, kingPos.y + 1 };
+		IsCheckIfKingMove(kingPos, targetPos, targetPiece, checkCount);
+	}
+	else
+	{
+		checkCount++;
+	}
+	
+	if (kingPos.y + 1 < 8)
+	{
+		targetPiece = board[kingPos.y + 1][kingPos.x];
+		targetPos = { kingPos.x, kingPos.y + 1 };
+		IsCheckIfKingMove(kingPos, targetPos, targetPiece, checkCount);
+	}
+	else
+	{
+		checkCount++;
+	}
+	
+	if (kingPos.x + 1 < 8 && kingPos.y + 1 < 8)
+	{
+		targetPiece = board[kingPos.y + 1][kingPos.x + 1];
+		targetPos = { kingPos.x + 1, kingPos.y + 1 };
+		IsCheckIfKingMove(kingPos, targetPos, targetPiece, checkCount);
+	}
+	else
+	{
+		checkCount++;
+	}
+
+	if (checkCount == 8)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+void ChessBoard::IsCheckIfKingMove(POINT & kingPos, POINT & targetPos, ChessPiece * targetPiece, int& checkCount)
+{
+	if (board[targetPos.y][targetPos.x] == nullptr)
+	{
+		MoveTo(kingPos, targetPos);
+		if (IsEnemyCheck())
+		{
+			checkCount++;
+		}
+		MoveTo(targetPos, kingPos);
+	}
+	else
+	{
+		if (board[kingPos.y][kingPos.x]->CheckAttack(kingPos, *targetPiece, targetPos))
+		{
+			ChessPiece* tempPiece = MoveToTemp(kingPos, targetPos);
+			if (IsEnemyCheck())
+			{
+				checkCount++;
+			}
+			MoveToTemp(targetPos, kingPos);
+			board[targetPos.y][targetPos.x] = tempPiece;
+		}
+		else
+		{
+			checkCount++;
+		}
+	}
+}
+
 bool ChessBoard::AmICheck()
 {
 	ChessPiece* king = nullptr;
@@ -447,6 +548,77 @@ bool ChessBoard::AmICheck()
 	}
 
 	return false;
+}
+
+void ChessBoard::RunClick()
+{
+	if ((clickFirstPos.x != clickSecondPos.x) || (clickFirstPos.y != clickSecondPos.y))
+	{
+		if (board[clickSecondPos.y][clickSecondPos.x] == nullptr)
+		{
+			if (CheckMove(*board[clickFirstPos.y][clickFirstPos.x], clickFirstPos, clickSecondPos))
+			{
+				MoveTo(clickFirstPos, clickSecondPos);
+				if (!AmICheck())
+				{
+					if (IsEnemyCheck())
+					{
+						checkState = true;
+					}
+					else
+					{
+						checkState = false;
+					}
+
+					if (IsEnemyCheckmate())
+					{
+						checkmate = ChessGame::GetInstance()->playerIndex;
+					}
+
+					MoveTo(clickSecondPos, clickFirstPos);
+					SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
+					ChessGame::GetInstance()->curTurn = ChessGame::GetInstance()->playerIndex;
+				}
+				else
+				{
+					MoveTo(clickSecondPos, clickFirstPos);
+				}
+			}
+		}
+		else
+		{
+			if (CheckAttack(*board[clickFirstPos.y][clickFirstPos.x], clickFirstPos, *board[clickSecondPos.y][clickSecondPos.x], clickSecondPos))
+			{
+				ChessPiece* targetPiece = MoveToTemp(clickFirstPos, clickSecondPos);
+				if (!AmICheck())
+				{
+					if (IsEnemyCheck())
+					{
+						checkState = true;
+					}
+					else
+					{
+						checkState = false;
+					}
+
+					if (IsEnemyCheckmate())
+					{
+						checkmate = ChessGame::GetInstance()->playerIndex;
+					}
+
+					MoveToTemp(clickSecondPos, clickFirstPos);
+					board[clickSecondPos.y][clickSecondPos.x] = targetPiece;
+					SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
+					ChessGame::GetInstance()->curTurn = ChessGame::GetInstance()->playerIndex;
+				}
+				else
+				{
+					MoveToTemp(clickSecondPos, clickFirstPos);
+					board[clickSecondPos.y][clickSecondPos.x] = targetPiece;
+				}
+			}
+		}
+	}
 }
 
 ChessPiece * ChessBoard::MoveToTemp(POINT curPos, POINT targetPos)

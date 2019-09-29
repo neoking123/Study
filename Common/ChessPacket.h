@@ -99,6 +99,7 @@ struct PACKET_MOVE_TO
 	int roomNum;
 	int turn;
 	bool check;
+	int checkmate;
 	MOVE_DATA moveDate;
 };
 

@@ -161,22 +161,41 @@ void ChessGame::DrawCurTurn(HDC hdc)
 
 void ChessGame::DrawCheckState(HDC hdc)
 {
-	if (ChessBoard::GetInstance()->checkState != playerIndex)
-		return;
+	if (ChessBoard::GetInstance()->checkmate != -1)
+	{
+		TCHAR check[128];
+		HFONT myFont = CreateFont(20, 0, 0, 0, 1000, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "Arial");
+		HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
+		SetTextColor(hdc, RGB(255, 255, 255));
+		SetBkColor(hdc, RGB(0, 122, 244));
 
-	TCHAR check[128];
-	HFONT myFont = CreateFont(20, 0, 0, 0, 1000, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "Arial");
-	HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
-	SetTextColor(hdc, RGB(255, 255, 255));
-	SetBkColor(hdc, RGB(0, 122, 244));
+		wsprintf(check, TEXT("플레이어%d 승리!!"), ChessBoard::GetInstance()->checkmate);
+		TextOut(hdc, 820, 180, check, lstrlen(check));
 
-	wsprintf(check, TEXT("""CHECK!!"""));
-	TextOut(hdc, 830, 180, check, lstrlen(check));
+		SetTextColor(hdc, RGB(0, 0, 0));
+		SetBkColor(hdc, RGB(255, 255, 255));
+		SelectObject(hdc, oldFont);
+		DeleteObject(myFont);
+	}
+	else
+	{
+		if (!ChessBoard::GetInstance()->checkState)
+			return;
 
-	SetTextColor(hdc, RGB(0, 0, 0));
-	SetBkColor(hdc, RGB(255, 255, 255));
-	SelectObject(hdc, oldFont);
-	DeleteObject(myFont);
+		TCHAR check[128];
+		HFONT myFont = CreateFont(20, 0, 0, 0, 1000, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "Arial");
+		HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
+		SetTextColor(hdc, RGB(255, 255, 255));
+		SetBkColor(hdc, RGB(0, 122, 244));
+
+		wsprintf(check, TEXT("""CHECK!!"""));
+		TextOut(hdc, 830, 180, check, lstrlen(check));
+
+		SetTextColor(hdc, RGB(0, 0, 0));
+		SetBkColor(hdc, RGB(255, 255, 255));
+		SelectObject(hdc, oldFont);
+		DeleteObject(myFont);
+	}
 }
 
 bool ChessGame::CheckIsClickedStateButton(int x, int y)

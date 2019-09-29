@@ -9,23 +9,29 @@
 #include "ChessBoard.h"
 using namespace std;
 
+#define SERVERIP "127.0.0.1"
+#define SERVERPORT 9000
+#define BUFSIZE 512
+#define WM_SOCKET (WM_USER+1)
+
+class SERVER_INFO
+{
+public:
+	char serverBuf[BUFSIZE];
+	int len;
+};
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-void ProcessPacket(char* szBuf, int len);
+bool ProcessPacket(char* szBuf, int& len);
 void err_display(const char* msg);
 void err_display(int errcode);
 void err_quit(const char* msg);
 
 HINSTANCE g_hInst;
 char g_szClassName[256] = "ChessClient";
-
-#define SERVERIP "127.0.0.1"
-#define SERVERPORT 9000
-#define BUFSIZE 512
-#define WM_SOCKET (WM_USER+1)
-
-
 SOCKET sock;
+SERVER_INFO* server;
 map<int, Player*> players;
 MOUSE_STATE mouseState = MOUSE_STATE::CLICK_UP;
 
@@ -89,8 +95,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 		return -1;
 	}
 
+	server = new SERVER_INFO();
+	server->len = 0;
 	ChessGame::GetInstance()->Init(hWnd, sock);
-
+	
 	while (true)
 	{
 		/// 메시지큐에 메시지가 있으면 메시지 처리
@@ -109,7 +117,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	}
 
 	ChessGame::GetInstance()->Release();
-
+	SAFE_DELETE(server);
 	closesocket(sock);
 	WSACleanup();
 
@@ -188,7 +196,19 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 		}
 
-		ProcessPacket(buf, retval);
+		while (true)
+		{
+			if (!ProcessPacket(buf, retval))
+			{
+				Sleep(100);
+				break;
+			}
+			else
+			{
+				if (server->len < sizeof(PACKET_HEADER))
+					break;
+			}
+		}
 	}
 	break;
 
@@ -198,11 +218,20 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 }
 
-void ProcessPacket(char* buf, int len)
+bool ProcessPacket(char* buf, int& len)
 {
-	PACKET_HEADER header;
+	if (len > 0)
+	{
+		memcpy(&server->serverBuf[server->len], buf, len);
+		server->len += len;
+		len = 0;
+	}
 
-	memcpy(&header, buf, sizeof(header));
+	if (server->len < sizeof(PACKET_HEADER))
+		return false;
+
+	PACKET_HEADER header;
+	memcpy(&header, server->serverBuf, sizeof(header));
 
 	switch (header.type)
 	{
@@ -273,10 +302,16 @@ void ProcessPacket(char* buf, int len)
 
 		ChessGame::GetInstance()->curTurn = packet.turn;
 		ChessBoard::GetInstance()->checkState = packet.check;
+		ChessBoard::GetInstance()->checkmate = packet.checkmate;
 		ChessBoard::GetInstance()->MoveTo(packet.moveDate.curPos, packet.moveDate.targetPos);
 	}
 	break;
 	}
+
+	memcpy(&server->serverBuf, &server->serverBuf[header.len], server->len - header.len);
+	server->len -= header.len;
+
+	return true;
 }
 
 // 소켓 함수 오류 출력
