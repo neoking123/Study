@@ -357,7 +357,7 @@ void ChessGame::Update()
 
 	elapseTime = sec.count();
 
-	ChattingManager::GetInstance()->Input();
+	ChattingManager::GetInstance()->Input(elapseTime);
 
 	switch (sceneState)
 	{

@@ -1,6 +1,8 @@
 #include "ChattingManager.h"
 #include "BitMapManager.h"
 #include "ChessGame.h"
+#include "LobbyManager.h"
+#include "ChessGame.h"
 #include "..\..\Common\ChessPacket.h"
 
 ChattingManager* ChattingManager::instance = nullptr;
@@ -15,7 +17,7 @@ void ChattingManager::SendChat()
 	packet.header.type = PACKET_TYPE::PACKET_TYPE_CHAT;
 	packet.header.len = sizeof(packet);
 	packet.playerIndex = ChessGame::GetInstance()->playerIndex;
-	packet.sendPos = -1;
+	packet.roomNum = LobbyManager::GetInstance()->GetRoomNum(ChessGame::GetInstance()->playerIndex);
 	strcpy(packet.chat, chat);
 	send(ChessGame::GetInstance()->GetSock(), (const char*)&packet, packet.header.len, 0);
 }
@@ -26,14 +28,24 @@ ChattingManager::~ChattingManager()
 
 void ChattingManager::Init(HWND hWnd, HINSTANCE g_hInst)
 {
-	hChat = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 218, 837, 220, 20, hWnd, (HMENU)ID_EDIT_0, g_hInst, NULL);
+	this->hWnd = hWnd;
+	hChat = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_WANTRETURN, 218, 837, 220, 20, hWnd, (HMENU)ID_EDIT_0, g_hInst, NULL);
 	hChatList = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOVSCROLL | ES_MULTILINE, 55, 705, 420, 120, hWnd, (HMENU)ID_EDIT_1, g_hInst, NULL);
+	returnInputTime = 0.0f;
 }
 
-void ChattingManager::Input()
+void ChattingManager::Input(float elapseTime)
 {
-	if ((GetAsyncKeyState(VK_RETURN) & 0x8000))
+	if ((GetAsyncKeyState(VK_RETURN) & 0x0001))
 	{
+		/*if (returnInputTime < 0.00001f)
+		{
+			returnInputTime += elapseTime;
+			return;
+		}
+
+		returnInputTime = 0.0f;*/
+
 		SendChat();
 
 		SetWindowText(hChat, "");
@@ -48,4 +60,16 @@ void ChattingManager::Input()
 void ChattingManager::DrawChat(HDC hdc)
 {
 	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBBY_CHAT)->Draw(hdc, 50, 700);
+}
+
+void ChattingManager::PrintChat(int playerIndex, string chat)
+{
+	stringstream ss;
+	ss << playerIndex;
+	chatList += " player" + ss.str() + " : " + chat + "\r\n";
+	SetWindowText(hChatList, chatList.c_str());
+	
+	SendMessageA(hChatList, EM_SETSEL, 0, -1);
+	SendMessageA(hChatList, EM_SETSEL, -1, -1);
+	SendMessageA(hChatList, EM_SCROLLCARET, 0, 0);
 }

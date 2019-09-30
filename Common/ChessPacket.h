@@ -108,7 +108,7 @@ struct PACKET_CHAT
 {
 	PACKET_HEADER header;
 	int playerIndex;
-	int sendPos;
+	int roomNum;
 	char chat[128];
 };
 

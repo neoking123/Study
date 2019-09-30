@@ -10,8 +10,8 @@
 #include "ChessBoard.h"
 using namespace std;
 
-//#define SERVERIP "127.0.0.1"
-#define SERVERIP "10.30.10.204"
+#define SERVERIP "127.0.0.1"
+//#define SERVERIP "10.30.10.204"
 #define SERVERPORT 9000
 #define BUFSIZE 512
 #define WM_SOCKET (WM_USER+1)
@@ -146,10 +146,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 		ChattingManager::GetInstance()->Init(hWnd, g_hInst);
-		/*hChat = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE, 218, 837, 220, 20, hWnd, (HMENU)ID_EDIT_0, g_hInst, NULL);
-		hChatList = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOVSCROLL | ES_MULTILINE, 55, 705, 420, 120, hWnd, (HMENU)ID_EDIT_1, g_hInst, NULL);*/
+		//hChat = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE, 218, 837, 220, 20, hWnd, (HMENU)ID_EDIT_0, g_hInst, NULL);
+		//hChatList = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOVSCROLL | ES_MULTILINE, 55, 705, 420, 120, hWnd, (HMENU)ID_EDIT_1, g_hInst, NULL);
 		//oldSubProc = (WNDPROC)SetWindowLong(ChattingManager::GetInstance()->hChat, GWL_WNDPROC, (LONG)EditProc);
-		//SetFocus(ChattingManager::GetInstance()->hChat);
+		SetFocus(ChattingManager::GetInstance()->hChat);
 		return 0;
 
 	case WM_LBUTTONDOWN:
@@ -218,7 +218,7 @@ LRESULT CALLBACK EditProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_CHAR:
-		ChattingManager::GetInstance()->Input();
+		//ChattingManager::GetInstance()->Input();
 		return 0;
 	}
 
@@ -362,6 +362,16 @@ bool ProcessPacket(char* buf, int& len)
 		ChessBoard::GetInstance()->MoveTo(packet.moveDate.curPos, packet.moveDate.targetPos);
 	}
 	break;
+
+	case PACKET_TYPE::PACKET_TYPE_CHAT:
+	{
+		PACKET_CHAT packet;
+		memcpy(&packet, buf, header.len);
+
+		ChattingManager::GetInstance()->PrintChat(packet.playerIndex, packet.chat);
+	}
+	break;
+
 	}
 
 	memcpy(&server->serverBuf, &server->serverBuf[header.len], server->len - header.len);

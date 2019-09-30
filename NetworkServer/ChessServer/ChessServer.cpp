@@ -37,7 +37,7 @@ public:
 	int index;
 	char userBuf[BUFSIZE];
 	char userName[128];
-	int inRoomNum;
+	int inRoomNum = -1;
 	int len;
 };
 
@@ -335,7 +335,17 @@ bool ProcessPacket(USER_INFO* userInfo, char* buf, int& len)
 		roomInfo->inPlayerNum = packet.roomData.inPlayerNum;
 		roomInfo->inPlayer[0] = packet.roomData.inPlayer[0];
 		createdRooms.insert(make_pair(roomNum, roomInfo));
+		
+
+		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+		{
+			if (iter->second->index == packet.roomData.inPlayer[0])
+			{
+				iter->second->inRoomNum = roomNum;
+			}
+		}
 		roomNum++;
+
 		SendLobbyData();
 	}
 	break;
@@ -351,6 +361,14 @@ bool ProcessPacket(USER_INFO* userInfo, char* buf, int& len)
 			{
 				iter->second->inPlayer[1] = packet.playerIndex;
 				iter->second->inPlayerNum = 2;
+			}
+		}
+
+		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+		{
+			if (iter->second->index == packet.playerIndex)
+			{
+				iter->second->inRoomNum = packet.roomNum;
 			}
 		}
 
@@ -405,7 +423,10 @@ bool ProcessPacket(USER_INFO* userInfo, char* buf, int& len)
 
 		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
 		{
-			send(iter->first, (const char*)&packet, packet.header.len, 0);
+			if (iter->second->inRoomNum == packet.roomNum)
+			{
+				send(iter->first, (const char*)&packet, header.len, 0);
+			}
 		}
 	}
 	break;

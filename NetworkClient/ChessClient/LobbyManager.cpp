@@ -132,6 +132,7 @@ int LobbyManager::GetRoomNum(int playerIndex)
 			return iter->first;
 		}
 	}
+	return -1;
 }
 
 bool LobbyManager::CheckIsRoomMaster(int playerIndex)
