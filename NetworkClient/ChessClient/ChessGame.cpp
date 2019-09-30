@@ -15,12 +15,14 @@ ChessGame::ChessGame()
 void ChessGame::DrawInRoom(HDC hdc)
 {
 	DrawBackground(hdc);
-	//DrawChessBoard(hdc);
+	DrawDockBar(hdc);
 	DrawInfoBackground(hdc);
 	DrawInPlayerInfo(hdc);
 	DrawRoomNum(hdc);
-	DrawButton(hdc);
+	DrawStartButton(hdc);
 	DrawRoomState_Debug(hdc);
+	DrawBackButton(hdc);
+	DrawExitButton(hdc);
 	ChattingManager::GetInstance()->DrawChat(hdc);
 }
 
@@ -108,7 +110,7 @@ void ChessGame::DrawRoomNum(HDC hdc)
 	DeleteObject(myFont);
 }
 
-void ChessGame::DrawButton(HDC hdc)
+void ChessGame::DrawStartButton(HDC hdc)
 {
 	if (LobbyManager::GetInstance()->CheckIsRoomMaster(playerIndex))
 	{
@@ -119,6 +121,21 @@ void ChessGame::DrawButton(HDC hdc)
 		BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BUTTON_READY)->Draw(hdc, START_BUTTON_POSITION_X, START_BUTTON_POSITION_Y);
 	}
 	
+}
+
+void ChessGame::DrawBackButton(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BUTTON_BACK)->Draw(hdc, BACK_BUTTON_POSITION_X, BACK_BUTTON_POSITION_Y);
+}
+
+void ChessGame::DrawExitButton(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::EXIT_ICON)->Draw(hdc, BACK_BUTTON_POSITION_X + 50, BACK_BUTTON_POSITION_Y);
+}
+
+void ChessGame::DrawDockBar(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::DOCK_BAR)->Draw(hdc, 0, DOCK_BAR_POSITION, 2, 1);
 }
 
 void ChessGame::DrawCurTurn(HDC hdc)
@@ -244,6 +261,17 @@ bool ChessGame::CheckIsClickedStateButton(int x, int y)
 	return false;
 }
 
+void ChessGame::CheckIsClickedBackButton(int x, int y)
+{
+	if (x > BACK_BUTTON_POSITION_X && x < BACK_BUTTON_POSITION_X + BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BUTTON_BACK)->GetSize().cx
+		&& y > BACK_BUTTON_POSITION_Y && y < BACK_BUTTON_POSITION_Y + BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BUTTON_BACK)->GetSize().cy)
+	{
+		sceneState = SCENE_STATE::LOBY_SCENE;
+		LobbyManager::GetInstance()->ActivateCreateRoom();
+		SendBackToLobby();
+	}
+}
+
 void ChessGame::SendRoomState(int roomNum, bool isStart, bool canStart)
 {
 	PACKET_ROOM_STATE packet;
@@ -252,6 +280,16 @@ void ChessGame::SendRoomState(int roomNum, bool isStart, bool canStart)
 	packet.isStart = isStart;
 	packet.canStart = canStart;
 	packet.roomNum = roomNum;
+	send(sock, (const char*)&packet, packet.header.len, 0);
+}
+
+void ChessGame::SendBackToLobby()
+{
+	PACKET_BACK_TO_LOBBY packet;
+	packet.header.type = PACKET_TYPE::PACKET_TYPE_BACK_TO_LOBBY;
+	packet.header.len = sizeof(packet);
+	packet.playerIndex = playerIndex;
+	packet.roomNum = LobbyManager::GetInstance()->GetRoomNum(playerIndex);
 	send(sock, (const char*)&packet, packet.header.len, 0);
 }
 
@@ -308,13 +346,15 @@ void ChessGame::CheckStart()
 void ChessGame::DrawInGame(HDC hdc)
 {
 	DrawBackground(hdc);
-	//DrawChessBoard(hdc);
+	DrawDockBar(hdc);
 	DrawInfoBackground(hdc);
 	DrawInPlayerInfo(hdc);
 	DrawCurTurn(hdc);
 	DrawRoomNum(hdc);
 	DrawChessPieces(hdc);
 	DrawCheckState(hdc);
+	DrawBackButton(hdc);
+	DrawExitButton(hdc);
 	ChattingManager::GetInstance()->DrawChat(hdc);
 }
 
@@ -357,7 +397,7 @@ void ChessGame::Update()
 
 	elapseTime = sec.count();
 
-	ChattingManager::GetInstance()->Input(elapseTime);
+	ChattingManager::GetInstance()->Input();
 
 	switch (sceneState)
 	{
@@ -452,6 +492,7 @@ void ChessGame::MouseInput(int x, int y, int mouseState)
 
 	case SCENE_STATE::READY_SCENE:
 		CheckIsClickedStateButton(cursor.x, cursor.y);
+		CheckIsClickedBackButton(cursor.x, cursor.y);
 		break;
 
 	case SCENE_STATE::START_SCENE:

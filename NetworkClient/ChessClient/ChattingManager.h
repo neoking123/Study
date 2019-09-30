@@ -27,7 +27,7 @@ public:
 	~ChattingManager();
 
 	void Init(HWND hWnd, HINSTANCE g_hInst);
-	void Input(float elapseTime);
+	void Input();
 	void DrawChat(HDC hdc);
 	void PrintChat(int playerIndex, string chat);
 

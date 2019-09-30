@@ -47,6 +47,11 @@ public:
 	bool GetIsStart(int roomNum);
 	bool GetCanStart(int roomNum);
 	void SetCanStart(int roomNum, bool canStart);
+	
+	inline void ActivateCreateRoom()
+	{
+		isCreateRoom = false;
+	}
 
 	inline HWND GetChatHandle()
 	{

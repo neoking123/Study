@@ -11,7 +11,8 @@ enum PACKET_TYPE
 	PACKET_TYPE_ENTER_ROOM,
 	PACKET_TYPE_ROOM_STATE,
 	PACKET_TYPE_MOVE_TO,
-	PACKET_TYPE_CHAT
+	PACKET_TYPE_CHAT,
+	PACKET_TYPE_BACK_TO_LOBBY
 };
 
 struct PACKET_HEADER
@@ -110,6 +111,13 @@ struct PACKET_CHAT
 	int playerIndex;
 	int roomNum;
 	char chat[128];
+};
+
+struct PACKET_BACK_TO_LOBBY
+{
+	PACKET_HEADER header;
+	int roomNum;
+	int playerIndex;
 };
 
 #pragma pack()

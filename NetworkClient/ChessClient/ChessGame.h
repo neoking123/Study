@@ -8,6 +8,9 @@ using namespace std;
 #define INGAME_HEIGHT 960
 #define START_BUTTON_POSITION_X 800
 #define START_BUTTON_POSITION_Y 500
+#define BACK_BUTTON_POSITION_X 1150
+#define BACK_BUTTON_POSITION_Y 925
+#define DOCK_BAR_POSITION 921
 
 enum MOUSE_STATE 
 {
@@ -50,12 +53,14 @@ private:
 	void DrawInfoBackground(HDC hdc);
 	void DrawInPlayerInfo(HDC hdc);
 	void DrawRoomNum(HDC hdc);
-	void DrawButton(HDC hdc);
+	void DrawStartButton(HDC hdc);
 	void DrawCurTurn(HDC hdc);
 	void DrawCheckState(HDC hdc);
 	void DrawChat(HDC hdc);
 	bool CheckIsClickedStateButton(int x, int y);
+	void CheckIsClickedBackButton(int x, int y);
 	void SendRoomState(int roomNum, bool isStart = false, bool canStart = false);
+	void SendBackToLobby();
 	void DrawRoomState_Debug(HDC hdc);
 	void CheckStart();
 	void DrawInGame(HDC hdc);
@@ -71,6 +76,9 @@ public:
 	void Render();
 	void Release();
 	void MouseInput(int x, int y, int mouseState);
+	void DrawBackButton(HDC hdc);
+	void DrawExitButton(HDC hdc);
+	void DrawDockBar(HDC hdc);
 
 	inline HDC GetGameDC()
 	{

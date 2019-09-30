@@ -624,7 +624,6 @@ void ChessBoard::RunClick()
 ChessPiece * ChessBoard::MoveToTemp(POINT curPos, POINT targetPos)
 {
 	ChessPiece* targetPiece = board[targetPos.y][targetPos.x];
-	//SAFE_DELETE(board[targetPos.y][targetPos.x]);
 	board[targetPos.y][targetPos.x] = board[curPos.y][curPos.x];
 	board[curPos.y][curPos.x] = nullptr;
 

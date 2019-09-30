@@ -1,7 +1,6 @@
 #include <sstream>
 #include "LobbyManager.h"
 #include "BitMapManager.h"
-//#include "Room.h"
 #include "Macro.h"
 #include "..\..\Common\ChessPacket.h"
 #include "ChessGame.h"
@@ -24,7 +23,6 @@ void LobbyManager::CreateRoom(string roomName, int inPlayerNum)
 	Room* newRoom = new Room();
 	newRoom->Init(roomCount, roomName, (roomCount % 2) * ROOM_WIDTH + ROOM_MARGINE_WIDTH, (roomCount / 2) * ROOM_HEIGHT + ROOM_MARGINE_HEIGHT, inPlayerNum, 2);
 	rooms.insert(make_pair(roomCount++, newRoom));
-	//newRoom->inPlayerNum++;
 }
 
 void LobbyManager::DrawRooms(HDC hdc)
@@ -186,6 +184,9 @@ void LobbyManager::Render(HDC hdc)
 	DrawRooms(hdc);
 	DrawRoomCreateButton(hdc);
 	ChattingManager::GetInstance()->DrawChat(hdc);
+	ChessGame::GetInstance()->DrawDockBar(hdc);
+	ChessGame::GetInstance()->DrawBackButton(hdc);
+	ChessGame::GetInstance()->DrawExitButton(hdc);
 }
 
 void LobbyManager::Release()

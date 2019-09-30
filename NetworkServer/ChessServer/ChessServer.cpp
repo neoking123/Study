@@ -431,6 +431,45 @@ bool ProcessPacket(USER_INFO* userInfo, char* buf, int& len)
 	}
 	break;
 
+	case PACKET_TYPE::PACKET_TYPE_BACK_TO_LOBBY:
+	{
+		PACKET_BACK_TO_LOBBY packet;
+		memcpy(&packet, buf, header.len);
+
+		for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++)
+		{
+			if (iter->first == packet.roomNum)
+			{
+				if (iter->second->inPlayer[0] == packet.playerIndex)
+				{
+					createdRooms.erase(iter->first);
+					roomNum--;
+					SendLobbyData();
+					break;
+				}
+				else if (iter->second->inPlayer[1] == packet.playerIndex)
+				{
+					iter->second->inPlayer[0] = iter->second->inPlayer[1];
+					iter->second->inPlayer[1] = -1;
+					iter->second->inPlayerNum = 1;
+					iter->second->canStart = false;
+					iter->second->isStart = false;
+					SendLobbyData();
+				}
+			}
+		}
+
+		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+		{
+			if (iter->second->index == packet.playerIndex)
+			{
+				iter->second->inRoomNum = -1;
+			}
+		}
+
+	}
+	break;
+
 	}
 
 	memcpy(&userInfo->userBuf, &userInfo->userBuf[header.len], userInfo->len - header.len);

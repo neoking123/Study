@@ -34,18 +34,10 @@ void ChattingManager::Init(HWND hWnd, HINSTANCE g_hInst)
 	returnInputTime = 0.0f;
 }
 
-void ChattingManager::Input(float elapseTime)
+void ChattingManager::Input()
 {
 	if ((GetAsyncKeyState(VK_RETURN) & 0x0001))
 	{
-		/*if (returnInputTime < 0.00001f)
-		{
-			returnInputTime += elapseTime;
-			return;
-		}
-
-		returnInputTime = 0.0f;*/
-
 		SendChat();
 
 		SetWindowText(hChat, "");

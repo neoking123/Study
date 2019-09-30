@@ -16,7 +16,6 @@ using namespace std;
 #define BUFSIZE 512
 #define WM_SOCKET (WM_USER+1)
 
-
 class SERVER_INFO
 {
 public:
@@ -26,7 +25,6 @@ public:
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-LRESULT CALLBACK EditProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 bool ProcessPacket(char* szBuf, int& len);
 void err_display(const char* msg);
 void err_display(int errcode);
@@ -35,12 +33,6 @@ void err_quit(const char* msg);
 HINSTANCE g_hInst;
 HBRUSH hBrush = NULL;
 HWND hChatCtrl = NULL;
-HWND hChat = NULL;
-HWND hChatList = NULL;
-char chat[128]; 
-HWND hSub;        // 서브클래싱할 윈도우 핸들
-WNDPROC oldSubProc;        // 서브클래싱하기 전의 윈도우 프로시져 주소
-
 
 char g_szClassName[256] = "ChessClient";
 SOCKET sock;
@@ -146,9 +138,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 		ChattingManager::GetInstance()->Init(hWnd, g_hInst);
-		//hChat = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE, 218, 837, 220, 20, hWnd, (HMENU)ID_EDIT_0, g_hInst, NULL);
-		//hChatList = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOVSCROLL | ES_MULTILINE, 55, 705, 420, 120, hWnd, (HMENU)ID_EDIT_1, g_hInst, NULL);
-		//oldSubProc = (WNDPROC)SetWindowLong(ChattingManager::GetInstance()->hChat, GWL_WNDPROC, (LONG)EditProc);
 		SetFocus(ChattingManager::GetInstance()->hChat);
 		return 0;
 
@@ -187,18 +176,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			return (LRESULT)hBrush;
 		}
 
-	/*case WM_COMMAND:
-		switch (LOWORD(wParam)) {
-		case ID_EDIT_0:
-			switch (HIWORD(wParam)) {
-			case EN_CHANGE:
-				GetWindowText(hChat, chat, 128);
-				SetWindowText(hChatList, chat);
-			}
-		}
-
-		return 0;*/
-
 	case WM_DESTROY:
 		DeleteObject(hBrush);
 		for (auto iter = players.begin(); iter != players.end(); iter++)
@@ -211,18 +188,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	}
 
 	return(DefWindowProc(hWnd, iMessage, wParam, lParam));
-}
-
-LRESULT CALLBACK EditProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	switch (message)
-	{
-	case WM_CHAR:
-		//ChattingManager::GetInstance()->Input();
-		return 0;
-	}
-
-	return CallWindowProc(WndProc, hWnd, message, wParam, lParam);
 }
 
 void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
