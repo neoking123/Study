@@ -398,6 +398,18 @@ bool ProcessPacket(USER_INFO* userInfo, char* buf, int& len)
 	}
 	break;
 
+	case PACKET_TYPE::PACKET_TYPE_CHAT:
+	{
+		PACKET_CHAT packet;
+		memcpy(&packet, buf, header.len);
+
+		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+		{
+			send(iter->first, (const char*)&packet, packet.header.len, 0);
+		}
+	}
+	break;
+
 	}
 
 	memcpy(&userInfo->userBuf, &userInfo->userBuf[header.len], userInfo->len - header.len);

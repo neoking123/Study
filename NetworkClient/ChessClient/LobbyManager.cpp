@@ -6,6 +6,7 @@
 #include "..\..\Common\ChessPacket.h"
 #include "ChessGame.h"
 #include "ChessBoard.h"
+#include "ChattingManager.h"
 
 LobbyManager* LobbyManager::instance = nullptr;
 
@@ -164,7 +165,7 @@ LobbyManager::~LobbyManager()
 {
 }
 
-void LobbyManager::Init(SOCKET sock)
+void LobbyManager::Init(SOCKET sock, HWND hWnd, HINSTANCE g_hInst)
 {
 	this->sock = sock;
 	roomNum = 0;
@@ -183,6 +184,7 @@ void LobbyManager::Render(HDC hdc)
 	DrawBackground(hdc);
 	DrawRooms(hdc);
 	DrawRoomCreateButton(hdc);
+	ChattingManager::GetInstance()->DrawChat(hdc);
 }
 
 void LobbyManager::Release()

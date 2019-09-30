@@ -12,6 +12,7 @@ class LobbyManager
 private:
 	static LobbyManager* instance;
 
+	HWND hChat;
 	SOCKET sock;
 	bool isCreateRoom;
 
@@ -31,7 +32,7 @@ public:
 
 	~LobbyManager();
 
-	void Init(SOCKET sock);
+	void Init(SOCKET sock, HWND hWnd, HINSTANCE g_hInst);
 	void Update();
 	void Render(HDC hdc);
 	void Release();
@@ -46,6 +47,11 @@ public:
 	bool GetIsStart(int roomNum);
 	bool GetCanStart(int roomNum);
 	void SetCanStart(int roomNum, bool canStart);
+
+	inline HWND GetChatHandle()
+	{
+		return hChat;
+	}
 
 	inline static LobbyManager* GetInstance()
 	{

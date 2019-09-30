@@ -1,6 +1,7 @@
 #include "ChessGame.h"
 #include "BitMapManager.h"
 #include "LobbyManager.h"
+#include "ChattingManager.h"
 #include "..\..\Common\ChessPacket.h"
 #include "Macro.h"
 #include "ChessBoard.h"
@@ -20,6 +21,7 @@ void ChessGame::DrawInRoom(HDC hdc)
 	DrawRoomNum(hdc);
 	DrawButton(hdc);
 	DrawRoomState_Debug(hdc);
+	ChattingManager::GetInstance()->DrawChat(hdc);
 }
 
 void ChessGame::DrawBackground(HDC hdc)
@@ -198,6 +200,11 @@ void ChessGame::DrawCheckState(HDC hdc)
 	}
 }
 
+void ChessGame::DrawChat(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBBY_CHAT)->Draw(hdc, 50, 700);
+}
+
 bool ChessGame::CheckIsClickedStateButton(int x, int y)
 {
 	if (x > START_BUTTON_POSITION_X && x < START_BUTTON_POSITION_X + BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BUTTON_START)->GetSize().cx
@@ -308,6 +315,7 @@ void ChessGame::DrawInGame(HDC hdc)
 	DrawRoomNum(hdc);
 	DrawChessPieces(hdc);
 	DrawCheckState(hdc);
+	ChattingManager::GetInstance()->DrawChat(hdc);
 }
 
 void ChessGame::InGameInit()
@@ -319,7 +327,7 @@ ChessGame::~ChessGame()
 {
 }
 
-void ChessGame::Init(HWND hWnd, SOCKET sock)
+void ChessGame::Init(HWND hWnd, SOCKET sock, HINSTANCE g_hInst)
 {
 	lastTime = std::chrono::system_clock::now();
 	playerIndex = 0;
@@ -334,7 +342,7 @@ void ChessGame::Init(HWND hWnd, SOCKET sock)
 	hOldBitmap = (HBITMAP)SelectObject(gameDC, hBitmap);
 
 	BitMapManager::GetInstance()->Init(gameDC);
-	LobbyManager::GetInstance()->Init(sock);
+	LobbyManager::GetInstance()->Init(sock, hWnd, g_hInst);
 
 	sceneState = SCENE_STATE::LOBY_SCENE;
 	InGameInit();
@@ -348,6 +356,8 @@ void ChessGame::Update()
 		return;
 
 	elapseTime = sec.count();
+
+	ChattingManager::GetInstance()->Input();
 
 	switch (sceneState)
 	{

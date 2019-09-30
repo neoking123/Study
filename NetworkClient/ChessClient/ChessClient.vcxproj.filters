@@ -31,6 +31,9 @@
     <Filter Include="ChessObjects">
       <UniqueIdentifier>{6265ac7f-4b20-4993-bd3a-2e1e6b52c710}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Chat">
+      <UniqueIdentifier>{a3dc5e65-39fe-4201-b6d2-54bea6b35cb1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ChessClient.cpp">
@@ -80,6 +83,9 @@
     </ClCompile>
     <ClCompile Include="Pawn.cpp">
       <Filter>ChessObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="ChattingManager.cpp">
+      <Filter>Chat</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="Pawn.h">
       <Filter>ChessObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="ChattingManager.h">
+      <Filter>Chat</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

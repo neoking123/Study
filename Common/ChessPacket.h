@@ -11,6 +11,7 @@ enum PACKET_TYPE
 	PACKET_TYPE_ENTER_ROOM,
 	PACKET_TYPE_ROOM_STATE,
 	PACKET_TYPE_MOVE_TO,
+	PACKET_TYPE_CHAT
 };
 
 struct PACKET_HEADER
@@ -101,6 +102,14 @@ struct PACKET_MOVE_TO
 	bool check;
 	int checkmate;
 	MOVE_DATA moveDate;
+};
+
+struct PACKET_CHAT
+{
+	PACKET_HEADER header;
+	int playerIndex;
+	int sendPos;
+	char chat[128];
 };
 
 #pragma pack()

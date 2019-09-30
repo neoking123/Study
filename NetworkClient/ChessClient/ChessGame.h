@@ -53,6 +53,7 @@ private:
 	void DrawButton(HDC hdc);
 	void DrawCurTurn(HDC hdc);
 	void DrawCheckState(HDC hdc);
+	void DrawChat(HDC hdc);
 	bool CheckIsClickedStateButton(int x, int y);
 	void SendRoomState(int roomNum, bool isStart = false, bool canStart = false);
 	void DrawRoomState_Debug(HDC hdc);
@@ -65,7 +66,7 @@ public:
 	int curTurn;
 
 	~ChessGame();
-	void Init(HWND hWnd, SOCKET sock);
+	void Init(HWND hWnd, SOCKET sock, HINSTANCE g_hInst);
 	void Update();
 	void Render();
 	void Release();
