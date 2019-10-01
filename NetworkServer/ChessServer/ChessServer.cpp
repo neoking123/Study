@@ -69,7 +69,7 @@ void err_display(int errcode);
 void err_quit(const char* msg);
 void SendLobbyData();
 void InitChessBoard(int board[][8]);
-void InitSpectatorArray(int spectator[20]);
+void InitSpectatorArray(int spectator[MAX_SPEC_NUM]);
 
 int main(int argc, char* argv[])
 {
