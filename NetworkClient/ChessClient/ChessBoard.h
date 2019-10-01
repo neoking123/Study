@@ -77,6 +77,7 @@ public:
 	void MouseInput(int x, int y);
 	void MoveTo(POINT curPos, POINT targetPos);
 	bool IsExist(POINT pos);
+	void CleanPieces();
 
 	inline ChessPiece* GetPiece(POINT pos)
 	{

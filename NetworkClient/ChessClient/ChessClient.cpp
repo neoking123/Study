@@ -10,8 +10,8 @@
 #include "ChessBoard.h"
 using namespace std;
 
-#define SERVERIP "127.0.0.1"
-//#define SERVERIP "10.30.10.204"
+//#define SERVERIP "127.0.0.1"
+#define SERVERIP "10.30.10.204"
 #define SERVERPORT 9000
 #define BUFSIZE 512
 #define WM_SOCKET (WM_USER+1)
@@ -296,11 +296,12 @@ bool ProcessPacket(char* buf, int& len)
 		LobbyManager::GetInstance()->roomNum = packet.lobyData.roomNum;
 		LobbyManager::GetInstance()->maxRoomNum = packet.lobyData.maxRoomNum;
 
+		LobbyManager::GetInstance()->ClearRooms();
+		
 		if (LobbyManager::GetInstance()->roomNum <= 0)
 			break;
-
-		LobbyManager::GetInstance()->ClearRooms();
 		LobbyManager::GetInstance()->roomCount = 0;
+
 		for (int i = 0; i < LobbyManager::GetInstance()->roomNum; i++)
 		{
 			LobbyManager::GetInstance()->CreateRoom(packet.lobyData.roomsData[i].roomName, packet.lobyData.roomsData[i].inPlayerNum);
@@ -312,7 +313,7 @@ bool ProcessPacket(char* buf, int& len)
 			LobbyManager::GetInstance()->SetIsStart(i, packet.lobyData.roomsData[i].isStart);
 			LobbyManager::GetInstance()->SetCanStart(i, packet.lobyData.roomsData[i].canStart);
 		}
-
+		
 	}
 	break;
 

@@ -54,7 +54,7 @@ void LobbyManager::CheckIsClickedRoomCB(int x, int y)
 		CreateRoom(roomName);
 		SendCreateRoom(roomName);
 		ChessGame::GetInstance()->SetSceneState(SCENE_STATE::READY_SCENE);
-		ChessBoard::GetInstance()->SetPlayerColor(1);
+		//ChessBoard::GetInstance()->SetPlayerColor(1);
 	}
 }
 
@@ -67,7 +67,7 @@ void LobbyManager::CheckIsClickedRoom(int x, int y)
 			SendEnterRoom(iter->first);
 			ChessGame::GetInstance()->SetSceneState(SCENE_STATE::READY_SCENE);
 			ChessGame::GetInstance()->curTurn = ChessGame::GetInstance()->playerIndex;
-			ChessBoard::GetInstance()->SetPlayerColor(0);
+			//ChessBoard::GetInstance()->SetPlayerColor(0);
 		}
 	}
 }
@@ -97,6 +97,8 @@ void LobbyManager::SendCreateRoom(string roomName)
 	strcpy(packet.roomData.roomName, roomName.c_str());
 	packet.roomData.inPlayerNum = 1;
 	packet.roomData.inPlayer[0] = ChessGame::GetInstance()->playerIndex;
+	packet.roomData.isStart = false;
+	packet.roomData.canStart = false;
 	send(sock, (const char*)&packet, packet.header.len, 0);
 }
 

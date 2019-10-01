@@ -179,13 +179,7 @@ void ChessBoard::Render(HDC hdc)
 
 void ChessBoard::Release()
 {
-	for (int y = 0; y < 8; y++)
-	{
-		for (int x = 0; x < 8; x++)
-		{
-			SAFE_DELETE(board[y][x]);
-		}
-	}
+	CleanPieces();
 }
 
 void ChessBoard::MouseInput(int x, int y)
@@ -576,8 +570,9 @@ void ChessBoard::RunClick()
 					}
 
 					MoveTo(clickSecondPos, clickFirstPos);
-					SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
 					ChessGame::GetInstance()->curTurn = ChessGame::GetInstance()->playerIndex;
+					SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
+					
 				}
 				else
 				{
@@ -608,8 +603,9 @@ void ChessBoard::RunClick()
 
 					MoveToTemp(clickSecondPos, clickFirstPos);
 					board[clickSecondPos.y][clickSecondPos.x] = targetPiece;
-					SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
 					ChessGame::GetInstance()->curTurn = ChessGame::GetInstance()->playerIndex;
+					SendMoveTo(clickFirstType, clickFirstColor, clickFirstPos, clickSecondPos);
+					
 				}
 				else
 				{
@@ -617,6 +613,17 @@ void ChessBoard::RunClick()
 					board[clickSecondPos.y][clickSecondPos.x] = targetPiece;
 				}
 			}
+		}
+	}
+}
+
+void ChessBoard::CleanPieces()
+{
+	for (int y = 0; y < 8; y++)
+	{
+		for (int x = 0; x < 8; x++)
+		{
+			SAFE_DELETE(board[y][x]);
 		}
 	}
 }

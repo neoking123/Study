@@ -41,6 +41,7 @@ private:
 	POINT cursor;
 
 	float elapseTime;
+	float reStartTime;
 	chrono::system_clock::time_point lastTime;
 
 	SCENE_STATE sceneState;
@@ -65,6 +66,7 @@ private:
 	void CheckStart();
 	void DrawInGame(HDC hdc);
 	void InGameInit();
+	void CheckCheckmate(float elapseTime);
 
 public:
 	int playerIndex;

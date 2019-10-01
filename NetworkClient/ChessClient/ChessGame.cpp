@@ -268,6 +268,9 @@ void ChessGame::CheckIsClickedBackButton(int x, int y)
 	{
 		sceneState = SCENE_STATE::LOBY_SCENE;
 		LobbyManager::GetInstance()->ActivateCreateRoom();
+		ChessBoard::GetInstance()->CleanPieces();
+		ChessBoard::GetInstance()->Init();
+		curTurn = -1;
 		SendBackToLobby();
 	}
 }
@@ -339,6 +342,16 @@ void ChessGame::CheckStart()
 	int roomNum = LobbyManager::GetInstance()->GetRoomNum(playerIndex);
 	if (LobbyManager::GetInstance()->GetIsStart(roomNum))
 	{
+		if (LobbyManager::GetInstance()->CheckIsRoomMaster(playerIndex))
+		{
+			curTurn = -1;
+			ChessBoard::GetInstance()->SetPlayerColor(1);
+		}
+		else
+		{
+			curTurn = playerIndex;
+			ChessBoard::GetInstance()->SetPlayerColor(0);
+		}
 		sceneState = SCENE_STATE::INGAME_SCENE;
 	}
 }
@@ -363,6 +376,28 @@ void ChessGame::InGameInit()
 	ChessBoard::GetInstance()->Init();
 }
 
+void ChessGame::CheckCheckmate(float elapseTime)
+{
+	if (ChessBoard::GetInstance()->checkmate != -1)
+	{
+		if (reStartTime < 2.0f)
+		{
+			reStartTime += elapseTime;
+			return;
+		}
+		reStartTime = 0.0f;
+
+		ChessBoard::GetInstance()->CleanPieces();
+		ChessBoard::GetInstance()->Init();
+		ChessBoard::GetInstance()->checkmate = -1;
+		//curTurn = -1;
+		SetSceneState(SCENE_STATE::READY_SCENE);
+
+		int roomNum = LobbyManager::GetInstance()->GetRoomNum(playerIndex);
+		SendRoomState(roomNum, false, false);
+	}
+}
+
 ChessGame::~ChessGame()
 {
 }
@@ -376,6 +411,7 @@ void ChessGame::Init(HWND hWnd, SOCKET sock, HINSTANCE g_hInst)
 	HDC hdc = GetDC(hWnd);
 	cursor = { 0, 0 };
 	curTurn = -1;
+	reStartTime = 0.0f;
 
 	gameDC = CreateCompatibleDC(hdc);
 	hBitmap = CreateCompatibleBitmap(hdc, INGAME_WIDTH, INGAME_HEIGHT);
@@ -416,6 +452,7 @@ void ChessGame::Update()
 		break;
 
 	case SCENE_STATE::INGAME_SCENE:
+		CheckCheckmate(elapseTime);
 		break;
 
 	case SCENE_STATE::RESULT_SCENE:
@@ -500,6 +537,7 @@ void ChessGame::MouseInput(int x, int y, int mouseState)
 
 	case SCENE_STATE::INGAME_SCENE:
 		ChessBoard::GetInstance()->MouseInput(cursor.x, cursor.y);
+		CheckIsClickedBackButton(cursor.x, cursor.y);
 		break;
 
 	case SCENE_STATE::RESULT_SCENE:

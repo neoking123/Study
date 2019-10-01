@@ -12,6 +12,7 @@ using namespace std;
 #define BUFSIZE 512
 #define WM_SOCKET (WM_USER + 1)
 #define MAX_ROOM_NUM 10
+#define MAX_SPEC_NUM 2
 char windowClassName[256] = "ChessServer";
 
 enum CHESS_PIECES
@@ -46,9 +47,11 @@ class ROOM_INFO
 public:
 	char roomName[128];
 	int inPlayerNum;
-	int inPlayer[2] = {-1, -1};
+	int inPlayers[2] = { -1, -1 };
 	bool isStart = false;
 	bool canStart = false;
+	int board[8][8];
+	//int spectators[MAX_SPEC_NUM];
 	//int roomNameLen;
 };
 
@@ -56,7 +59,7 @@ int userIndex = 0;
 int roomNum = 0;
 map<SOCKET, USER_INFO*> connectedUsers;
 map<int, ROOM_INFO*> createdRooms;
-int board[8][8];
+//int board[8][8];
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void ProcessSocketMessage(HWND, UINT, WPARAM, LPARAM);
@@ -65,7 +68,8 @@ void err_display(const char* msg);
 void err_display(int errcode);
 void err_quit(const char* msg);
 void SendLobbyData();
-void InitChessBoard();
+void InitChessBoard(int board[][8]);
+void InitSpectatorArray(int spectator[20]);
 
 int main(int argc, char* argv[])
 {
@@ -197,9 +201,6 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		ss << playerInfo->index;
 		string str = "player" + ss.str();
 		strcpy(playerInfo->userName, str.c_str());
-		//playerInfo->userNameLen = sizeof("player1");
-		//pInfo->x = rand() % 600;
-		//pInfo->y = rand() % 400;
 		connectedUsers.insert(make_pair(client_sock, playerInfo));
 
 		// 로그인 정보 전송
@@ -219,17 +220,13 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++, i++)
 		{
 			userDatePacket.userData[i].userIndex = iter->second->index;
-			//user_packet.userData[i].x = iter->second->x;
-			//user_packet.userData[i].y = iter->second->y;
 		}
 
-		//int userNameSize = 0;
 		int k = 0;
 		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++, k++)
 		{
 			strcpy(userDatePacket.userData[k].userName, iter->second->userName);
 			userDatePacket.userData[k].inRoomNum = iter->second->inRoomNum;
-			//userNameSize += sizeof(char) * iter->second->userNameLen;
 		}
 
 		userDatePacket.header.len = sizeof(PACKET_HEADER) + sizeof(int) + (sizeof(int) + sizeof(int) + sizeof(char) * 32) * connectedUsers.size();
@@ -240,17 +237,6 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 
 		Sleep(500);
-
-		// 방 생성 테스트
-		/*ROOM_INFO* roomInfo = new ROOM_INFO();
-		strcpy(roomInfo->roomName, "testRoom");
-		roomInfo->roomNameLen = sizeof("testRoom");
-		createdRooms.insert(make_pair(roomNum++, roomInfo));
-
-		ROOM_INFO* roomInfo2 = new ROOM_INFO();
-		strcpy(roomInfo2->roomName, "testRoom2");
-		roomInfo2->roomNameLen = sizeof("testRoom2");
-		createdRooms.insert(make_pair(roomNum++, roomInfo2));*/
 
 		// 로비 정보 전송
 		SendLobbyData();
@@ -333,9 +319,10 @@ bool ProcessPacket(USER_INFO* userInfo, char* buf, int& len)
 		ROOM_INFO* roomInfo = new ROOM_INFO();
 		strcpy(roomInfo->roomName, packet.roomData.roomName);
 		roomInfo->inPlayerNum = packet.roomData.inPlayerNum;
-		roomInfo->inPlayer[0] = packet.roomData.inPlayer[0];
+		roomInfo->inPlayers[0] = packet.roomData.inPlayer[0];
+		InitChessBoard(roomInfo->board);
+		//InitSpectatorArray(roomInfo->spectators);
 		createdRooms.insert(make_pair(roomNum, roomInfo));
-		
 
 		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
 		{
@@ -359,8 +346,23 @@ bool ProcessPacket(USER_INFO* userInfo, char* buf, int& len)
 		{
 			if (iter->first == packet.roomNum)
 			{
-				iter->second->inPlayer[1] = packet.playerIndex;
-				iter->second->inPlayerNum = 2;
+				if (iter->second->inPlayers[1] == -1)
+				{
+					iter->second->inPlayers[1] = packet.playerIndex;
+					
+				}
+				else
+				{
+					/*for (int i = 0; i < 20; i++)
+					{
+						if (iter->second->spectators[i] == -1)
+						{
+							iter->second->spectators[i] = packet.playerIndex;
+							break;
+						}
+					}*/
+				}
+				iter->second->inPlayerNum++;
 			}
 		}
 
@@ -396,17 +398,17 @@ bool ProcessPacket(USER_INFO* userInfo, char* buf, int& len)
 		POINT curPos = packet.moveDate.curPos;
 		POINT targetPos = packet.moveDate.targetPos;
 
-		board[targetPos.y][targetPos.x] = board[curPos.y][curPos.x];
-		board[curPos.y][curPos.x] = CHESS_PIECES::NONE;
-
 		for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++)
 		{
 			if (iter->first == packet.roomNum)
 			{
+				iter->second->board[targetPos.y][targetPos.x] = iter->second->board[curPos.y][curPos.x];
+				iter->second->board[curPos.y][curPos.x] = CHESS_PIECES::NONE;
+
 				for (auto userIter = connectedUsers.begin(); userIter != connectedUsers.end(); userIter++)
 				{
-					if (userIter->second->index == iter->second->inPlayer[0] 
-						|| userIter->second->index == iter->second->inPlayer[1])
+					if (userIter->second->index == iter->second->inPlayers[0] 
+						|| userIter->second->index == iter->second->inPlayers[1])
 					{
 						send(userIter->first, (const char*)&packet, header.len, 0);
 					}
@@ -440,17 +442,30 @@ bool ProcessPacket(USER_INFO* userInfo, char* buf, int& len)
 		{
 			if (iter->first == packet.roomNum)
 			{
-				if (iter->second->inPlayer[0] == packet.playerIndex)
+				if (iter->second->inPlayers[0] == packet.playerIndex)
 				{
-					createdRooms.erase(iter->first);
-					roomNum--;
-					SendLobbyData();
-					break;
+					if (iter->second->inPlayers[1] == -1)
+					{
+						createdRooms.erase(iter->first);
+						roomNum--;
+						SendLobbyData();
+						break;
+					}
+					else
+					{
+						iter->second->inPlayers[0] = iter->second->inPlayers[1];
+						iter->second->inPlayers[1] = -1;
+						iter->second->inPlayerNum = 1;
+						iter->second->canStart = false;
+						iter->second->isStart = false;
+						SendLobbyData();
+					}
+					
 				}
-				else if (iter->second->inPlayer[1] == packet.playerIndex)
+				else if (iter->second->inPlayers[1] == packet.playerIndex)
 				{
-					iter->second->inPlayer[0] = iter->second->inPlayer[1];
-					iter->second->inPlayer[1] = -1;
+					//iter->second->inPlayer[0] = iter->second->inPlayer[1];
+					iter->second->inPlayers[1] = -1;
 					iter->second->inPlayerNum = 1;
 					iter->second->canStart = false;
 					iter->second->isStart = false;
@@ -487,8 +502,8 @@ void SendLobbyData()
 	{
 		strcpy(lobbyDataPacket.lobyData.roomsData[i].roomName, createdRooms[i]->roomName);
 		lobbyDataPacket.lobyData.roomsData[i].inPlayerNum = createdRooms[i]->inPlayerNum;
-		lobbyDataPacket.lobyData.roomsData[i].inPlayer[0] = createdRooms[i]->inPlayer[0];
-		lobbyDataPacket.lobyData.roomsData[i].inPlayer[1] = createdRooms[i]->inPlayer[1];
+		lobbyDataPacket.lobyData.roomsData[i].inPlayer[0] = createdRooms[i]->inPlayers[0];
+		lobbyDataPacket.lobyData.roomsData[i].inPlayer[1] = createdRooms[i]->inPlayers[1];
 		lobbyDataPacket.lobyData.roomsData[i].isStart = createdRooms[i]->isStart;
 		lobbyDataPacket.lobyData.roomsData[i].canStart = createdRooms[i]->canStart;
 	}
@@ -543,7 +558,7 @@ void err_quit(const char* msg)
 	exit(1);
 }
 
-void InitChessBoard()
+void InitChessBoard(int board[][8])
 {
 
 	for (int y = 0; y < 8; y++)
@@ -589,4 +604,12 @@ void InitChessBoard()
 	board[6][5] = CHESS_PIECES::PAWN_W;
 	board[6][6] = CHESS_PIECES::PAWN_W;
 	board[6][7] = CHESS_PIECES::PAWN_W;
+}
+
+void InitSpectatorArray(int spectator[MAX_SPEC_NUM])
+{
+	for (int i = 0; i < MAX_SPEC_NUM; i++)
+	{
+		spectator[i] = -1;
+	}
 }
