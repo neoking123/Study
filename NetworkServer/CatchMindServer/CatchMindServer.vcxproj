@@ -142,10 +142,12 @@
   <ItemGroup>
     <ClCompile Include="CatchMindServer.cpp" />
     <ClCompile Include="IOCompletionPort.cpp" />
+    <ClCompile Include="NetworkManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IOCompletionPort.h" />
     <ClInclude Include="Macro.h" />
+    <ClInclude Include="NetworkManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -8,24 +8,24 @@
 #define WM_SOCKET (WM_USER + 1)
 
 // 소켓 정보 저장을 위한 구조체와 변수
-struct SOCKETINFO
+struct SOCKET_INFO
 {
 	SOCKET sock;
 	char buf[BUFSIZE + 1];
 	int recvbytes;
 	int sendbytes;
 	BOOL recvdelayed;
-	SOCKETINFO *next;
+	SOCKET_INFO *next;
 };
 
-SOCKETINFO *SocketInfoList;
+SOCKET_INFO *SocketInfoList;
 
 // 윈도우 메시지 처리 함수
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void ProcessSocketMessage(HWND, UINT, WPARAM, LPARAM);
 // 소켓 관리 함수
 BOOL AddSocketInfo(SOCKET sock);
-SOCKETINFO* GetSocketInfo(SOCKET sock);
+SOCKET_INFO* GetSocketInfo(SOCKET sock);
 void RemoveSocketInfo(SOCKET sock);
 
 // 소켓 함수 오류 출력 후 종료
@@ -168,7 +168,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	// 데이터 통신에 사용할 변수
-	SOCKETINFO *ptr;
+	SOCKET_INFO *ptr;
 	SOCKET client_sock;
 	SOCKADDR_IN clientaddr;
 	int addrlen;
@@ -260,7 +260,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 // 소켓 정보 추가
 BOOL AddSocketInfo(SOCKET sock)
 {
-	SOCKETINFO *ptr = new SOCKETINFO;
+	SOCKET_INFO *ptr = new SOCKET_INFO;
 	if (ptr == NULL)
 	{
 		printf("[오류] 메모리가 부족합니다!\n");
@@ -278,9 +278,9 @@ BOOL AddSocketInfo(SOCKET sock)
 }
 
 // 소켓 정보 얻기
-SOCKETINFO *GetSocketInfo(SOCKET sock)
+SOCKET_INFO *GetSocketInfo(SOCKET sock)
 {
-	SOCKETINFO *ptr = SocketInfoList;
+	SOCKET_INFO *ptr = SocketInfoList;
 
 	while (ptr)
 	{
@@ -301,8 +301,8 @@ void RemoveSocketInfo(SOCKET sock)
 	getpeername(sock, (SOCKADDR*)&clientaddr, &addrlen);
 	printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트번호=%d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 
-	SOCKETINFO *curr = SocketInfoList;
-	SOCKETINFO *prev = NULL;
+	SOCKET_INFO *curr = SocketInfoList;
+	SOCKET_INFO *prev = NULL;
 
 	while (curr)
 	{

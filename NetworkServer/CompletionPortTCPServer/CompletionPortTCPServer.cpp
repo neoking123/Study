@@ -6,7 +6,7 @@
 #define BUFSIZE 512
 
 // 소켓 정보 저장을 위한 구조체와 변수
-struct SOCKETINFO
+struct SOCKET_INFO
 {
 	WSAOVERLAPPED overlapped;
 	SOCKET sock;
@@ -95,7 +95,7 @@ int main(int argx, char *argv[])
 		CreateIoCompletionPort((HANDLE)client_sock, hcp, client_sock, 0);
 
 		// 소켓 정보 구조체 할당
-		SOCKETINFO *ptr = new SOCKETINFO;
+		SOCKET_INFO *ptr = new SOCKET_INFO;
 		if (ptr == NULL)
 			break;
 		ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
@@ -134,7 +134,7 @@ DWORD WINAPI WorkerTread(LPVOID arg)
 		// 비동기 입출력 완료 기다리기
 		DWORD cbTransferred;
 		SOCKET client_sock;
-		SOCKETINFO *ptr;
+		SOCKET_INFO *ptr;
 		retval = GetQueuedCompletionStatus(hcp, &cbTransferred, (LPDWORD)&client_sock, (LPOVERLAPPED*)&ptr, INFINITE);
 
 		// 클라이언트 정보 얻기

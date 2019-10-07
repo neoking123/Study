@@ -33,7 +33,7 @@ IOCompletionPort::~IOCompletionPort()
 	}
 }
 
-bool IOCompletionPort::Initialize()
+bool IOCompletionPort::Init()
 {
 	WSADATA wsaData;
 	int nResult;
@@ -114,7 +114,7 @@ void IOCompletionPort::StartServer()
 			return;
 		}
 
-		socketInfo = new SOCKETINFO();
+		socketInfo = new SOCKET_INFO();
 		socketInfo->socket = clientSocket;
 		socketInfo->recvBytes = 0;
 		socketInfo->sendBytes = 0;
@@ -184,9 +184,9 @@ void IOCompletionPort::WorkerThread()
 	DWORD	recvBytes;
 	DWORD	sendBytes;
 	// Completion Key를 받을 포인터 변수
-	SOCKETINFO *	pCompletionKey;
+	SOCKET_INFO *	pCompletionKey;
 	// I/O 작업을 위해 요청한 Overlapped 구조체를 받을 포인터	
-	SOCKETINFO *	pSocketInfo;
+	SOCKET_INFO *	pSocketInfo;
 	// 
 	DWORD	dwFlags = 0;
 

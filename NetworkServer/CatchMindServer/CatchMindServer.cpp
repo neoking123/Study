@@ -1,11 +1,12 @@
 #include "IOCompletionPort.h"
+#include "NetworkManager.h"
 
 int main()
 {
-	IOCompletionPort iocp_server;
-	if (iocp_server.Initialize())
+	NetworkManager::GetInstance()->Init();
+	if (IOCompletionPort::GetInstance()->Init())
 	{
-		iocp_server.StartServer();
+		IOCompletionPort::GetInstance()->StartServer();
 	}
 	return 0;
 }

@@ -7,7 +7,7 @@
 #define BUFSIZE 512
 
 // 소켓 정보 저장을 위한 구조체와 변수
-struct SOCKETINFO
+struct SOCKET_INFO
 {
 	WSAOVERLAPPED overlapped;
 	SOCKET sock;
@@ -114,7 +114,7 @@ DWORD WINAPI WorkerTread(LPVOID arg)
 		printf("\n[TCP 서버] 클라이언트 접속 : IP 주소 = %s, 포트 번호 = %d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 
 		// 소켓 정보 구조체 할당과 초기화
-		SOCKETINFO *ptr = new SOCKETINFO;
+		SOCKET_INFO *ptr = new SOCKET_INFO;
 		if (ptr == NULL)
 		{
 			printf("[오류] 메모리가 부족합니다!\n");
@@ -149,7 +149,7 @@ void CALLBACK CompletionRoutine(DWORD dwError, DWORD cbTransferred, LPWSAOVERLAP
 	int retval;
 
 	// 클라이언트 정보 얻기
-	SOCKETINFO *ptr = (SOCKETINFO*)lpOverlapped;
+	SOCKET_INFO *ptr = (SOCKET_INFO*)lpOverlapped;
 	SOCKADDR_IN clientaddr;
 	int addrlen = sizeof(clientaddr);
 	getpeername(ptr->sock, (SOCKADDR*)&clientaddr, &addrlen);

@@ -3,7 +3,7 @@
 int main()
 {
 	IOCompletionPort iocp_server;
-	if (iocp_server.Initialize())
+	if (iocp_server.Init())
 	{
 		iocp_server.StartServer();
 	}

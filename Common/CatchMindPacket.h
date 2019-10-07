@@ -2,6 +2,8 @@
 #include <Windows.h>
 #pragma pack(1)
 
+#define	MAX_BUFFER		1024
+
 enum PACKET_TYPE
 {
 	PACKET_TYPE_LOGIN = 1,
@@ -13,6 +15,13 @@ enum PACKET_TYPE
 	PACKET_TYPE_MOVE_TO,
 	PACKET_TYPE_CHAT,
 	PACKET_TYPE_BACK_TO_LOBBY
+};
+
+struct PACKET_INFO
+{
+public:
+	char buf[MAX_BUFFER];
+	int len;
 };
 
 struct PACKET_HEADER

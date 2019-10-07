@@ -1,6 +1,8 @@
 #include "IOCompletionPort.h"
-#include "Macro.h"
+#include "NetworkManager.h"
 #include <process.h>
+
+IOCompletionPort* IOCompletionPort::instance = nullptr;
 
 unsigned int WINAPI CallWorkerThread(LPVOID p)
 {
@@ -9,49 +11,35 @@ unsigned int WINAPI CallWorkerThread(LPVOID p)
 	return 0;
 }
 
-unsigned int WINAPI CallAcceptThread(LPVOID p)
-{
-	IOCompletionPort* overlappedEvent = (IOCompletionPort*)p;
-	overlappedEvent->AcceptThread();
-	return 0;
-}
-
 IOCompletionPort::IOCompletionPort()
 {
-	bWorkerThread = true;
-	bAcceptThread = true;
-	bAccept = true;
 }
 
 IOCompletionPort::~IOCompletionPort()
 {
 	// winsock 의 사용을 끝낸다
 	WSACleanup();
+
 	// 다 사용한 객체를 삭제
 	if (socketInfo)
 	{
-		/*delete[] m_pSocketInfo;
-		m_pSocketInfo = NULL;*/
 		SAFE_DELETE_ARRAY(socketInfo);
 	}
 
 	if (workerHandle)
 	{
-		/*delete[] m_pWorkerHandle;
-		m_pWorkerHandle = NULL;*/
 		SAFE_DELETE_ARRAY(workerHandle);
-	}
-
-	if (acceptHandle)
-	{
-		SAFE_DELETE(acceptHandle);
 	}
 }
 
-bool IOCompletionPort::Initialize()
+bool IOCompletionPort::Init()
 {
+	bWorkerThread = true;
+	bAccept = true;
+
 	WSADATA wsaData;
 	int nResult;
+
 	// winsock 2.2 버전으로 초기화
 	nResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 
@@ -101,6 +89,7 @@ bool IOCompletionPort::Initialize()
 void IOCompletionPort::StartServer()
 {
 	int nResult;
+
 	// 클라이언트 정보
 	SOCKADDR_IN clientAddr;
 	int addrLen = sizeof(SOCKADDR_IN);
@@ -111,15 +100,11 @@ void IOCompletionPort::StartServer()
 	// Completion Port 객체 생성
 	hIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 
-	// Accept Thread 생성
-	if (!CreateAcceptThread())
-		return;
-
 	// Worker Thread 생성
 	if (!CreateWorkerThread()) 
 		return;
 
-	printf_s("[INFO] 서버 시작...\n");
+	printf_s("[INFO] CatchMind 서버 시작...\n");
 
 	// 클라이언트 접속을 받음
 	while (bAccept)
@@ -134,7 +119,10 @@ void IOCompletionPort::StartServer()
 			return;
 		}
 
-		socketInfo = new SOCKETINFO();
+		NetworkManager::GetInstance()->AddUser(clientSocket);
+		printf("\n[INFO] 클라이언트 접속: IP 주소=%s, 포트번호=%d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
+
+		socketInfo = new SOCKET_INFO();
 		socketInfo->socket = clientSocket;
 		socketInfo->recvBytes = 0;
 		socketInfo->sendBytes = 0;
@@ -168,15 +156,18 @@ void IOCompletionPort::StartServer()
 bool IOCompletionPort::CreateWorkerThread()
 {
 	unsigned int threadId;
+
 	// 시스템 정보 가져옴
 	SYSTEM_INFO sysInfo;
 	GetSystemInfo(&sysInfo);
 	printf_s("[INFO] CPU 갯수 : %d\n", sysInfo.dwNumberOfProcessors);
+
 	// 적절한 작업 스레드의 갯수는 (CPU * 2) + 1
 	int nThreadCnt = sysInfo.dwNumberOfProcessors * 2;
 
 	// thread handler 선언
 	workerHandle = new HANDLE[nThreadCnt];
+
 	// thread 생성
 	for (int i = 0; i < nThreadCnt; i++)
 	{
@@ -193,37 +184,22 @@ bool IOCompletionPort::CreateWorkerThread()
 	return true;
 }
 
-bool IOCompletionPort::CreateAcceptThread()
-{
-	unsigned int threadId;
-	// thread handler 선언
-	acceptHandle = new HANDLE;
-	// thread 생성
-	acceptHandle = (HANDLE *)_beginthreadex(
-		NULL, 0, &CallAcceptThread, this, CREATE_SUSPENDED, &threadId);
-	if (acceptHandle == NULL)
-	{
-		printf_s("[ERROR] Accept Thread 생성 실패\n");
-		return false;
-	}
-	ResumeThread(acceptHandle);
-	printf_s("[INFO] Accept Thread 시작...\n");
-	return true;
-}
-
 void IOCompletionPort::WorkerThread()
 {
 	// 함수 호출 성공 여부
 	BOOL	bResult;
 	int		nResult;
+
 	// Overlapped I/O 작업에서 전송된 데이터 크기
 	DWORD	recvBytes;
 	DWORD	sendBytes;
+
 	// Completion Key를 받을 포인터 변수
-	SOCKETINFO *	completionKey;
+	SOCKET_INFO *	completionKey;
+
 	// I/O 작업을 위해 요청한 Overlapped 구조체를 받을 포인터	
-	SOCKETINFO *	socketInfo;
-	// 
+	SOCKET_INFO *	socketInfo;
+	
 	DWORD	dwFlags = 0;
 
 	while (bWorkerThread)
@@ -258,29 +234,33 @@ void IOCompletionPort::WorkerThread()
 		}
 		else
 		{
-			printf_s("[INFO] 메시지 수신- Socket : [%d], Bytes : [%d], Msg : [%s]\n",
-				socketInfo->socket, socketInfo->dataBuf.len, socketInfo->dataBuf.buf);
+			//printf_s("[INFO] 메시지 수신- Socket : [%d], Bytes : [%d], Msg : [%s]\n",
+			//	socketInfo->socket, socketInfo->dataBuf.len, socketInfo->dataBuf.buf);
 
-			// 클라이언트의 응답을 그대로 송신			
-			nResult = WSASend(
-				socketInfo->socket,
-				&(socketInfo->dataBuf),
-				1,
-				&sendBytes,
-				dwFlags,
-				NULL,
-				NULL
-			);
+			//// 클라이언트의 응답을 그대로 송신			
+			//nResult = WSASend(
+			//	socketInfo->socket,
+			//	&(socketInfo->dataBuf),
+			//	1,
+			//	&sendBytes,
+			//	dwFlags,
+			//	NULL,
+			//	NULL
+			//);
 
-			if (nResult == SOCKET_ERROR && WSAGetLastError() != WSA_IO_PENDING)
-			{
-				printf_s("[ERROR] WSASend 실패 : ", WSAGetLastError());
-			}
+			//if (nResult == SOCKET_ERROR && WSAGetLastError() != WSA_IO_PENDING)
+			//{
+			//	printf_s("[ERROR] WSASend 실패 : ", WSAGetLastError());
+			//}
 
-			printf_s("[INFO] 메시지 송신 - Socket : [%d], Bytes : [%d], Msg : [%s]\n",
-				socketInfo->socket, socketInfo->dataBuf.len, socketInfo->dataBuf.buf);
+			//printf_s("[INFO] 메시지 송신 - Socket : [%d], Bytes : [%d], Msg : [%s]\n",
+			//	socketInfo->socket, socketInfo->dataBuf.len, socketInfo->dataBuf.buf);
 
-			// SOCKETINFO 데이터 초기화
+			// 패킷 처리
+			PACKET_INFO* packet = NetworkManager::GetInstance()->GetUserPacket(socketInfo->socket);
+			NetworkManager::GetInstance()->ProcessReceive(packet, socketInfo->dataBuf.buf, socketInfo->dataBuf.len);
+
+			// SOCKET_INFO 데이터 초기화
 			ZeroMemory(&(socketInfo->overlapped), sizeof(OVERLAPPED));
 			socketInfo->dataBuf.len = MAX_BUFFER;
 			socketInfo->dataBuf.buf = socketInfo->messageBuffer;
@@ -308,230 +288,3 @@ void IOCompletionPort::WorkerThread()
 		}
 	}
 }
-
-void IOCompletionPort::AcceptThread()
-{
-	while (bAcceptThread)
-	{
-		// 데이터 통신에 사용할 변수
-		SOCKET client_sock;
-		SOCKADDR_IN clientaddr;
-		int addrlen = 0;
-		int	nResult = 0;
-		addrlen = sizeof(clientaddr);
-		client_sock = accept(listenSocket, (SOCKADDR*)&clientaddr, &addrlen);
-
-		if (client_sock == INVALID_SOCKET)
-		{
-			printf_s("[ERROR] Accept 실패 : ", WSAGetLastError());
-			return;
-		}
-		printf("\n[CatchMind] 클라이언트 접속: IP 주소=%s, 포트번호=%d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
-	}
-}
-
-// 패킷 처리 함수
-//bool ProcessPacket(char* buf, int& len)
-//{
-//	if (len > 0)
-//	{
-//		memcpy(&userInfo->userBuf[userInfo->len], buf, len);
-//		userInfo->len += len;
-//		len = 0;
-//	}
-//
-//	if (userInfo->len < sizeof(PACKET_HEADER))
-//		return false;
-//
-//	PACKET_HEADER header;
-//	memcpy(&header, userInfo->userBuf, sizeof(header));
-//
-//	if (userInfo->len < header.len)
-//		return false;
-//
-//	switch (header.type)
-//	{
-//	case PACKET_TYPE::PACKET_TYPE_CREATE_ROOM:
-//	{
-//		PACKET_CREATE_ROOM packet;
-//		memcpy(&packet, buf, header.len);
-//
-//		if (roomNum >= MAX_ROOM_NUM)
-//			break;
-//
-//		ROOM_INFO* roomInfo = new ROOM_INFO();
-//		strcpy(roomInfo->roomName, packet.roomData.roomName);
-//		roomInfo->inPlayerNum = packet.roomData.inPlayerNum;
-//		roomInfo->inPlayers[0] = packet.roomData.inPlayer[0];
-//		InitChessBoard(roomInfo->board);
-//		//InitSpectatorArray(roomInfo->spectators);
-//		createdRooms.insert(make_pair(roomNum, roomInfo));
-//
-//		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
-//		{
-//			if (iter->second->index == packet.roomData.inPlayer[0])
-//			{
-//				iter->second->inRoomNum = roomNum;
-//			}
-//		}
-//		roomNum++;
-//
-//		SendLobbyData();
-//	}
-//	break;
-//
-//	case PACKET_TYPE::PACKET_TYPE_ENTER_ROOM:
-//	{
-//		PACKET_ENTER_ROOM packet;
-//		memcpy(&packet, buf, header.len);
-//
-//		for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++)
-//		{
-//			if (iter->first == packet.roomNum)
-//			{
-//				if (iter->second->inPlayers[1] == -1)
-//				{
-//					iter->second->inPlayers[1] = packet.playerIndex;
-//
-//				}
-//				else
-//				{
-//					/*for (int i = 0; i < 20; i++)
-//					{
-//						if (iter->second->spectators[i] == -1)
-//						{
-//							iter->second->spectators[i] = packet.playerIndex;
-//							break;
-//						}
-//					}*/
-//				}
-//				iter->second->inPlayerNum++;
-//			}
-//		}
-//
-//		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
-//		{
-//			if (iter->second->index == packet.playerIndex)
-//			{
-//				iter->second->inRoomNum = packet.roomNum;
-//			}
-//		}
-//
-//		SendLobbyData();
-//	}
-//	break;
-//
-//	case PACKET_TYPE::PACKET_TYPE_ROOM_STATE:
-//	{
-//		PACKET_ROOM_STATE packet;
-//		memcpy(&packet, buf, header.len);
-//
-//		createdRooms[packet.roomNum]->isStart = packet.isStart;
-//		createdRooms[packet.roomNum]->canStart = packet.canStart;
-//
-//		SendLobbyData();
-//	}
-//	break;
-//
-//	case PACKET_TYPE::PACKET_TYPE_MOVE_TO:
-//	{
-//		PACKET_MOVE_TO packet;
-//		memcpy(&packet, buf, header.len);
-//
-//		POINT curPos = packet.moveDate.curPos;
-//		POINT targetPos = packet.moveDate.targetPos;
-//
-//		for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++)
-//		{
-//			if (iter->first == packet.roomNum)
-//			{
-//				iter->second->board[targetPos.y][targetPos.x] = iter->second->board[curPos.y][curPos.x];
-//				iter->second->board[curPos.y][curPos.x] = CHESS_PIECES::NONE;
-//
-//				for (auto userIter = connectedUsers.begin(); userIter != connectedUsers.end(); userIter++)
-//				{
-//					if (userIter->second->index == iter->second->inPlayers[0]
-//						|| userIter->second->index == iter->second->inPlayers[1])
-//					{
-//						send(userIter->first, (const char*)&packet, header.len, 0);
-//					}
-//				}
-//			}
-//		}
-//	}
-//	break;
-//
-//	case PACKET_TYPE::PACKET_TYPE_CHAT:
-//	{
-//		PACKET_CHAT packet;
-//		memcpy(&packet, buf, header.len);
-//
-//		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
-//		{
-//			if (iter->second->inRoomNum == packet.roomNum)
-//			{
-//				send(iter->first, (const char*)&packet, header.len, 0);
-//			}
-//		}
-//	}
-//	break;
-//
-//	case PACKET_TYPE::PACKET_TYPE_BACK_TO_LOBBY:
-//	{
-//		PACKET_BACK_TO_LOBBY packet;
-//		memcpy(&packet, buf, header.len);
-//
-//		for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++)
-//		{
-//			if (iter->first == packet.roomNum)
-//			{
-//				if (iter->second->inPlayers[0] == packet.playerIndex)
-//				{
-//					if (iter->second->inPlayers[1] == -1)
-//					{
-//						createdRooms.erase(iter->first);
-//						roomNum--;
-//						SendLobbyData();
-//						break;
-//					}
-//					else
-//					{
-//						iter->second->inPlayers[0] = iter->second->inPlayers[1];
-//						iter->second->inPlayers[1] = -1;
-//						iter->second->inPlayerNum = 1;
-//						iter->second->canStart = false;
-//						iter->second->isStart = false;
-//						SendLobbyData();
-//					}
-//
-//				}
-//				else if (iter->second->inPlayers[1] == packet.playerIndex)
-//				{
-//					//iter->second->inPlayer[0] = iter->second->inPlayer[1];
-//					iter->second->inPlayers[1] = -1;
-//					iter->second->inPlayerNum = 1;
-//					iter->second->canStart = false;
-//					iter->second->isStart = false;
-//					SendLobbyData();
-//				}
-//			}
-//		}
-//
-//		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
-//		{
-//			if (iter->second->index == packet.playerIndex)
-//			{
-//				iter->second->inRoomNum = -1;
-//			}
-//		}
-//
-//	}
-//	break;
-//
-//	}
-//
-//	memcpy(&userInfo->userBuf, &userInfo->userBuf[header.len], userInfo->len - header.len);
-//	userInfo->len -= header.len;
-//
-//	return true;
-//}
