@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{5C4B8135-A032-4D13-AB25-CB3F0CA272FC}</ProjectGuid>
+    <ProjectGuid>{98D8BEB4-0245-471B-AF3A-CC8280BD5CD7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>CatchMindServer</RootNamespace>
+    <RootNamespace>IOCompletionPortServer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -140,12 +140,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CatchMindServer.cpp" />
     <ClCompile Include="IOCompletionPort.cpp" />
+    <ClCompile Include="IOCompletionPortServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IOCompletionPort.h" />
-    <ClInclude Include="Macro.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

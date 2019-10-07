@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CatchMindServer.cpp">
+    <ClCompile Include="IOCompletionPortServer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="IOCompletionPort.cpp">
@@ -24,9 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IOCompletionPort.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Macro.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

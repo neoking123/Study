@@ -1,19 +1,18 @@
 #include <WinSock2.h>
 #include <windows.h>
 #include <map>
-
+#include "..\..\Common\CatchMindPacket.h"
 using namespace std;
 
-#define SERVERIP "127.0.0.1"
-//#define SERVERIP "10.30.10.204"
-#define SERVERPORT 9000
-#define BUFSIZE 512
+#define	MAX_BUFFER		1024
+#define SERVER_PORT		9000
+#define SERVER_IP		"127.0.0.1"
 #define WM_SOCKET (WM_USER+1)
 
 class SERVER_INFO
 {
 public:
-	char serverBuf[BUFSIZE];
+	char serverBuf[MAX_BUFFER];
 	int len;
 };
 
@@ -28,11 +27,9 @@ HINSTANCE g_hInst;
 HBRUSH hBrush = NULL;
 HWND hChatCtrl = NULL;
 
-char g_szClassName[256] = "ChessClient";
+char g_szClassName[256] = "CatchMindClient";
 SOCKET sock;
 SERVER_INFO* server;
-map<int, Player*> players;
-MOUSE_STATE mouseState = MOUSE_STATE::CLICK_UP;
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
@@ -62,41 +59,35 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 		CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
 	ShowWindow(hWnd, nCmdShow);
 
-	WSADATA wsa;
-	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+	WSADATA wsaData;
+	// 윈속 버전을 2.2로 초기화
+	int nRet = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (nRet != 0) {
 		return -1;
+	}
 
-	sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (sock == INVALID_SOCKET)
-	{
-		//cout << "err on socket" << endl;
+	// TCP 소켓 생성
+	SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (clientSocket == INVALID_SOCKET) {
 		err_quit("err on socket");
 		return -1;
 	}
 
-	SOCKADDR_IN serveraddr;
-	ZeroMemory(&serveraddr, sizeof(serveraddr));
-	serveraddr.sin_family = AF_INET;
-	serveraddr.sin_port = htons(SERVERPORT);
-	serveraddr.sin_addr.s_addr = inet_addr(SERVERIP);
-	int retval = connect(sock, (sockaddr*)&serveraddr, sizeof(serveraddr));
-	if (retval == SOCKET_ERROR)
-	{
-		//cout << "err on connect" << endl;
+	// 접속할 서버 정보를 저장할 구조체
+	SOCKADDR_IN stServerAddr;
+	char	szOutMsg[MAX_BUFFER];
+	char	sz_socketbuf_[MAX_BUFFER];
+	stServerAddr.sin_family = AF_INET;
+	// 접속할 서버 포트 및 IP
+	stServerAddr.sin_port = htons(SERVER_PORT);
+	stServerAddr.sin_addr.s_addr = inet_addr(SERVER_IP);
+
+	nRet = connect(clientSocket, (sockaddr*)&stServerAddr, sizeof(sockaddr));
+	if (nRet == SOCKET_ERROR) {
 		err_quit("err on connect");
 		return -1;
 	}
-
-	retval = WSAAsyncSelect(sock, hWnd, WM_SOCKET, FD_READ | FD_CLOSE);
-	if (retval == SOCKET_ERROR)
-	{
-		err_quit("WSAAsyncSelect()");
-		return -1;
-	}
-
-	server = new SERVER_INFO();
-	server->len = 0;
-	ChessGame::GetInstance()->Init(hWnd, sock, g_hInst);
+	//ChessGame::GetInstance()->Init(hWnd, sock, g_hInst);
 
 	while (true)
 	{
@@ -111,12 +102,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 		}
 		else
 		{
-			ChessGame::GetInstance()->Update();
+			//ChessGame::GetInstance()->Update();
 		}
 	}
 
-	ChessGame::GetInstance()->Release();
-	SAFE_DELETE(server);
+	//ChessGame::GetInstance()->Release();
+	//SAFE_DELETE(server);
 	closesocket(sock);
 	WSACleanup();
 
@@ -131,21 +122,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	switch (iMessage)
 	{
 	case WM_CREATE:
-		ChattingManager::GetInstance()->Init(hWnd, g_hInst);
-		SetFocus(ChattingManager::GetInstance()->hChat);
+		//ChattingManager::GetInstance()->Init(hWnd, g_hInst);
+		//SetFocus(ChattingManager::GetInstance()->hChat);
 		return 0;
 
 	case WM_LBUTTONDOWN:
-		if (mouseState == MOUSE_STATE::CLICK_DOWN)
-			return 0;
-
-		mouseState = MOUSE_STATE::CLICK_DOWN;
-		ChessGame::GetInstance()->MouseInput(LOWORD(lParam), HIWORD(lParam), MOUSE_STATE::CLICK_DOWN);
+		//ChessGame::GetInstance()->MouseInput(LOWORD(lParam), HIWORD(lParam), MOUSE_STATE::CLICK_DOWN);
 		return 0;
 
 	case WM_LBUTTONUP:
-		mouseState = MOUSE_STATE::CLICK_UP;
-		ChessGame::GetInstance()->MouseInput(LOWORD(lParam), HIWORD(lParam), MOUSE_STATE::CLICK_UP);
+		//ChessGame::GetInstance()->MouseInput(LOWORD(lParam), HIWORD(lParam), MOUSE_STATE::CLICK_UP);
 		return 0;
 
 	case WM_GETMINMAXINFO:
@@ -161,22 +147,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_CTLCOLOREDIT:
-		if ((HWND)lParam == ChattingManager::GetInstance()->hChat || (HWND)lParam == ChattingManager::GetInstance()->hChatList)
+		/*if ((HWND)lParam == ChattingManager::GetInstance()->hChat || (HWND)lParam == ChattingManager::GetInstance()->hChatList)
 		{
 			if (hBrush) { DeleteObject(hBrush); hBrush = NULL; }
 			hBrush = CreateSolidBrush(RGB(0, 91, 184));
 			SetBkColor((HDC)wParam, RGB(0, 91, 184));
 			SetTextColor((HDC)wParam, RGB(255, 255, 255));
 			return (LRESULT)hBrush;
-		}
+		}*/
 
 	case WM_DESTROY:
 		DeleteObject(hBrush);
-		for (auto iter = players.begin(); iter != players.end(); iter++)
+		/*for (auto iter = players.begin(); iter != players.end(); iter++)
 		{
 			SAFE_DELETE(iter->second);
 		}
-		players.clear();
+		players.clear();*/
 		PostQuitMessage(0);
 		return 0;
 	}
@@ -199,9 +185,9 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 	case FD_READ:
 	{
-		char buf[BUFSIZE];
+		char buf[MAX_BUFFER];
 
-		retval = recv(wParam, buf, BUFSIZE, 0);
+		retval = recv(wParam, buf, MAX_BUFFER, 0);
 		if (retval == SOCKET_ERROR)
 		{
 			if (WSAGetLastError() != WSAEWOULDBLOCK)
@@ -254,7 +240,7 @@ bool ProcessPacket(char* buf, int& len)
 	{
 		PACKET_LOGIN packet;
 		memcpy(&packet, buf, header.len);
-		ChessGame::GetInstance()->playerIndex = packet.loginIndex;
+		//ChessGame::GetInstance()->playerIndex = packet.loginIndex;
 	}
 	break;
 
@@ -262,23 +248,6 @@ bool ProcessPacket(char* buf, int& len)
 	{
 		PACKET_USER_DATA packet;
 		memcpy(&packet, buf, header.len);
-
-		for (auto iter = players.begin(); iter != players.end(); iter++)
-		{
-			SAFE_DELETE(iter->second);
-		}
-		players.clear();
-
-		if (packet.userCount <= 0)
-			break;
-
-		for (int i = 0; i < packet.userCount; i++)
-		{
-			Player* player = new Player();
-			player->name = packet.userData->userName;
-			players.insert(make_pair(packet.userData[i].userIndex, player));
-		}
-
 	}
 	break;
 
@@ -286,28 +255,6 @@ bool ProcessPacket(char* buf, int& len)
 	{
 		PACKET_LOBBY_DATA packet;
 		memcpy(&packet, buf, header.len);
-
-		LobbyManager::GetInstance()->roomNum = packet.lobyData.roomNum;
-		LobbyManager::GetInstance()->maxRoomNum = packet.lobyData.maxRoomNum;
-
-		LobbyManager::GetInstance()->ClearRooms();
-
-		if (LobbyManager::GetInstance()->roomNum <= 0)
-			break;
-		LobbyManager::GetInstance()->roomCount = 0;
-
-		for (int i = 0; i < LobbyManager::GetInstance()->roomNum; i++)
-		{
-			LobbyManager::GetInstance()->CreateRoom(packet.lobyData.roomsData[i].roomName, packet.lobyData.roomsData[i].inPlayerNum);
-		}
-
-		for (int i = 0; i < LobbyManager::GetInstance()->roomNum; i++)
-		{
-			LobbyManager::GetInstance()->SetInPlayer(i, packet.lobyData.roomsData[i].inPlayer[0], packet.lobyData.roomsData[i].inPlayer[1]);
-			LobbyManager::GetInstance()->SetIsStart(i, packet.lobyData.roomsData[i].isStart);
-			LobbyManager::GetInstance()->SetCanStart(i, packet.lobyData.roomsData[i].canStart);
-		}
-
 	}
 	break;
 
@@ -315,11 +262,6 @@ bool ProcessPacket(char* buf, int& len)
 	{
 		PACKET_MOVE_TO packet;
 		memcpy(&packet, buf, header.len);
-
-		ChessGame::GetInstance()->curTurn = packet.turn;
-		ChessBoard::GetInstance()->checkState = packet.check;
-		ChessBoard::GetInstance()->checkmate = packet.checkmate;
-		ChessBoard::GetInstance()->MoveTo(packet.moveDate.curPos, packet.moveDate.targetPos);
 	}
 	break;
 
@@ -327,8 +269,6 @@ bool ProcessPacket(char* buf, int& len)
 	{
 		PACKET_CHAT packet;
 		memcpy(&packet, buf, header.len);
-
-		ChattingManager::GetInstance()->PrintChat(packet.playerIndex, packet.chat);
 	}
 	break;
 
