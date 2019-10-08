@@ -140,7 +140,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Common\NetworkManager.cpp" />
+    <ClCompile Include="BitMap.cpp" />
+    <ClCompile Include="BitMapManager.cpp" />
+    <ClCompile Include="ButtonComponent.cpp" />
+    <ClCompile Include="CatchMind.cpp" />
     <ClCompile Include="CatchMindClient.cpp" />
+    <ClCompile Include="ChattingManager.cpp" />
+    <ClCompile Include="IOCompletionPort.cpp" />
+    <ClCompile Include="LobbyManager.cpp" />
+    <ClCompile Include="Room.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BitMap.h" />
+    <ClInclude Include="BitMapManager.h" />
+    <ClInclude Include="ButtonComponent.h" />
+    <ClInclude Include="CatchMind.h" />
+    <ClInclude Include="ChattingManager.h" />
+    <ClInclude Include="IOCompletionPort.h" />
+    <ClInclude Include="LobbyManager.h" />
+    <ClInclude Include="Room.h" />
+    <ClInclude Include="TransformComponent.h" />
+    <ClInclude Include="UIObject.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

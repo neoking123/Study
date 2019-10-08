@@ -1,7 +1,7 @@
 #pragma once
 #include <map>
 #include "Macro.h"
-#include "..\..\Common\CatchMindPacket.h"
+#include "CatchMindPacket.h"
 using namespace std;
 
 class USER_INFO
@@ -18,16 +18,26 @@ class NetworkManager
 private:
 	static NetworkManager* instance;
 	map<SOCKET, USER_INFO*> connectedUsers;
+	SOCKET clientSocket;
 	int userIndex;
 
 	NetworkManager();
-	bool ProcessPacket(PACKET_INFO* packet, char * buf, DWORD & len);
+	bool ProcessClientPacket(PACKET_INFO* packet, char * buf, int & len);
+	bool ProcessServerPacket(PACKET_INFO* packet, char * buf, int & len);
 
 public:
 	~NetworkManager();
 	void Init();
-	void ProcessReceive(PACKET_INFO* packet, char * buf, DWORD & len);
+	void Release();
+	void SetClientSocket(SOCKET clientSocket);
+	void ProcessClientReceive(PACKET_INFO* packet, char * buf, int & len);
+	void ProcessServerReceive(PACKET_INFO* packet, char * buf, int & len);
 	void AddUser(SOCKET clientSocket);
+	void SendCreateRoom(string roomName, int playerIndex);
+	void SendEnterRoom(int roomNum, int playerIndex);
+	void SendRoomState(int roomNum, bool isStart = false, bool canStart = false);
+	void SendBackToLobby(int playerIndex, int roomNum);
+	void SendLogin(SOCKET clientSocket);
 	PACKET_INFO* GetUserPacket(SOCKET clientSocket);
 
 	static NetworkManager* GetInstance()

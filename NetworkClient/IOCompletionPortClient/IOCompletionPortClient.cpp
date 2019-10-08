@@ -43,6 +43,7 @@ int main()
 	char	szOutMsg[MAX_BUFFER];
 	char	sz_socketbuf_[MAX_BUFFER];
 	stServerAddr.sin_family = AF_INET;
+
 	// 접속할 서버 포트 및 IP
 	stServerAddr.sin_port = htons(SERVER_PORT);
 	stServerAddr.sin_addr.s_addr = inet_addr(SERVER_IP);

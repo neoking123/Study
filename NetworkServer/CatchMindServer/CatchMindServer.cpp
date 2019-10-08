@@ -1,5 +1,5 @@
 #include "IOCompletionPort.h"
-#include "NetworkManager.h"
+#include "..\..\Common\NetworkManager.h"
 
 int main()
 {

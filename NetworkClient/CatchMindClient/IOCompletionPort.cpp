@@ -1,5 +1,5 @@
 #include "IOCompletionPort.h"
-#include "..\..\Common\NetworkManager.h"
+#include "CatchMind.h"
 #include <process.h>
 
 IOCompletionPort* IOCompletionPort::instance = nullptr;
@@ -30,6 +30,11 @@ IOCompletionPort::~IOCompletionPort()
 	{
 		SAFE_DELETE_ARRAY(workerHandle);
 	}
+
+	if (packet)
+	{
+		SAFE_DELETE(packet);
+	}
 }
 
 bool IOCompletionPort::Init()
@@ -39,6 +44,8 @@ bool IOCompletionPort::Init()
 
 	WSADATA wsaData;
 	int nResult;
+	packet = new PACKET_INFO();
+	packet->len = 0;
 
 	// winsock 2.2 버전으로 초기화
 	nResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -50,53 +57,37 @@ bool IOCompletionPort::Init()
 	}
 
 	// 소켓 생성
-	listenSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-	if (listenSocket == INVALID_SOCKET)
-	{
+	clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (clientSocket == INVALID_SOCKET) {
 		printf_s("[ERROR] 소켓 생성 실패\n");
 		return false;
 	}
 
-	// 서버 정보 설정
+	// 접속할 서버 정보를 저장할 구조체
 	SOCKADDR_IN serverAddr;
-	serverAddr.sin_family = PF_INET;
+	char	szOutMsg[MAX_BUFFER];
+	char	sz_socketbuf_[MAX_BUFFER];
+	serverAddr.sin_family = AF_INET;
+
+	// 접속할 서버 포트 및 IP
 	serverAddr.sin_port = htons(SERVER_PORT);
-	serverAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
+	serverAddr.sin_addr.s_addr = inet_addr(SERVER_IP);
 
-	// 소켓 설정
-	nResult = bind(listenSocket, (struct sockaddr*)&serverAddr, sizeof(SOCKADDR_IN));
-	if (nResult == SOCKET_ERROR)
-	{
-		printf_s("[ERROR] bind 실패\n");
-		closesocket(listenSocket);
-		WSACleanup();
-		return false;
-	}
+	// 접속할 서버 포트 및 IP
+	serverAddr.sin_port = htons(SERVER_PORT);
+	serverAddr.sin_addr.s_addr = inet_addr(SERVER_IP);
 
-	// 수신 대기열 생성
-	nResult = listen(listenSocket, SOMAXCONN);
-	if (nResult == SOCKET_ERROR)
-	{
-		printf_s("[ERROR] listen 실패\n");
-		closesocket(listenSocket);
-		WSACleanup();
-		return false;
+	nResult = connect(clientSocket, (sockaddr*)&serverAddr, sizeof(sockaddr));
+	if (nResult == SOCKET_ERROR) {
+		printf_s("[ERROR] connect 실패\n");
+		return -1;
 	}
 
 	return true;
 }
 
-void IOCompletionPort::StartServer()
+void IOCompletionPort::StartClient()
 {
-	int nResult;
-
-	// 클라이언트 정보
-	SOCKADDR_IN clientAddr;
-	int addrLen = sizeof(SOCKADDR_IN);
-	SOCKET clientSocket;
-	DWORD recvBytes;
-	DWORD flags;
-
 	// Completion Port 객체 생성
 	hIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 
@@ -104,67 +95,25 @@ void IOCompletionPort::StartServer()
 	if (!CreateWorkerThread()) 
 		return;
 
-	printf_s("[INFO] CatchMind 서버 시작...\n");
+	printf_s("[INFO] CatchMind 클라 시작...\n");
 
-	// 클라이언트 접속을 받음
-	while (bAccept)
-	{
-		clientSocket = WSAAccept(
-			listenSocket, (struct sockaddr *)&clientAddr, &addrLen, NULL, NULL
-		);
+	socketInfo = new SOCKET_INFO();
+	socketInfo->socket = clientSocket;
+	socketInfo->recvBytes = 0;
+	socketInfo->sendBytes = 0;
+	socketInfo->dataBuf.len = MAX_BUFFER;
+	socketInfo->dataBuf.buf = socketInfo->messageBuffer;
 
-		if (clientSocket == INVALID_SOCKET)
-		{
-			printf_s("[ERROR] Accept 실패\n");
-			return;
-		}
-
-		NetworkManager::GetInstance()->AddUser(clientSocket);
-		NetworkManager::GetInstance()->SendLogin(clientSocket);
-		printf("\n[INFO] 클라이언트 접속: IP 주소=%s, 포트번호=%d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
-
-		socketInfo = new SOCKET_INFO();
-		socketInfo->socket = clientSocket;
-		socketInfo->recvBytes = 0;
-		socketInfo->sendBytes = 0;
-		socketInfo->dataBuf.len = MAX_BUFFER;
-		socketInfo->dataBuf.buf = socketInfo->messageBuffer;
-		flags = 0;
-
-		hIOCP = CreateIoCompletionPort(
-			(HANDLE)clientSocket, hIOCP, (DWORD)socketInfo, 0
-		);
-
-		// 중첩 소켓을 지정하고 완료시 실행될 함수를 넘겨줌
-		nResult = WSARecv(
-			socketInfo->socket,
-			&socketInfo->dataBuf,
-			1,
-			&recvBytes,
-			&flags,
-			&(socketInfo->overlapped),
-			NULL
-		);
-
-		if (nResult == SOCKET_ERROR && WSAGetLastError() != WSA_IO_PENDING)
-		{
-			printf_s("[ERROR] IO Pending 실패 : %d", WSAGetLastError());
-			return;
-		}
-	}
+	hIOCP = CreateIoCompletionPort(
+		(HANDLE)clientSocket, hIOCP, (DWORD)socketInfo, 0);
 }
 
 bool IOCompletionPort::CreateWorkerThread()
 {
 	unsigned int threadId;
 
-	// 시스템 정보 가져옴
-	SYSTEM_INFO sysInfo;
-	GetSystemInfo(&sysInfo);
-	printf_s("[INFO] CPU 갯수 : %d\n", sysInfo.dwNumberOfProcessors);
-
-	// 적절한 작업 스레드의 갯수는 (CPU * 2) + 1
-	int nThreadCnt = sysInfo.dwNumberOfProcessors * 2;
+	// 클라 스레드 갯수
+	int nThreadCnt = 1;
 
 	// thread handler 선언
 	workerHandle = new HANDLE[nThreadCnt];
@@ -181,6 +130,7 @@ bool IOCompletionPort::CreateWorkerThread()
 		}
 		ResumeThread(workerHandle[i]);
 	}
+
 	printf_s("[INFO] Worker Thread 시작...\n");
 	return true;
 }
@@ -238,8 +188,7 @@ void IOCompletionPort::WorkerThread()
 			int len = recvBytes;
 
 			// 패킷 처리
-			PACKET_INFO* packet = NetworkManager::GetInstance()->GetUserPacket(socketInfo->socket);
-			NetworkManager::GetInstance()->ProcessServerReceive(packet, socketInfo->dataBuf.buf, len);
+			ProcessClientReceive(packet, socketInfo->dataBuf.buf, len);
 
 			// SOCKET_INFO 데이터 초기화
 			ZeroMemory(&(socketInfo->overlapped), sizeof(OVERLAPPED));
@@ -251,21 +200,90 @@ void IOCompletionPort::WorkerThread()
 
 			dwFlags = 0;
 
-			// 클라이언트로부터 다시 응답을 받기 위해 WSARecv 를 호출해줌
-			nResult = WSARecv(
-				socketInfo->socket,
-				&(socketInfo->dataBuf),
-				1,
-				&recvBytes,
-				&dwFlags,
-				(LPWSAOVERLAPPED)&(socketInfo->overlapped),
-				NULL
-			);
-
 			if (nResult == SOCKET_ERROR && WSAGetLastError() != WSA_IO_PENDING)
 			{
 				printf_s("[ERROR] WSARecv 실패 : ", WSAGetLastError());
 			}
 		}
 	}
+}
+
+void IOCompletionPort::ProcessClientReceive(PACKET_INFO * packet, char * buf, int & len)
+{
+	// 바이트 스트림 처리
+	while (true)
+	{
+		if (!ProcessClientPacket(packet, buf, len))
+		{
+			Sleep(100);
+			break;
+		}
+		else
+		{
+			if (packet->len < sizeof(PACKET_HEADER))
+				break;
+		}
+	}
+}
+
+bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packet, char * buf, int & len)
+{
+	if (len > 0)
+	{
+		memcpy(&packet->buf[packet->len], buf, len);
+		packet->len += len;
+		len = 0;
+	}
+
+	if (packet->len < sizeof(PACKET_HEADER))
+		return false;
+
+	PACKET_HEADER header;
+	memcpy(&header, packet->buf, sizeof(header));
+
+	switch (header.type)
+	{
+	case PACKET_TYPE::PACKET_TYPE_LOGIN:
+	{
+		PACKET_LOGIN packet;
+		memcpy(&packet, buf, header.len);
+
+		CatchMind::GetInstance()->playerIndex = packet.loginIndex;
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_USER_DATA:
+	{
+		PACKET_USER_DATA packet;
+		memcpy(&packet, buf, header.len);
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_LOBBY_DATA:
+	{
+		PACKET_LOBBY_DATA packet;
+		memcpy(&packet, buf, header.len);
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_MOVE_TO:
+	{
+		PACKET_MOVE_TO packet;
+		memcpy(&packet, buf, header.len);
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_CHAT:
+	{
+		PACKET_CHAT packet;
+		memcpy(&packet, buf, header.len);
+	}
+	break;
+
+	}
+
+	memcpy(&packet->buf, &packet->buf[header.len], packet->len - header.len);
+	packet->len -= header.len;
+
+	return true;
 }
