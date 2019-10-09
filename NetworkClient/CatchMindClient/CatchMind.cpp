@@ -10,6 +10,11 @@ CatchMind::CatchMind()
 {
 }
 
+void CatchMind::DrawInRoom(HDC gameDC)
+{
+
+}
+
 bool CatchMind::CheckIsClickedStateButton(int x, int y)
 {
 	if (x > START_BUTTON_POSITION_X && x < START_BUTTON_POSITION_X + BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BUTTON_START)->GetSize().cx
@@ -141,7 +146,7 @@ void CatchMind::Render()
 		break;
 
 	case SCENE_STATE::READY_SCENE:
-		//DrawInRoom(gameDC);
+		DrawInRoom(gameDC);
 		break;
 
 	case SCENE_STATE::START_SCENE:

@@ -3,6 +3,8 @@
 #pragma pack(1)
 
 #define	MAX_BUFFER		1024
+#define MAX_ROOM_NUM 10
+#define MAX_ROOM_IN_NUM 8
 
 enum PACKET_TYPE
 {
@@ -44,7 +46,7 @@ struct ROOM_DATA
 {
 	int inPlayerNum;
 	char roomName[32];
-	int inPlayer[2];
+	int inPlayer[MAX_ROOM_IN_NUM];
 	bool isStart;
 	bool canStart;
 };
@@ -53,7 +55,7 @@ struct LOBY_DATA
 {
 	int roomNum;
 	int maxRoomNum;
-	ROOM_DATA roomsData[20];
+	ROOM_DATA roomsData[MAX_ROOM_NUM];
 };
 
 struct MOVE_DATA

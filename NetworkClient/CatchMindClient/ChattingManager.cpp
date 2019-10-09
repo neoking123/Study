@@ -1,7 +1,8 @@
 #include "ChattingManager.h"
 #include "BitMapManager.h"
 #include "LobbyManager.h"
-#include "..\..\Common\ChessPacket.h"
+#include "CatchMind.h"
+#include "..\..\Common\NetworkManager.h"
 
 ChattingManager* ChattingManager::instance = nullptr;
 
@@ -36,7 +37,10 @@ void ChattingManager::Input()
 {
 	if ((GetAsyncKeyState(VK_RETURN) & 0x0001))
 	{
-		SendChat();
+		//SendChat();
+		int playerIndex = CatchMind::GetInstance()->playerIndex;
+		int roomNum = LobbyManager::GetInstance()->GetRoomNum(playerIndex);
+		NetworkManager::GetInstance()->SendChat(playerIndex, roomNum, chat);
 
 		SetWindowText(hChat, "");
 		GetWindowText(hChat, chat, 128);

@@ -1,7 +1,5 @@
 #pragma once
-#include <Windows.h>
 #include <map>
-#include <string>
 #include "Room.h"
 using namespace std;
 
@@ -38,7 +36,7 @@ public:
 	void CheckIsClickedRoom(int x, int y);
 	void ClearRooms();
 	void CreateRoom(string roomName, int inPlayerNum = 0);
-	void SetInPlayer(int roomNum, int inPlayer0, int inPlayer1);
+	void SetInPlayer(int roomNum, int* inPlayer);
 	void SetIsStart(int roomNum, bool isStart);
 	int GetRoomNum(int playerIndex);
 	bool CheckIsRoomMaster(int playerIndex);

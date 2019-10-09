@@ -9,6 +9,7 @@ using namespace std;
 #define ROOM_HEIGHT 85
 #define ROOM_MARGINE_WIDTH 24
 #define ROOM_MARGINE_HEIGHT 64
+#define MAX_ROOM_IN_NUM 8
 
 enum ROOM_STATE
 {
@@ -39,7 +40,7 @@ private:
 public:
 	int roomNum;
 	int inPlayerNum;
-	int inPlayer[2] = { -1, -1 };
+	int inPlayer[MAX_ROOM_IN_NUM] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 	int MaxInPlayerNum;
 	bool isStart;
 	bool canStart;

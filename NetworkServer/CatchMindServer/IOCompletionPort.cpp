@@ -1,5 +1,4 @@
 #include "IOCompletionPort.h"
-#include "..\..\Common\NetworkManager.h"
 #include <process.h>
 
 IOCompletionPort* IOCompletionPort::instance = nullptr;
@@ -121,6 +120,8 @@ void IOCompletionPort::StartServer()
 
 		NetworkManager::GetInstance()->AddUser(clientSocket);
 		NetworkManager::GetInstance()->SendLogin(clientSocket);
+		NetworkManager::GetInstance()->BroadCastLobbyData();
+
 		printf("\n[INFO] 클라이언트 접속: IP 주소=%s, 포트번호=%d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
 
 		socketInfo = new SOCKET_INFO();
@@ -239,7 +240,7 @@ void IOCompletionPort::WorkerThread()
 
 			// 패킷 처리
 			PACKET_INFO* packet = NetworkManager::GetInstance()->GetUserPacket(socketInfo->socket);
-			NetworkManager::GetInstance()->ProcessServerReceive(packet, socketInfo->dataBuf.buf, len);
+			ProcessServerReceive(packet, socketInfo->dataBuf.buf, len);
 
 			// SOCKET_INFO 데이터 초기화
 			ZeroMemory(&(socketInfo->overlapped), sizeof(OVERLAPPED));
@@ -268,4 +269,96 @@ void IOCompletionPort::WorkerThread()
 			}
 		}
 	}
+}
+
+void IOCompletionPort::ProcessServerReceive(PACKET_INFO * packet, char * buf, int & len)
+{
+	// 바이트 스트림 처리
+	while (true)
+	{
+		if (!ProcessServerPacket(packet, buf, len))
+		{
+			Sleep(100);
+			break;
+		}
+		else
+		{
+			if (packet->len < sizeof(PACKET_HEADER))
+				break;
+		}
+	}
+}
+
+bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int & len)
+{
+	if (len > 0)
+	{
+		memcpy(&packet->buf[packet->len], buf, len);
+		packet->len += len;
+		len = 0;
+	}
+
+	if (packet->len < sizeof(PACKET_HEADER))
+		return false;
+
+	PACKET_HEADER header;
+	memcpy(&header, packet->buf, sizeof(header));
+
+	switch (header.type)
+	{
+	case PACKET_TYPE::PACKET_TYPE_LOGIN:
+	{
+		PACKET_LOGIN packet;
+		memcpy(&packet, buf, header.len);
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_USER_DATA:
+	{
+		PACKET_USER_DATA packet;
+		memcpy(&packet, buf, header.len);
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_LOBBY_DATA:
+	{
+		PACKET_LOBBY_DATA packet;
+		memcpy(&packet, buf, header.len);
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_CREATE_ROOM:
+	{
+		PACKET_CREATE_ROOM packet;
+		memcpy(&packet, buf, header.len);
+
+		if (NetworkManager::GetInstance()->CreateRoom(packet))
+		{
+			NetworkManager::GetInstance()->BroadCastLobbyData();
+		}
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_MOVE_TO:
+	{
+		PACKET_MOVE_TO packet;
+		memcpy(&packet, buf, header.len);
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_CHAT:
+	{
+		PACKET_CHAT packet;
+		memcpy(&packet, buf, header.len);
+
+		NetworkManager::GetInstance()->SendChatToRoom(packet);
+	}
+	break;
+
+	}
+
+	memcpy(&packet->buf, &packet->buf[header.len], packet->len - header.len);
+	packet->len -= header.len;
+
+	return true;
 }

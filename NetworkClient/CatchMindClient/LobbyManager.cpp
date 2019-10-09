@@ -1,9 +1,7 @@
 #include <sstream>
+#include "..\..\Common\NetworkManager.h"
 #include "LobbyManager.h"
 #include "BitMapManager.h"
-#include "..\..\Common\Macro.h"
-#include "..\..\Common\CatchMindPacket.h"
-#include "..\..\Common\NetworkManager.h"
 #include "ChattingManager.h"
 #include "CatchMind.h"
 
@@ -87,10 +85,12 @@ void LobbyManager::UpdateRooms()
 	}
 }
 
-void LobbyManager::SetInPlayer(int roomNum, int inPlayer0, int inPlayer1)
+void LobbyManager::SetInPlayer(int roomNum, int* inPlayer)
 {
-	rooms[roomNum]->inPlayer[0] = inPlayer0;
-	rooms[roomNum]->inPlayer[1] = inPlayer1;
+	for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
+	{
+		rooms[roomNum]->inPlayer[i] = inPlayer[i];
+	}
 }
 
 void LobbyManager::SetIsStart(int roomNum, bool isStart)

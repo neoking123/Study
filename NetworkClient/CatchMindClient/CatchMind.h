@@ -45,6 +45,7 @@ private:
 	SCENE_STATE sceneState;
 
 	CatchMind();
+	void DrawInRoom(HDC gameDC);
 	bool CheckIsClickedStateButton(int x, int y);
 	void CheckIsClickedBackButton(int x, int y);
 

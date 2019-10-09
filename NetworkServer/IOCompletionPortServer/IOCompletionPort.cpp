@@ -14,7 +14,6 @@ IOCompletionPort::IOCompletionPort()
 	bAccept = true;
 }
 
-
 IOCompletionPort::~IOCompletionPort()
 {
 	// winsock 의 사용을 끝낸다

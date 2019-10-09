@@ -1,5 +1,7 @@
 #include "IOCompletionPort.h"
 #include "CatchMind.h"
+#include "ChattingManager.h"
+#include "LobbyManager.h"
 #include <process.h>
 
 IOCompletionPort* IOCompletionPort::instance = nullptr;
@@ -56,8 +58,16 @@ bool IOCompletionPort::Init()
 		return false;
 	}
 
+	// Completion Port 객체 생성
+	hIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
+
+	// Worker Thread 생성
+	if (!CreateWorkerThread())
+		return false;
+
 	// 소켓 생성
-	clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	//clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	clientSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
 	if (clientSocket == INVALID_SOCKET) {
 		printf_s("[ERROR] 소켓 생성 실패\n");
 		return false;
@@ -65,22 +75,20 @@ bool IOCompletionPort::Init()
 
 	// 접속할 서버 정보를 저장할 구조체
 	SOCKADDR_IN serverAddr;
-	char	szOutMsg[MAX_BUFFER];
-	char	sz_socketbuf_[MAX_BUFFER];
 	serverAddr.sin_family = AF_INET;
 
 	// 접속할 서버 포트 및 IP
 	serverAddr.sin_port = htons(SERVER_PORT);
 	serverAddr.sin_addr.s_addr = inet_addr(SERVER_IP);
 
-	// 접속할 서버 포트 및 IP
-	serverAddr.sin_port = htons(SERVER_PORT);
-	serverAddr.sin_addr.s_addr = inet_addr(SERVER_IP);
+	// IOCP와 소켓 연결
+	CreateIoCompletionPort((HANDLE)clientSocket, hIOCP, 0, 0);
 
-	nResult = connect(clientSocket, (sockaddr*)&serverAddr, sizeof(sockaddr));
+	//nResult = connect(clientSocket, (sockaddr*)&serverAddr, sizeof(sockaddr));
+	nResult = WSAConnect(clientSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr), NULL, NULL, NULL, NULL);
 	if (nResult == SOCKET_ERROR) {
 		printf_s("[ERROR] connect 실패\n");
-		return -1;
+		return false;
 	}
 
 	return true;
@@ -88,31 +96,50 @@ bool IOCompletionPort::Init()
 
 void IOCompletionPort::StartClient()
 {
-	// Completion Port 객체 생성
-	hIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
+	int nResult;
+	DWORD recvBytes;
+	DWORD flags;
 
-	// Worker Thread 생성
-	if (!CreateWorkerThread()) 
-		return;
+	//// Completion Port 객체 생성
+	//hIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
+
+	//// Worker Thread 생성
+	//if (!CreateWorkerThread()) 
+	//	return;
 
 	printf_s("[INFO] CatchMind 클라 시작...\n");
 
-	socketInfo = new SOCKET_INFO();
-	socketInfo->socket = clientSocket;
-	socketInfo->recvBytes = 0;
-	socketInfo->sendBytes = 0;
-	socketInfo->dataBuf.len = MAX_BUFFER;
-	socketInfo->dataBuf.buf = socketInfo->messageBuffer;
+	//hIOCP = CreateIoCompletionPort((HANDLE)clientSocket, hIOCP, 0, 0);
 
-	hIOCP = CreateIoCompletionPort(
-		(HANDLE)clientSocket, hIOCP, (DWORD)socketInfo, 0);
+	socketInfo = new SOCKET_INFO();
+	ZeroMemory(socketInfo, sizeof(SOCKET_INFO));
+	socketInfo->socket = clientSocket;
+	socketInfo->overlapped.hEvent = WSACreateEvent();
+	socketInfo->dataBuf.buf = socketInfo->messageBuffer;
+	socketInfo->dataBuf.len = sizeof(socketInfo->messageBuffer);
+
+	DWORD dwNumRecv;
+	if (WSARecv(clientSocket, &socketInfo->dataBuf, 1, &dwNumRecv, (LPDWORD)&socketInfo->recvBytes, &socketInfo->overlapped, NULL) == SOCKET_ERROR)
+	{
+		if (WSAGetLastError() != WSA_IO_PENDING)
+		{
+			delete packet;
+			return;
+		}
+	}
 }
 
 bool IOCompletionPort::CreateWorkerThread()
 {
 	unsigned int threadId;
 
+	// 시스템 정보 가져옴
+	SYSTEM_INFO sysInfo;
+	GetSystemInfo(&sysInfo);
+	printf_s("[INFO] CPU 갯수 : %d\n", sysInfo.dwNumberOfProcessors);
+
 	// 클라 스레드 갯수
+	//int nThreadCnt = sysInfo.dwNumberOfProcessors * 2;
 	int nThreadCnt = 1;
 
 	// thread handler 선언
@@ -142,7 +169,7 @@ void IOCompletionPort::WorkerThread()
 	int		nResult;
 
 	// Overlapped I/O 작업에서 전송된 데이터 크기
-	DWORD	recvBytes;
+	DWORD	recvBytes = 0;
 	DWORD	sendBytes;
 
 	// Completion Key를 받을 포인터 변수
@@ -150,8 +177,8 @@ void IOCompletionPort::WorkerThread()
 
 	// I/O 작업을 위해 요청한 Overlapped 구조체를 받을 포인터	
 	SOCKET_INFO *	socketInfo;
-	
-	DWORD	dwFlags = 0;
+
+	//send(clientSocket, (const char*)&packet, sizeof(packet), 0);
 
 	while (bWorkerThread)
 	{
@@ -198,11 +225,13 @@ void IOCompletionPort::WorkerThread()
 			socketInfo->recvBytes = 0;
 			socketInfo->sendBytes = 0;
 
-			dwFlags = 0;
-
-			if (nResult == SOCKET_ERROR && WSAGetLastError() != WSA_IO_PENDING)
+			if (WSARecv(clientSocket, &socketInfo->dataBuf, 1, &recvBytes, (LPDWORD)&socketInfo->recvBytes, &socketInfo->overlapped, NULL) == SOCKET_ERROR)
 			{
-				printf_s("[ERROR] WSARecv 실패 : ", WSAGetLastError());
+				if (WSAGetLastError() != WSA_IO_PENDING)
+				{
+					delete packet;
+					return;
+				}
 			}
 		}
 	}
@@ -263,6 +292,27 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packet, char * buf, int
 	{
 		PACKET_LOBBY_DATA packet;
 		memcpy(&packet, buf, header.len);
+
+		LobbyManager::GetInstance()->roomNum = packet.lobyData.roomNum;
+		LobbyManager::GetInstance()->maxRoomNum = packet.lobyData.maxRoomNum;
+
+		LobbyManager::GetInstance()->ClearRooms();
+
+		if (LobbyManager::GetInstance()->roomNum <= 0)
+			break;
+		LobbyManager::GetInstance()->roomCount = 0;
+
+		for (int i = 0; i < LobbyManager::GetInstance()->roomNum; i++)
+		{
+			LobbyManager::GetInstance()->CreateRoom(packet.lobyData.roomsData[i].roomName, packet.lobyData.roomsData[i].inPlayerNum);
+		}
+
+		for (int i = 0; i < LobbyManager::GetInstance()->roomNum; i++)
+		{
+			LobbyManager::GetInstance()->SetInPlayer(i, packet.lobyData.roomsData[i].inPlayer);
+			LobbyManager::GetInstance()->SetIsStart(i, packet.lobyData.roomsData[i].isStart);
+			LobbyManager::GetInstance()->SetCanStart(i, packet.lobyData.roomsData[i].canStart);
+		}
 	}
 	break;
 
@@ -277,6 +327,8 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packet, char * buf, int
 	{
 		PACKET_CHAT packet;
 		memcpy(&packet, buf, header.len);
+
+		ChattingManager::GetInstance()->PrintChat(packet.playerIndex, packet.chat);
 	}
 	break;
 

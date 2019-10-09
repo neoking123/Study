@@ -1,8 +1,3 @@
-#include <WinSock2.h>
-#include <windows.h>
-#include <map>
-#include "..\..\Common\CatchMindPacket.h"
-#include "..\..\Common\NetworkManager.h"
 #include "IOCompletionPort.h"
 #include "ChattingManager.h"
 #include "CatchMind.h"
@@ -48,17 +43,19 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 		CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
 	ShowWindow(hWnd, nCmdShow);
 
+	// 게임 초기화
+	CatchMind::GetInstance()->Init(hWnd, g_hInst);
+
 	// IOCP 설정
 	if (IOCompletionPort::GetInstance()->Init())
 	{
+		// IOCP 시작
 		IOCompletionPort::GetInstance()->StartClient();
 	}
 
 	// 네트워크 초기화
 	NetworkManager::GetInstance()->SetClientSocket(IOCompletionPort::GetInstance()->GetClientSocket());
-	// 게임 초기화
-	CatchMind::GetInstance()->Init(hWnd, g_hInst);
-
+	
 	while (true)
 	{
 		/// 메시지큐에 메시지가 있으면 메시지 처리

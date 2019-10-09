@@ -1,7 +1,5 @@
 #pragma once
 #include <WinSock2.h>
-#include <stdio.h>
-#include "..\..\Common\Macro.h"
 #include "..\..\Common\NetworkManager.h"
 
 #define	MAX_BUFFER		1024
@@ -36,7 +34,7 @@ public:
 	bool CreateWorkerThread();
 	// 작업 스레드
 	void WorkerThread();
-	// 패킷 바이트 스릠 처리
+	// 패킷 바이트 스트림 처리
 	void ProcessClientReceive(PACKET_INFO* packet, char * buf, int & len);
 	// 패킷 처리
 	bool ProcessClientPacket(PACKET_INFO* packet, char * buf, int & len);

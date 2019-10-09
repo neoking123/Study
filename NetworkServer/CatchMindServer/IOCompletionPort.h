@@ -1,7 +1,6 @@
 #pragma once
 #include <WinSock2.h>
-#include <stdio.h>
-#include "..\..\Common\Macro.h"
+#include "..\..\Common\NetworkManager.h"
 
 #define	MAX_BUFFER		1024
 #define SERVER_PORT		9000
@@ -34,6 +33,10 @@ public:
 	bool CreateWorkerThread();
 	// 작업 스레드
 	void WorkerThread();
+	// 패킷 바이트 스트림 처리
+	void ProcessServerReceive(PACKET_INFO* packet, char * buf, int & len);
+	// 패킷 처리
+	bool ProcessServerPacket(PACKET_INFO* packet, char * buf, int & len);
 
 	inline static IOCompletionPort* GetInstance()
 	{
