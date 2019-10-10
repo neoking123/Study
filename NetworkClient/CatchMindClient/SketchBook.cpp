@@ -75,11 +75,15 @@ void SketchBook::MouseInput(int x, int y, int mouseState)
 
 void SketchBook::DrawToSketchBook(int x, int y)
 {
-	BRUSH_INFO* brush = new BRUSH_INFO;
-	brush->pos = { x, y };
-	brush->color = curColor;
-	brush->thickness = curThick;
-	mouseTrack.push_back(brush);
+	if (x < bitmap->GetSize().cx + 350 && x > 360
+		&& y < bitmap->GetSize().cy + 140 && y > 150)
+	{
+		BRUSH_INFO* brush = new BRUSH_INFO;
+		brush->pos = { x, y };
+		brush->color = curColor;
+		brush->thickness = curThick;
+		mouseTrack.push_back(brush);
+	}
 }
 
 void SketchBook::ClickUp(int x, int y)
