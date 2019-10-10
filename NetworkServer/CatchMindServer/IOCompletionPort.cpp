@@ -1,5 +1,6 @@
 #include "IOCompletionPort.h"
 #include <process.h>
+#include <mutex>
 
 IOCompletionPort* IOCompletionPort::instance = nullptr;
 
@@ -63,7 +64,7 @@ bool IOCompletionPort::Init()
 	serverAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
 
 	// 소켓 설정
-	nResult = bind(listenSocket, (struct sockaddr*)&serverAddr, sizeof(SOCKADDR_IN));
+	nResult = ::bind(listenSocket, (struct sockaddr*)&serverAddr, sizeof(SOCKADDR_IN));
 	if (nResult == SOCKET_ERROR)
 	{
 		printf_s("[ERROR] bind 실패\n");
@@ -88,6 +89,9 @@ bool IOCompletionPort::Init()
 void IOCompletionPort::StartServer()
 {
 	int nResult;
+
+	// 뮤텍스
+	mutex mutex;
 
 	// 클라이언트 정보
 	SOCKADDR_IN clientAddr;
@@ -117,8 +121,9 @@ void IOCompletionPort::StartServer()
 			printf_s("[ERROR] Accept 실패\n");
 			return;
 		}
-
+		mutex.lock();
 		NetworkManager::GetInstance()->AddUser(clientSocket);
+		mutex.unlock();
 		NetworkManager::GetInstance()->SendLogin(clientSocket);
 		NetworkManager::GetInstance()->BroadCastLobbyData();
 
@@ -221,6 +226,7 @@ void IOCompletionPort::WorkerThread()
 		if (!bResult && recvBytes == 0)
 		{
 			printf_s("[INFO] socket(%d) 접속 끊김\n", socketInfo->socket);
+
 			closesocket(socketInfo->socket);
 			free(socketInfo);
 			continue;
@@ -339,6 +345,16 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 	}
 	break;
 
+	case PACKET_TYPE::PACKET_TYPE_ENTER_ROOM:
+	{
+		PACKET_ENTER_ROOM packet;
+		memcpy(&packet, buf, header.len);
+
+		NetworkManager::GetInstance()->EnterRoom(packet.roomNum, packet.playerIndex);
+		NetworkManager::GetInstance()->BroadCastLobbyData();
+	}
+	break;
+
 	case PACKET_TYPE::PACKET_TYPE_MOVE_TO:
 	{
 		PACKET_MOVE_TO packet;
@@ -352,6 +368,16 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 		memcpy(&packet, buf, header.len);
 
 		NetworkManager::GetInstance()->SendChatToRoom(packet);
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_BACK_TO_LOBBY:
+	{
+		PACKET_BACK_TO_LOBBY packet;
+		memcpy(&packet, buf, header.len);
+
+		NetworkManager::GetInstance()->BackToLobby(packet.roomNum, packet.playerIndex);
+		NetworkManager::GetInstance()->BroadCastLobbyData();
 	}
 	break;
 

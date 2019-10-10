@@ -116,7 +116,7 @@ void Room::CheckRoomState()
 	{
 		roomState = ROOM_STATE::ROOM_WATING;
 	}
-	else
+	else if(inPlayerNum == MaxInPlayerNum)
 	{
 		roomState = ROOM_STATE::ROOM_FULL;
 	}

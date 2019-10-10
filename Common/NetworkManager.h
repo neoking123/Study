@@ -54,6 +54,9 @@ public:
 	void BroadCastLobbyData();
 	void SendChatToRoom(PACKET_CHAT& packet);
 	bool CreateRoom(PACKET_CREATE_ROOM packet);
+	void EnterRoom(int roomNum, int playerIndex);
+	void BackToLobby(int roomNum, int playerIndex);
+	void EndUser(SOCKET clientSocket);
 	PACKET_INFO* GetUserPacket(SOCKET clientSocket);
 
 	static NetworkManager* GetInstance()

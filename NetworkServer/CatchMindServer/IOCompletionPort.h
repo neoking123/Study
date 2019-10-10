@@ -1,6 +1,7 @@
 #pragma once
 #include <WinSock2.h>
 #include "..\..\Common\NetworkManager.h"
+using namespace std;
 
 #define	MAX_BUFFER		1024
 #define SERVER_PORT		9000

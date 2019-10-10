@@ -88,9 +88,24 @@ void SketchBook::DrawToSketchBook(int x, int y)
 
 void SketchBook::ClickUp(int x, int y)
 {
-	isClicked = false;
-	BRUSH_INFO* brush = new BRUSH_INFO;
-	brush->pos = { x, y };
-	brush->isClickUp = true;
-	mouseTrack.push_back(brush);
+	if (x < bitmap->GetSize().cx + 350 && x > 360
+		&& y < bitmap->GetSize().cy + 140 && y > 150)
+	{
+		isClicked = false;
+		BRUSH_INFO* brush = new BRUSH_INFO;
+		brush->pos = { x, y };
+		brush->isClickUp = true;
+		mouseTrack.push_back(brush);
+	}
+	else
+	{
+		isClicked = false;
+		if (!mouseTrack.empty())
+		{
+			BRUSH_INFO* brush = new BRUSH_INFO;
+			brush->pos = { mouseTrack.back()->pos.x, mouseTrack.back()->pos.y };
+			brush->isClickUp = true;
+			mouseTrack.push_back(brush);
+		}
+	}
 }

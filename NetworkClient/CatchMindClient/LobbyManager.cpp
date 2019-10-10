@@ -19,7 +19,7 @@ void LobbyManager::DrawBackground(HDC hdc)
 void LobbyManager::CreateRoom(string roomName, int inPlayerNum)
 {
 	Room* newRoom = new Room();
-	newRoom->Init(roomCount, roomName, (roomCount % 2) * ROOM_WIDTH + ROOM_MARGINE_WIDTH, (roomCount / 2) * ROOM_HEIGHT + ROOM_MARGINE_HEIGHT, inPlayerNum, 2);
+	newRoom->Init(roomCount, roomName, (roomCount % 2) * ROOM_WIDTH + ROOM_MARGINE_WIDTH, (roomCount / 2) * ROOM_HEIGHT + ROOM_MARGINE_HEIGHT, inPlayerNum, MAX_ROOM_IN_NUM);
 	rooms.insert(make_pair(roomCount++, newRoom));
 }
 
@@ -102,9 +102,12 @@ int LobbyManager::GetRoomNum(int playerIndex)
 {
 	for (auto iter = rooms.begin(); iter != rooms.end(); iter++)
 	{
-		if (iter->second->inPlayer[0] == playerIndex || iter->second->inPlayer[1] == playerIndex)
+		for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
 		{
-			return iter->first;
+			if (iter->second->inPlayer[i] == playerIndex)
+			{
+				return iter->first;
+			}
 		}
 	}
 	return -1;

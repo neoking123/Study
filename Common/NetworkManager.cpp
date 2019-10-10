@@ -59,7 +59,7 @@ void NetworkManager::SendEnterRoom(int roomNum, int playerIndex)
 	packet.header.len = sizeof(packet);
 	packet.playerIndex = playerIndex;
 	packet.roomNum = roomNum;
-	//send(clientSocket, (const char*)&packet, packet.header.len, 0);
+	send(clientSocket, (const char*)&packet, packet.header.len, 0);
 }
 
 void NetworkManager::SendRoomState(int roomNum, bool isStart, bool canStart)
@@ -80,7 +80,7 @@ void NetworkManager::SendBackToLobby(int playerIndex, int roomNum)
 	packet.header.len = sizeof(packet);
 	packet.playerIndex = playerIndex;
 	packet.roomNum = roomNum;
-	//send(clientSocket, (const char*)&packet, packet.header.len, 0);
+	send(clientSocket, (const char*)&packet, packet.header.len, 0);
 }
 
 void NetworkManager::SendLogin(SOCKET clientSocket)
@@ -166,6 +166,62 @@ bool NetworkManager::CreateRoom(PACKET_CREATE_ROOM packet)
 	roomNum++;
 
 	return true;
+}
+
+void NetworkManager::EnterRoom(int roomNum, int playerIndex)
+{
+	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+	{
+		if (iter->second->index == playerIndex)
+		{
+			iter->second->inRoomNum = roomNum;
+		}
+	}
+
+	for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
+	{
+		if (createdRooms[roomNum]->inPlayers[i] == -1)
+		{
+			createdRooms[roomNum]->inPlayers[i] = playerIndex;
+			break;
+		}
+	}
+
+	createdRooms[roomNum]->inPlayerNum++;	
+}
+
+void NetworkManager::BackToLobby(int roomNum, int playerIndex)
+{
+	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+	{
+		if (iter->second->index == playerIndex)
+		{
+			iter->second->inRoomNum = -1;
+		}
+	}
+
+	for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
+	{
+		if (createdRooms[roomNum]->inPlayers[i] == playerIndex)
+		{
+			createdRooms[roomNum]->inPlayers[i] = -1;
+			break;
+		}
+	}
+
+	createdRooms[roomNum]->inPlayerNum--;
+
+	if (createdRooms[roomNum]->inPlayerNum <= 0)
+	{
+		createdRooms.erase(roomNum);
+		this->roomNum--;
+	}
+}
+
+void NetworkManager::EndUser(SOCKET clientSocket)
+{
+	SAFE_DELETE(connectedUsers[clientSocket]);
+	connectedUsers.erase(clientSocket);
 }
 
 PACKET_INFO * NetworkManager::GetUserPacket(SOCKET clientSocket)
