@@ -31,6 +31,9 @@
     <Filter Include="Network">
       <UniqueIdentifier>{97fd469f-ec6f-41e2-85ae-e80487aeaff8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameObject">
+      <UniqueIdentifier>{50bce7dd-fcab-4b77-b81d-63db57d834f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CatchMindClient.cpp">
@@ -62,6 +65,9 @@
     </ClCompile>
     <ClCompile Include="IOCompletionPort.cpp">
       <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="SketchBook.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +103,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Common\NetworkManager.h">
       <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="SketchBook.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

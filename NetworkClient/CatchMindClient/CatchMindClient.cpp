@@ -1,6 +1,7 @@
 #include "IOCompletionPort.h"
 #include "ChattingManager.h"
 #include "CatchMind.h"
+#include "SketchBook.h"
 using namespace std;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -97,6 +98,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 	case WM_LBUTTONUP:
 		CatchMind::GetInstance()->MouseInput(LOWORD(lParam), HIWORD(lParam), MOUSE_STATE::CLICK_UP);
+		SketchBook::GetInstance()->ClickUp(LOWORD(lParam), HIWORD(lParam));
+		return 0;
+
+	case WM_MOUSEMOVE:
+		if (SketchBook::GetInstance()->GetIsClicked())
+		{
+			SketchBook::GetInstance()->DrawToSketchBook(LOWORD(lParam), HIWORD(lParam));
+		}
 		return 0;
 
 	case WM_GETMINMAXINFO:

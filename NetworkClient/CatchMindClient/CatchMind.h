@@ -45,7 +45,12 @@ private:
 	SCENE_STATE sceneState;
 
 	CatchMind();
-	void DrawInRoom(HDC gameDC);
+	void DrawInRoom(HDC hdc);
+	void DrawInGameFrame(HDC hdc);
+	void DrawBackground(HDC hdc);
+	void DrawPalette(HDC hdc);
+	void DrawEraseAllButton(HDC hdc);
+	void DrawTimer(HDC hdc);
 	bool CheckIsClickedStateButton(int x, int y);
 	void CheckIsClickedBackButton(int x, int y);
 
@@ -60,6 +65,9 @@ public:
 	void Release();
 	void MouseInput(int x, int y, int mouseState);
 	void SetSeceneState(SCENE_STATE newState);
+	void DrawBackButton(HDC hdc);
+	void DrawExitButton(HDC hdc);
+	void DrawDockBar(HDC hdc);
 
 	inline static CatchMind* GetInstance()
 	{

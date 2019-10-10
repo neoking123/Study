@@ -150,6 +150,7 @@
     <ClCompile Include="IOCompletionPort.cpp" />
     <ClCompile Include="LobbyManager.cpp" />
     <ClCompile Include="Room.cpp" />
+    <ClCompile Include="SketchBook.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Common\NetworkManager.h" />
@@ -161,6 +162,7 @@
     <ClInclude Include="IOCompletionPort.h" />
     <ClInclude Include="LobbyManager.h" />
     <ClInclude Include="Room.h" />
+    <ClInclude Include="SketchBook.h" />
     <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="UIObject.h" />
   </ItemGroup>

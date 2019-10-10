@@ -61,8 +61,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 		if (bNowDraw == TRUE)
 		{
 			hdc = GetDC(hWnd);
-			MoveToEx(hdc, x, y, NULL);
-
+			MoveToEx(hdc, x -1, y - 1, NULL);
+			
 			x = LOWORD(IParam);
 			y = HIWORD(IParam);
 			LineTo(hdc, x, y);

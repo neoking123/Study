@@ -3,6 +3,7 @@
 #include "LobbyManager.h"
 #include "ChattingManager.h"
 #include "..\..\Common\NetworkManager.h"
+#include "SketchBook.h"
 
 CatchMind* CatchMind::instance = nullptr;
 
@@ -10,9 +11,48 @@ CatchMind::CatchMind()
 {
 }
 
-void CatchMind::DrawInRoom(HDC gameDC)
+void CatchMind::DrawInRoom(HDC hdc)
 {
+	DrawBackground(hdc);
+	DrawInGameFrame(hdc);
+	DrawPalette(hdc);
+	DrawEraseAllButton(hdc);
+	DrawTimer(hdc);
+	DrawDockBar(hdc);
+	DrawBackButton(hdc);
+	DrawExitButton(hdc);
+	ChattingManager::GetInstance()->DrawChat(hdc);
+}
+void CatchMind::DrawInGameFrame(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::IN_GAME_FRAME)->Draw(hdc, 342, 130);
+}
 
+void CatchMind::DrawBackground(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBY_BACK)->Draw(hdc, 0, 0, 2, 2);
+}
+
+void CatchMind::DrawPalette(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::COLOR_BUTTON_BALCK)->Draw(hdc, 400, 500);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::COLOR_BUTTON_RED)->Draw(hdc, 435, 500);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::COLOR_BUTTON_BLUE)->Draw(hdc, 470, 500);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::COLOR_BUTTON_GREEN)->Draw(hdc, 505, 500);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::COLOR_BUTTON_YELLOW)->Draw(hdc, 540, 500);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::COLOR_BUTTON_WHITE)->Draw(hdc, 575, 500);
+
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::ERASE_BUTTON)->Draw(hdc, 620, 500);
+}
+
+void CatchMind::DrawEraseAllButton(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::ERASE_ALL_BUTTON)->Draw(hdc, 720, 500);
+}
+
+void CatchMind::DrawTimer(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::TIMER_FRAME)->Draw(hdc, 380, 580);
 }
 
 bool CatchMind::CheckIsClickedStateButton(int x, int y)
@@ -89,6 +129,7 @@ void CatchMind::Init(HWND hWnd, HINSTANCE g_hInst)
 
 	BitMapManager::GetInstance()->Init(gameDC);
 	LobbyManager::GetInstance()->Init(hWnd, g_hInst);
+	SketchBook::GetInstance()->Init();
 
 	sceneState = SCENE_STATE::LOBY_SCENE;
 	//InGameInit();
@@ -147,6 +188,7 @@ void CatchMind::Render()
 
 	case SCENE_STATE::READY_SCENE:
 		DrawInRoom(gameDC);
+		SketchBook::GetInstance()->Render(gameDC);
 		break;
 
 	case SCENE_STATE::START_SCENE:
@@ -172,14 +214,15 @@ void CatchMind::Release()
 
 void CatchMind::MouseInput(int x, int y, int mouseState)
 {
-	if (mouseState == MOUSE_STATE::CLICK_DOWN)
+	cursor = { x, y };
+	/*if (mouseState == MOUSE_STATE::CLICK_DOWN)
 	{
 		cursor = { x, y };
 	}
 	else if (mouseState == MOUSE_STATE::CLICK_UP)
 	{
-		cursor = { 0, 0 };
-	}
+		cursor = { x, y };
+	}*/
 
 	switch (sceneState)
 	{
@@ -194,6 +237,7 @@ void CatchMind::MouseInput(int x, int y, int mouseState)
 	case SCENE_STATE::READY_SCENE:
 		CheckIsClickedStateButton(cursor.x, cursor.y);
 		CheckIsClickedBackButton(cursor.x, cursor.y);
+		SketchBook::GetInstance()->MouseInput(cursor.x, cursor.y, mouseState);
 		break;
 
 	case SCENE_STATE::START_SCENE:
@@ -212,4 +256,19 @@ void CatchMind::MouseInput(int x, int y, int mouseState)
 void CatchMind::SetSeceneState(SCENE_STATE newState)
 {
 	sceneState = newState;
+}
+
+void CatchMind::DrawBackButton(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BUTTON_BACK)->Draw(hdc, BACK_BUTTON_POSITION_X, BACK_BUTTON_POSITION_Y);
+}
+
+void CatchMind::DrawExitButton(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::EXIT_ICON)->Draw(hdc, BACK_BUTTON_POSITION_X + 50, BACK_BUTTON_POSITION_Y);
+}
+
+void CatchMind::DrawDockBar(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::DOCK_BAR)->Draw(hdc, 0, DOCK_BAR_POSITION, 2, 1);
 }

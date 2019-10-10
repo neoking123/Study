@@ -160,9 +160,9 @@ void LobbyManager::Render(HDC hdc)
 	DrawRooms(hdc);
 	DrawRoomCreateButton(hdc);
 	ChattingManager::GetInstance()->DrawChat(hdc);
-	//ChessGame::GetInstance()->DrawDockBar(hdc);
-	//ChessGame::GetInstance()->DrawBackButton(hdc);
-	//ChessGame::GetInstance()->DrawExitButton(hdc);
+	CatchMind::GetInstance()->DrawDockBar(hdc);
+	CatchMind::GetInstance()->DrawBackButton(hdc);
+	CatchMind::GetInstance()->DrawExitButton(hdc);
 }
 
 void LobbyManager::Release()
