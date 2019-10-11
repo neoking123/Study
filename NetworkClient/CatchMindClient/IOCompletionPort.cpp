@@ -2,6 +2,7 @@
 #include "CatchMind.h"
 #include "ChattingManager.h"
 #include "LobbyManager.h"
+#include "SketchBook.h"
 #include <process.h>
 
 IOCompletionPort* IOCompletionPort::instance = nullptr;
@@ -82,7 +83,7 @@ bool IOCompletionPort::Init()
 	serverAddr.sin_addr.s_addr = inet_addr(SERVER_IP);
 
 	// IOCP와 소켓 연결
-	CreateIoCompletionPort((HANDLE)clientSocket, hIOCP, 0, 0);
+	hIOCP = CreateIoCompletionPort((HANDLE)clientSocket, hIOCP, 0, 0);
 
 	//nResult = connect(clientSocket, (sockaddr*)&serverAddr, sizeof(sockaddr));
 	nResult = WSAConnect(clientSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr), NULL, NULL, NULL, NULL);
@@ -270,6 +271,12 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packet, char * buf, int
 	PACKET_HEADER header;
 	memcpy(&header, packet->buf, sizeof(header));
 
+	if (header.len >= MAX_BUFFER)
+	{
+		packet->len -= MAX_BUFFER;
+		packet->len += header.len;
+	}
+
 	switch (header.type)
 	{
 	case PACKET_TYPE::PACKET_TYPE_LOGIN:
@@ -329,6 +336,24 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packet, char * buf, int
 		memcpy(&packet, buf, header.len);
 
 		ChattingManager::GetInstance()->PrintChat(packet.playerIndex, packet.chat);
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_DRAW_TO_CLIENT:
+	{
+		PACKET_DRAW_TO_CLIENT packet;
+		memcpy(&packet, buf, header.len);
+
+		SketchBook::GetInstance()->PushBackSketchBook(packet.brushData);
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_SKETCH_BOOK:
+	{
+		PACKET_SKETCH_BOOK packet;
+		memcpy(&packet, buf, header.len);
+
+		SketchBook::GetInstance()->SetSketchBook(packet.mouseTrack, packet.mouseTrackLen);
 	}
 	break;
 

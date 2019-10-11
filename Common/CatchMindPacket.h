@@ -16,7 +16,17 @@ enum PACKET_TYPE
 	PACKET_TYPE_ROOM_STATE,
 	PACKET_TYPE_MOVE_TO,
 	PACKET_TYPE_CHAT,
-	PACKET_TYPE_BACK_TO_LOBBY
+	PACKET_TYPE_BACK_TO_LOBBY,
+	PACKET_TYPE_DRAW_TO_SERVER,
+	PACKET_TYPE_DRAW_TO_CLIENT,
+	PACKET_TYPE_SKETCH_BOOK
+};
+
+struct RGB
+{
+	unsigned int r;
+	unsigned int g;
+	unsigned int b;
 };
 
 struct PACKET_INFO
@@ -64,6 +74,14 @@ struct MOVE_DATA
 	int pieceColor;
 	POINT curPos;
 	POINT targetPos;
+};
+
+struct BRUSH_DATA
+{
+	POINT pos = { 0, 0 };
+	RGB color = { 0, 0, 0 };
+	int thickness = 0;
+	bool isClickUp = false;
 };
 
 struct PACKET_LOGIN
@@ -129,6 +147,26 @@ struct PACKET_BACK_TO_LOBBY
 	PACKET_HEADER header;
 	int roomNum;
 	int playerIndex;
+};
+
+struct PACKET_DRAW_TO_SERVER
+{
+	PACKET_HEADER header;
+	int roomNum;
+	BRUSH_DATA brushData;
+};
+
+struct PACKET_DRAW_TO_CLIENT
+{
+	PACKET_HEADER header;
+	BRUSH_DATA brushData;
+};
+
+struct PACKET_SKETCH_BOOK
+{
+	PACKET_HEADER header;
+	int mouseTrackLen;
+	BRUSH_DATA mouseTrack[MAX_BUFFER];
 };
 
 #pragma pack()

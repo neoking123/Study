@@ -1,6 +1,7 @@
 #include "IOCompletionPort.h"
 #include <process.h>
 #include <mutex>
+#include "SketchBook.h"
 
 IOCompletionPort* IOCompletionPort::instance = nullptr;
 
@@ -121,9 +122,9 @@ void IOCompletionPort::StartServer()
 			printf_s("[ERROR] Accept ½ÇÆÐ\n");
 			return;
 		}
-		mutex.lock();
+		//mutex.lock();
 		NetworkManager::GetInstance()->AddUser(clientSocket);
-		mutex.unlock();
+		//mutex.unlock();
 		NetworkManager::GetInstance()->SendLogin(clientSocket);
 		NetworkManager::GetInstance()->BroadCastLobbyData();
 
@@ -225,8 +226,9 @@ void IOCompletionPort::WorkerThread()
 
 		if (!bResult && recvBytes == 0)
 		{
+			NetworkManager::GetInstance()->EndUser(socketInfo->socket);
+			NetworkManager::GetInstance()->BroadCastLobbyData();
 			printf_s("[INFO] socket(%d) Á¢¼Ó ²÷±è\n", socketInfo->socket);
-
 			closesocket(socketInfo->socket);
 			free(socketInfo);
 			continue;
@@ -352,6 +354,7 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 
 		NetworkManager::GetInstance()->EnterRoom(packet.roomNum, packet.playerIndex);
 		NetworkManager::GetInstance()->BroadCastLobbyData();
+		NetworkManager::GetInstance()->SendSketchBookToEnterUser(packet.roomNum, packet.playerIndex);
 	}
 	break;
 
@@ -381,8 +384,20 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 	}
 	break;
 
-	}
+	case PACKET_TYPE::PACKET_TYPE_DRAW_TO_SERVER:
+	{
+		PACKET_DRAW_TO_SERVER packet;
+		memcpy(&packet, buf, header.len);
 
+		mutex mutex;
+		mutex.lock();
+		NetworkManager::GetInstance()->DrawToSketchBook(packet.roomNum , packet.brushData);
+		mutex.unlock();
+		NetworkManager::GetInstance()->SendDrawToClient(packet.roomNum);
+	}
+	break;
+
+	}
 	memcpy(&packet->buf, &packet->buf[header.len], packet->len - header.len);
 	packet->len -= header.len;
 

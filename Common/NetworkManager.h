@@ -1,6 +1,7 @@
 #pragma once
 //#include <WinSock2.h>
 #include <map>
+#include <vector>
 #include "Macro.h"
 #include "CatchMindPacket.h"
 using namespace std;
@@ -22,7 +23,8 @@ public:
 	int inPlayers[MAX_ROOM_IN_NUM] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 	bool isStart = false;
 	bool canStart = false;
-	int board[8][8];
+	vector<BRUSH_DATA*> mouseTrack;
+	//int board[8][8];
 	//int spectators[MAX_SPEC_NUM];
 	//int roomNameLen;
 };
@@ -38,6 +40,8 @@ private:
 	int roomNum;
 
 	NetworkManager();
+	SOCKET GetPlayerSocket(int playerIndex);
+	int GetRoomNum(int playerIndex);
 
 public:
 	~NetworkManager();
@@ -51,12 +55,16 @@ public:
 	void SendBackToLobby(int playerIndex, int roomNum);
 	void SendLogin(SOCKET clientSocket);
 	void SendChat(int playerIndex, int roomNum, char* chat);
+	void SendDrawToServer(int roomNum, BRUSH_DATA& brushData);
+	void SendDrawToClient(int roomNum);
+	void SendSketchBookToEnterUser(int roomNum, int playerIndex);
 	void BroadCastLobbyData();
 	void SendChatToRoom(PACKET_CHAT& packet);
 	bool CreateRoom(PACKET_CREATE_ROOM packet);
 	void EnterRoom(int roomNum, int playerIndex);
 	void BackToLobby(int roomNum, int playerIndex);
 	void EndUser(SOCKET clientSocket);
+	void DrawToSketchBook(int roomNum, BRUSH_DATA brushData);
 	PACKET_INFO* GetUserPacket(SOCKET clientSocket);
 
 	static NetworkManager* GetInstance()

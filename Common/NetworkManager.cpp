@@ -8,6 +8,28 @@ NetworkManager::NetworkManager()
 {
 }
 
+SOCKET NetworkManager::GetPlayerSocket(int playerIndex)
+{
+	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+	{
+		if (iter->second->index == playerIndex)
+		{
+			return iter->first;
+		}
+	}
+}
+
+int NetworkManager::GetRoomNum(int playerIndex)
+{
+	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+	{
+		if (iter->second->index == playerIndex)
+		{
+			return iter->second->inRoomNum;
+		}
+	}
+}
+
 NetworkManager::~NetworkManager()
 {
 }
@@ -105,6 +127,60 @@ void NetworkManager::SendChat(int playerIndex, int roomNum, char* chat)
 	send(clientSocket, (const char*)&packet, packet.header.len, 0);
 }
 
+void NetworkManager::SendDrawToServer(int roomNum, BRUSH_DATA& brushData)
+{
+	PACKET_DRAW_TO_SERVER packet;
+	packet.header.type = PACKET_TYPE::PACKET_TYPE_DRAW_TO_SERVER;
+	packet.header.len = sizeof(packet);
+	packet.roomNum = roomNum;
+	packet.brushData.pos = brushData.pos;
+	packet.brushData.color = brushData.color;
+	packet.brushData.thickness = brushData.thickness;
+	packet.brushData.isClickUp = brushData.isClickUp;
+	send(clientSocket, (const char*)&packet, packet.header.len, 0);
+}
+
+void NetworkManager::SendDrawToClient(int roomNum)
+{
+	PACKET_DRAW_TO_CLIENT packet;
+	packet.header.type = PACKET_TYPE::PACKET_TYPE_DRAW_TO_CLIENT;
+	packet.header.len = sizeof(packet);
+	packet.brushData.pos = createdRooms[roomNum]->mouseTrack.back()->pos;
+	packet.brushData.color = createdRooms[roomNum]->mouseTrack.back()->color;
+	packet.brushData.thickness = createdRooms[roomNum]->mouseTrack.back()->thickness;
+	packet.brushData.isClickUp = createdRooms[roomNum]->mouseTrack.back()->isClickUp;
+
+	for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
+	{
+		if (createdRooms[roomNum]->inPlayers[i] != -1)
+		{
+			send(GetPlayerSocket(createdRooms[roomNum]->inPlayers[i]), (const char*)&packet, packet.header.len, 0);
+		}
+		else
+		{
+			break;
+		}
+	}
+}
+
+void NetworkManager::SendSketchBookToEnterUser(int roomNum, int playerIndex)
+{
+	PACKET_SKETCH_BOOK packet;
+	packet.header.type = PACKET_TYPE::PACKET_TYPE_SKETCH_BOOK;
+	packet.header.len = sizeof(PACKET_HEADER) + sizeof(int) + sizeof(BRUSH_DATA) * createdRooms[roomNum]->mouseTrack.size();
+	packet.mouseTrackLen = createdRooms[roomNum]->mouseTrack.size();
+
+	for (int i = 0; i < createdRooms[roomNum]->mouseTrack.size(); i++)
+	{
+		packet.mouseTrack[i].pos = createdRooms[roomNum]->mouseTrack[i]->pos;
+		packet.mouseTrack[i].color = createdRooms[roomNum]->mouseTrack[i]->color;
+		packet.mouseTrack[i].thickness = createdRooms[roomNum]->mouseTrack[i]->thickness;
+		packet.mouseTrack[i].isClickUp = createdRooms[roomNum]->mouseTrack[i]->isClickUp;
+	}
+
+	send(GetPlayerSocket(playerIndex), (const char*)&packet, packet.header.len, 0);
+}
+
 void NetworkManager::BroadCastLobbyData()
 {
 	PACKET_LOBBY_DATA lobbyDataPacket;
@@ -152,8 +228,7 @@ bool NetworkManager::CreateRoom(PACKET_CREATE_ROOM packet)
 	strcpy(roomInfo->roomName, packet.roomData.roomName);
 	roomInfo->inPlayerNum = packet.roomData.inPlayerNum;
 	roomInfo->inPlayers[0] = packet.roomData.inPlayer[0];
-	//InitChessBoard(roomInfo->board);
-	//InitSpectatorArray(roomInfo->spectators);
+	//roomInfo->mouseTrack.reserve(1000);
 	createdRooms.insert(make_pair(roomNum, roomInfo));
 
 	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
@@ -213,6 +288,11 @@ void NetworkManager::BackToLobby(int roomNum, int playerIndex)
 
 	if (createdRooms[roomNum]->inPlayerNum <= 0)
 	{
+		for (auto iter = createdRooms[roomNum]->mouseTrack.begin(); iter != createdRooms[roomNum]->mouseTrack.end(); iter++)
+		{
+			SAFE_DELETE(*iter);
+		}
+		createdRooms[roomNum]->mouseTrack.clear();
 		createdRooms.erase(roomNum);
 		this->roomNum--;
 	}
@@ -220,8 +300,30 @@ void NetworkManager::BackToLobby(int roomNum, int playerIndex)
 
 void NetworkManager::EndUser(SOCKET clientSocket)
 {
+	if (connectedUsers[clientSocket]->inRoomNum != -1)
+	{
+		int roomNum = connectedUsers[clientSocket]->inRoomNum;
+		for (auto iter = createdRooms[roomNum]->mouseTrack.begin(); iter != createdRooms[roomNum]->mouseTrack.end(); iter++)
+		{
+			SAFE_DELETE(*iter);
+		}
+		createdRooms[roomNum]->mouseTrack.clear();
+		createdRooms.erase(roomNum);
+		this->roomNum--;
+	}
+
 	SAFE_DELETE(connectedUsers[clientSocket]);
 	connectedUsers.erase(clientSocket);
+}
+
+void NetworkManager::DrawToSketchBook(int roomNum, BRUSH_DATA brushData)
+{
+	BRUSH_DATA* newBrush = new BRUSH_DATA;
+	newBrush->pos = brushData.pos;
+	newBrush->color = brushData.color;
+	newBrush->thickness = brushData.thickness;
+	newBrush->isClickUp = brushData.isClickUp;
+	createdRooms[roomNum]->mouseTrack.push_back(newBrush);
 }
 
 PACKET_INFO * NetworkManager::GetUserPacket(SOCKET clientSocket)

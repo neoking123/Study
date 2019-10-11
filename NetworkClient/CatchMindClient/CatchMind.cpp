@@ -107,6 +107,7 @@ void CatchMind::CheckIsClickedBackButton(int x, int y)
 		//SendBackToLobby();
 		int roomNum = LobbyManager::GetInstance()->GetRoomNum(playerIndex);
 		NetworkManager::GetInstance()->SendBackToLobby(playerIndex, roomNum);
+		SketchBook::GetInstance()->CleanSketchBook();
 	}
 }
 

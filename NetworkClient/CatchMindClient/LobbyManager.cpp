@@ -42,7 +42,7 @@ void LobbyManager::CheckIsClickedRoomCB(int x, int y)
 		return;
 
 	stringstream ss;
-	//ss << ChessGame::GetInstance()->playerIndex;
+	ss << CatchMind::GetInstance()->playerIndex;
 	string s = ss.str();
 	if (x > 24 && x < 24 + BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBY_ROOM_BUTTON_CREATE)->GetSize().cx
 		&& y > 24 && y < 24 + BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBY_ROOM_BUTTON_CREATE)->GetSize().cy)
