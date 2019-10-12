@@ -32,7 +32,7 @@ struct RGB
 struct PACKET_INFO
 {
 public:
-	char buf[MAX_BUFFER];
+	char buf[MAX_BUFFER * 250 + 12];
 	int len;
 };
 
@@ -54,6 +54,7 @@ struct USER_DATA
 
 struct ROOM_DATA
 {
+	int roomNum;
 	int inPlayerNum;
 	char roomName[32];
 	int inPlayer[MAX_ROOM_IN_NUM];
@@ -63,7 +64,7 @@ struct ROOM_DATA
 
 struct LOBY_DATA
 {
-	int roomNum;
+	int roomCount;
 	int maxRoomNum;
 	ROOM_DATA roomsData[MAX_ROOM_NUM];
 };
@@ -166,7 +167,7 @@ struct PACKET_SKETCH_BOOK
 {
 	PACKET_HEADER header;
 	int mouseTrackLen;
-	BRUSH_DATA mouseTrack[MAX_BUFFER];
+	BRUSH_DATA mouseTrack[MAX_BUFFER * 10];
 };
 
 #pragma pack()

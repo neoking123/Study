@@ -15,10 +15,10 @@ void ChattingManager::SendChat()
 	PACKET_CHAT packet;
 	packet.header.type = PACKET_TYPE::PACKET_TYPE_CHAT;
 	packet.header.len = sizeof(packet);
-	//packet.playerIndex = ChessGame::GetInstance()->playerIndex;
-	//packet.roomNum = LobbyManager::GetInstance()->GetRoomNum(ChessGame::GetInstance()->playerIndex);
+	//packetBuf.playerIndex = ChessGame::GetInstance()->playerIndex;
+	//packetBuf.roomNum = LobbyManager::GetInstance()->GetRoomNum(ChessGame::GetInstance()->playerIndex);
 	strcpy(packet.chat, chat);
-	//send(ChessGame::GetInstance()->GetSock(), (const char*)&packet, packet.header.len, 0);
+	//send(ChessGame::GetInstance()->GetSock(), (const char*)&packetBuf, packetBuf.header.len, 0);
 }
 
 ChattingManager::~ChattingManager()

@@ -38,6 +38,7 @@ private:
 	SOCKET clientSocket;
 	int userIndex;
 	int roomNum;
+	int roomCount;
 
 	NetworkManager();
 	SOCKET GetPlayerSocket(int playerIndex);

@@ -312,6 +312,9 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 	PACKET_HEADER header;
 	memcpy(&header, packet->buf, sizeof(header));
 
+	if (packet->len < header.len)
+		return false;
+
 	switch (header.type)
 	{
 	case PACKET_TYPE::PACKET_TYPE_LOGIN:
@@ -389,10 +392,7 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 		PACKET_DRAW_TO_SERVER packet;
 		memcpy(&packet, buf, header.len);
 
-		mutex mutex;
-		mutex.lock();
 		NetworkManager::GetInstance()->DrawToSketchBook(packet.roomNum , packet.brushData);
-		mutex.unlock();
 		NetworkManager::GetInstance()->SendDrawToClient(packet.roomNum);
 	}
 	break;

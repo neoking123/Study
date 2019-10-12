@@ -130,10 +130,11 @@ Room::~Room()
 {
 }
 
-void Room::Init(int roomNum, string roomName, int x, int y, int curInplayerNum, int MaxInPlayerNum, bool isSecret, string password)
+void Room::Init(int roomNum, int roomAlignCount, string roomName, int x, int y, int curInplayerNum, int MaxInPlayerNum, bool isSecret, string password)
 {
 	tag = "room";
 	this->roomNum = roomNum;
+	this->roomAlignCount = roomAlignCount;
 	this->roomName = roomName;
 	transform.position.x = x;
 	transform.position.y = y;

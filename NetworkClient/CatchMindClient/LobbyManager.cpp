@@ -6,6 +6,7 @@
 #include "CatchMind.h"
 
 LobbyManager* LobbyManager::instance = nullptr;
+std::mutex LobbyManager::mutex;
 
 LobbyManager::LobbyManager()
 {
@@ -16,11 +17,13 @@ void LobbyManager::DrawBackground(HDC hdc)
 	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBY_BACK)->Draw(hdc, 0, 0, 2, 2);
 }
 
-void LobbyManager::CreateRoom(string roomName, int inPlayerNum)
+void LobbyManager::CreateRoom(int roomNum, string roomName, int inPlayerNum)
 {
 	Room* newRoom = new Room();
-	newRoom->Init(roomCount, roomName, (roomCount % 2) * ROOM_WIDTH + ROOM_MARGINE_WIDTH, (roomCount / 2) * ROOM_HEIGHT + ROOM_MARGINE_HEIGHT, inPlayerNum, MAX_ROOM_IN_NUM);
-	rooms.insert(make_pair(roomCount++, newRoom));
+	newRoom->Init(roomNum, roomAlignCount, roomName, (roomAlignCount % 2) * ROOM_WIDTH + ROOM_MARGINE_WIDTH, (roomAlignCount / 2) * ROOM_HEIGHT + ROOM_MARGINE_HEIGHT, inPlayerNum, MAX_ROOM_IN_NUM);
+	rooms.insert(make_pair(roomNum, newRoom));
+	roomAlignCount++;
+
 }
 
 void LobbyManager::DrawRooms(HDC hdc)
@@ -39,7 +42,9 @@ void LobbyManager::DrawRoomCreateButton(HDC hdc)
 void LobbyManager::CheckIsClickedRoomCB(int x, int y)
 {
 	if (isCreateRoom || roomNum >= maxRoomNum)
+	{
 		return;
+	}
 
 	stringstream ss;
 	ss << CatchMind::GetInstance()->playerIndex;
@@ -49,10 +54,10 @@ void LobbyManager::CheckIsClickedRoomCB(int x, int y)
 	{
 		isCreateRoom = true;
 		string roomName = "플레이어" + s + "님의 방";
-		CreateRoom(roomName);
 		NetworkManager::GetInstance()->SendCreateRoom(roomName, CatchMind::GetInstance()->playerIndex);
 		CatchMind::GetInstance()->SetSeceneState(SCENE_STATE::READY_SCENE);
 	}
+
 }
 
 void LobbyManager::CheckIsClickedRoom(int x, int y)
@@ -66,6 +71,7 @@ void LobbyManager::CheckIsClickedRoom(int x, int y)
 			CatchMind::GetInstance()->curTurn = CatchMind::GetInstance()->playerIndex;
 		}
 	}
+	
 }
 
 void LobbyManager::ClearRooms()
@@ -75,6 +81,7 @@ void LobbyManager::ClearRooms()
 		SAFE_DELETE(iter->second);
 	}
 	rooms.clear();
+
 }
 
 void LobbyManager::UpdateRooms()
@@ -91,11 +98,14 @@ void LobbyManager::SetInPlayer(int roomNum, int* inPlayer)
 	{
 		rooms[roomNum]->inPlayer[i] = inPlayer[i];
 	}
+
+	mutex.unlock();
 }
 
 void LobbyManager::SetIsStart(int roomNum, bool isStart)
 {
 	rooms[roomNum]->isStart = isStart;
+	mutex.unlock();
 }
 
 int LobbyManager::GetRoomNum(int playerIndex)
@@ -110,6 +120,7 @@ int LobbyManager::GetRoomNum(int playerIndex)
 			}
 		}
 	}
+
 	return -1;
 }
 
@@ -122,6 +133,7 @@ bool LobbyManager::CheckIsRoomMaster(int playerIndex)
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -138,6 +150,7 @@ bool LobbyManager::GetCanStart(int roomNum)
 void LobbyManager::SetCanStart(int roomNum, bool canStart)
 {
 	rooms[roomNum]->canStart = canStart;
+	mutex.unlock();
 }
 
 LobbyManager::~LobbyManager()
@@ -149,6 +162,7 @@ void LobbyManager::Init(HWND hWnd, HINSTANCE g_hInst)
 	roomNum = 0;
 	roomCount = 0;
 	maxRoomNum = 0;
+	roomAlignCount = 0;
 	isCreateRoom = false;
 }
 
@@ -166,6 +180,8 @@ void LobbyManager::Render(HDC hdc)
 	CatchMind::GetInstance()->DrawDockBar(hdc);
 	CatchMind::GetInstance()->DrawBackButton(hdc);
 	CatchMind::GetInstance()->DrawExitButton(hdc);
+
+	mutex.unlock();
 }
 
 void LobbyManager::Release()
@@ -175,4 +191,5 @@ void LobbyManager::Release()
 		SAFE_DELETE(iter->second);
 	}
 	rooms.clear();
+
 }

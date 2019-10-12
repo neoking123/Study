@@ -75,8 +75,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	}
 
 	CatchMind::GetInstance()->Release();
-	WSACleanup();
-
+	
 	return (int)Message.wParam;
 }
 
@@ -98,7 +97,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 	case WM_LBUTTONUP:
 		CatchMind::GetInstance()->MouseInput(LOWORD(lParam), HIWORD(lParam), MOUSE_STATE::CLICK_UP);
-		SketchBook::GetInstance()->ClickUp(LOWORD(lParam), HIWORD(lParam));
 		return 0;
 
 	case WM_MOUSEMOVE:

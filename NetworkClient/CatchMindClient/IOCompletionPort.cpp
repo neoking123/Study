@@ -4,6 +4,7 @@
 #include "LobbyManager.h"
 #include "SketchBook.h"
 #include <process.h>
+#include <mutex>
 
 IOCompletionPort* IOCompletionPort::instance = nullptr;
 
@@ -34,9 +35,9 @@ IOCompletionPort::~IOCompletionPort()
 		SAFE_DELETE_ARRAY(workerHandle);
 	}
 
-	if (packet)
+	if (packetBuf)
 	{
-		SAFE_DELETE(packet);
+		SAFE_DELETE(packetBuf);
 	}
 }
 
@@ -47,8 +48,8 @@ bool IOCompletionPort::Init()
 
 	WSADATA wsaData;
 	int nResult;
-	packet = new PACKET_INFO();
-	packet->len = 0;
+	packetBuf = new PACKET_INFO();
+	packetBuf->len = 0;
 
 	// winsock 2.2 버전으로 초기화
 	nResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -101,16 +102,7 @@ void IOCompletionPort::StartClient()
 	DWORD recvBytes;
 	DWORD flags;
 
-	//// Completion Port 객체 생성
-	//hIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
-
-	//// Worker Thread 생성
-	//if (!CreateWorkerThread()) 
-	//	return;
-
 	printf_s("[INFO] CatchMind 클라 시작...\n");
-
-	//hIOCP = CreateIoCompletionPort((HANDLE)clientSocket, hIOCP, 0, 0);
 
 	socketInfo = new SOCKET_INFO();
 	ZeroMemory(socketInfo, sizeof(SOCKET_INFO));
@@ -124,7 +116,6 @@ void IOCompletionPort::StartClient()
 	{
 		if (WSAGetLastError() != WSA_IO_PENDING)
 		{
-			delete packet;
 			return;
 		}
 	}
@@ -179,7 +170,7 @@ void IOCompletionPort::WorkerThread()
 	// I/O 작업을 위해 요청한 Overlapped 구조체를 받을 포인터	
 	SOCKET_INFO *	socketInfo;
 
-	//send(clientSocket, (const char*)&packet, sizeof(packet), 0);
+	//send(clientSocket, (const char*)&packetBuf, sizeof(packetBuf), 0);
 
 	while (bWorkerThread)
 	{
@@ -216,7 +207,11 @@ void IOCompletionPort::WorkerThread()
 			int len = recvBytes;
 
 			// 패킷 처리
-			ProcessClientReceive(packet, socketInfo->dataBuf.buf, len);
+			ProcessClientReceive(packetBuf, socketInfo->dataBuf.buf, len);
+
+			// PACKET_INFO 데이터 초기화
+			//ZeroMemory(packetBuf->buf, 0);
+			//packetBuf->len = 0;
 
 			// SOCKET_INFO 데이터 초기화
 			ZeroMemory(&(socketInfo->overlapped), sizeof(OVERLAPPED));
@@ -230,7 +225,6 @@ void IOCompletionPort::WorkerThread()
 			{
 				if (WSAGetLastError() != WSA_IO_PENDING)
 				{
-					delete packet;
 					return;
 				}
 			}
@@ -238,51 +232,48 @@ void IOCompletionPort::WorkerThread()
 	}
 }
 
-void IOCompletionPort::ProcessClientReceive(PACKET_INFO * packet, char * buf, int & len)
+void IOCompletionPort::ProcessClientReceive(PACKET_INFO * packetBuf, char * buf, int & len)
 {
 	// 바이트 스트림 처리
 	while (true)
 	{
-		if (!ProcessClientPacket(packet, buf, len))
+		if (!ProcessClientPacket(packetBuf, buf, len))
 		{
 			Sleep(100);
 			break;
 		}
 		else
 		{
-			if (packet->len < sizeof(PACKET_HEADER))
+			if (packetBuf->len < sizeof(PACKET_HEADER))
 				break;
 		}
 	}
 }
 
-bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packet, char * buf, int & len)
+bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packetBuf, char * buf, int & len)
 {
 	if (len > 0)
 	{
-		memcpy(&packet->buf[packet->len], buf, len);
-		packet->len += len;
+		memcpy(&packetBuf->buf[packetBuf->len], buf, len);
+		packetBuf->len += len;
 		len = 0;
 	}
 
-	if (packet->len < sizeof(PACKET_HEADER))
+	if (packetBuf->len < sizeof(PACKET_HEADER))
 		return false;
 
 	PACKET_HEADER header;
-	memcpy(&header, packet->buf, sizeof(header));
+	memcpy(&header, packetBuf->buf, sizeof(header));
 
-	if (header.len >= MAX_BUFFER)
-	{
-		packet->len -= MAX_BUFFER;
-		packet->len += header.len;
-	}
+	if (packetBuf->len < header.len)
+		return false;
 
 	switch (header.type)
 	{
 	case PACKET_TYPE::PACKET_TYPE_LOGIN:
 	{
 		PACKET_LOGIN packet;
-		memcpy(&packet, buf, header.len);
+		memcpy(&packet, packetBuf->buf, header.len);
 
 		CatchMind::GetInstance()->playerIndex = packet.loginIndex;
 	}
@@ -291,34 +282,34 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packet, char * buf, int
 	case PACKET_TYPE::PACKET_TYPE_USER_DATA:
 	{
 		PACKET_USER_DATA packet;
-		memcpy(&packet, buf, header.len);
+		memcpy(&packet, packetBuf->buf, header.len);
 	}
 	break;
 
 	case PACKET_TYPE::PACKET_TYPE_LOBBY_DATA:
 	{
 		PACKET_LOBBY_DATA packet;
-		memcpy(&packet, buf, header.len);
+		memcpy(&packet, packetBuf->buf, header.len);
 
-		LobbyManager::GetInstance()->roomNum = packet.lobyData.roomNum;
-		LobbyManager::GetInstance()->maxRoomNum = packet.lobyData.maxRoomNum;
+		LobbyManager::GetInstanceLock()->SetRoomCount(packet.lobyData.roomCount);
+		LobbyManager::GetInstanceLock()->SetMaxRoomNum(packet.lobyData.maxRoomNum);
 
 		LobbyManager::GetInstance()->ClearRooms();
 
-		if (LobbyManager::GetInstance()->roomNum <= 0)
+		if (LobbyManager::GetInstance()->GetRoomCount() <= 0)
 			break;
-		LobbyManager::GetInstance()->roomCount = 0;
+		LobbyManager::GetInstanceLock()->SetRoomAlignCount(0);
 
-		for (int i = 0; i < LobbyManager::GetInstance()->roomNum; i++)
+		for (int i = 0; i < LobbyManager::GetInstance()->GetRoomCount(); i++)
 		{
-			LobbyManager::GetInstance()->CreateRoom(packet.lobyData.roomsData[i].roomName, packet.lobyData.roomsData[i].inPlayerNum);
+			LobbyManager::GetInstance()->CreateRoom(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].roomName, packet.lobyData.roomsData[i].inPlayerNum);
 		}
 
-		for (int i = 0; i < LobbyManager::GetInstance()->roomNum; i++)
+		for (int i = 0; i < LobbyManager::GetInstance()->GetRoomCount(); i++)
 		{
-			LobbyManager::GetInstance()->SetInPlayer(i, packet.lobyData.roomsData[i].inPlayer);
-			LobbyManager::GetInstance()->SetIsStart(i, packet.lobyData.roomsData[i].isStart);
-			LobbyManager::GetInstance()->SetCanStart(i, packet.lobyData.roomsData[i].canStart);
+			LobbyManager::GetInstanceLock()->SetInPlayer(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].inPlayer);
+			LobbyManager::GetInstanceLock()->SetIsStart(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].isStart);
+			LobbyManager::GetInstanceLock()->SetCanStart(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].canStart);
 		}
 	}
 	break;
@@ -326,14 +317,14 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packet, char * buf, int
 	case PACKET_TYPE::PACKET_TYPE_MOVE_TO:
 	{
 		PACKET_MOVE_TO packet;
-		memcpy(&packet, buf, header.len);
+		memcpy(&packet, packetBuf->buf, header.len);
 	}
 	break;
 
 	case PACKET_TYPE::PACKET_TYPE_CHAT:
 	{
 		PACKET_CHAT packet;
-		memcpy(&packet, buf, header.len);
+		memcpy(&packet, packetBuf->buf, header.len);
 
 		ChattingManager::GetInstance()->PrintChat(packet.playerIndex, packet.chat);
 	}
@@ -342,25 +333,25 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packet, char * buf, int
 	case PACKET_TYPE::PACKET_TYPE_DRAW_TO_CLIENT:
 	{
 		PACKET_DRAW_TO_CLIENT packet;
-		memcpy(&packet, buf, header.len);
-
-		SketchBook::GetInstance()->PushBackSketchBook(packet.brushData);
+		memcpy(&packet, packetBuf->buf, header.len);
+		mutex mutex;
+		SketchBook::GetInstanceLock()->PushBackSketchBook(packet.brushData);
 	}
 	break;
 
 	case PACKET_TYPE::PACKET_TYPE_SKETCH_BOOK:
 	{
 		PACKET_SKETCH_BOOK packet;
-		memcpy(&packet, buf, header.len);
+		memcpy(&packet, packetBuf->buf, header.len);
 
-		SketchBook::GetInstance()->SetSketchBook(packet.mouseTrack, packet.mouseTrackLen);
+		SketchBook::GetInstanceLock()->SetSketchBook(packet.mouseTrack, packet.mouseTrackLen);
 	}
 	break;
 
 	}
 
-	memcpy(&packet->buf, &packet->buf[header.len], packet->len - header.len);
-	packet->len -= header.len;
+	memcpy(&packetBuf->buf, &packetBuf->buf[header.len], packetBuf->len - header.len);
+	packetBuf->len -= header.len;
 
 	return true;
 }

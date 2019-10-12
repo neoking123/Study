@@ -184,12 +184,12 @@ void CatchMind::Render()
 		break;
 
 	case SCENE_STATE::LOBY_SCENE:
-		LobbyManager::GetInstance()->Render(gameDC);
+		LobbyManager::GetInstanceLock()->Render(gameDC);
 		break;
 
 	case SCENE_STATE::READY_SCENE:
 		DrawInRoom(gameDC);
-		SketchBook::GetInstance()->Render(gameDC);
+		SketchBook::GetInstanceLock()->Render(gameDC);
 		break;
 
 	case SCENE_STATE::START_SCENE:
@@ -211,6 +211,7 @@ void CatchMind::Render()
 void CatchMind::Release()
 {
 	BitMapManager::GetInstance()->Release();
+	SketchBook::GetInstance()->Release();
 }
 
 void CatchMind::MouseInput(int x, int y, int mouseState)

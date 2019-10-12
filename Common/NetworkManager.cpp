@@ -38,6 +38,7 @@ void NetworkManager::Init()
 {
 	userIndex = 0;
 	roomNum = 0;
+	roomCount = 0;
 }
 
 void NetworkManager::Release()
@@ -92,7 +93,7 @@ void NetworkManager::SendRoomState(int roomNum, bool isStart, bool canStart)
 	packet.isStart = isStart;
 	packet.canStart = canStart;
 	packet.roomNum = roomNum;
-	//send(clientSocket, (const char*)&packet, packet.header.len, 0);
+	//send(clientSocket, (const char*)&packetBuf, packetBuf.header.len, 0);
 }
 
 void NetworkManager::SendBackToLobby(int playerIndex, int roomNum)
@@ -113,7 +114,7 @@ void NetworkManager::SendLogin(SOCKET clientSocket)
 	packet.header.len = sizeof(PACKET_LOGIN);
 	packet.loginIndex = connectedUsers[clientSocket]->index;
 	send(clientSocket, (const char*)&packet, packet.header.len, 0);
-	//WSASend(clientSocket, (LPWSABUF)&packet, 1, (LPDWORD)packet.header.len, 0, NULL, NULL);
+	//WSASend(clientSocket, (LPWSABUF)&packetBuf, 1, (LPDWORD)packetBuf.header.len, 0, NULL, NULL);
 }
 
 void NetworkManager::SendChat(int playerIndex, int roomNum, char* chat)
@@ -188,18 +189,19 @@ void NetworkManager::BroadCastLobbyData()
 	int i = 0;
 	for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++, i++)
 	{
-		strcpy(lobbyDataPacket.lobyData.roomsData[i].roomName, createdRooms[i]->roomName);
-		lobbyDataPacket.lobyData.roomsData[i].inPlayerNum = createdRooms[i]->inPlayerNum;
-		lobbyDataPacket.lobyData.roomsData[i].isStart = createdRooms[i]->isStart;
-		lobbyDataPacket.lobyData.roomsData[i].canStart = createdRooms[i]->canStart;
+		strcpy(lobbyDataPacket.lobyData.roomsData[i].roomName, iter->second->roomName);
+		lobbyDataPacket.lobyData.roomsData[i].roomNum = iter->first;
+		lobbyDataPacket.lobyData.roomsData[i].inPlayerNum = iter->second->inPlayerNum;
+		lobbyDataPacket.lobyData.roomsData[i].isStart = iter->second->isStart;
+		lobbyDataPacket.lobyData.roomsData[i].canStart = iter->second->canStart;
 		for (int j = 0; j < MAX_ROOM_IN_NUM; j++)
 		{
-			lobbyDataPacket.lobyData.roomsData[i].inPlayer[j] = createdRooms[i]->inPlayers[j];
+			lobbyDataPacket.lobyData.roomsData[i].inPlayer[j] = iter->second->inPlayers[j];
 		}
 	}
-	lobbyDataPacket.lobyData.roomNum = roomNum;
+	lobbyDataPacket.lobyData.roomCount = roomCount;
 	lobbyDataPacket.lobyData.maxRoomNum = MAX_ROOM_NUM;
-	lobbyDataPacket.header.len = sizeof(PACKET_HEADER) + sizeof(int) + sizeof(int) + roomNum * sizeof(ROOM_DATA);
+	lobbyDataPacket.header.len = sizeof(PACKET_HEADER) + sizeof(int) + sizeof(int) + roomCount * sizeof(ROOM_DATA);
 
 	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
 	{
@@ -221,7 +223,7 @@ void NetworkManager::SendChatToRoom(PACKET_CHAT& packet)
 
 bool NetworkManager::CreateRoom(PACKET_CREATE_ROOM packet)
 {
-	if (roomNum >= MAX_ROOM_NUM)
+	if (roomCount >= MAX_ROOM_NUM)
 		return false;
 
 	ROOM_INFO* roomInfo = new ROOM_INFO();
@@ -239,6 +241,7 @@ bool NetworkManager::CreateRoom(PACKET_CREATE_ROOM packet)
 		}
 	}
 	roomNum++;
+	roomCount++;
 
 	return true;
 }
@@ -267,6 +270,9 @@ void NetworkManager::EnterRoom(int roomNum, int playerIndex)
 
 void NetworkManager::BackToLobby(int roomNum, int playerIndex)
 {
+	if (roomNum == -1)
+		return;
+
 	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
 	{
 		if (iter->second->index == playerIndex)
@@ -286,7 +292,7 @@ void NetworkManager::BackToLobby(int roomNum, int playerIndex)
 
 	createdRooms[roomNum]->inPlayerNum--;
 
-	if (createdRooms[roomNum]->inPlayerNum <= 0)
+	if (createdRooms[roomNum]->inPlayerNum < 1)
 	{
 		for (auto iter = createdRooms[roomNum]->mouseTrack.begin(); iter != createdRooms[roomNum]->mouseTrack.end(); iter++)
 		{
@@ -294,7 +300,7 @@ void NetworkManager::BackToLobby(int roomNum, int playerIndex)
 		}
 		createdRooms[roomNum]->mouseTrack.clear();
 		createdRooms.erase(roomNum);
-		this->roomNum--;
+		this->roomCount--;
 	}
 }
 
@@ -303,13 +309,20 @@ void NetworkManager::EndUser(SOCKET clientSocket)
 	if (connectedUsers[clientSocket]->inRoomNum != -1)
 	{
 		int roomNum = connectedUsers[clientSocket]->inRoomNum;
-		for (auto iter = createdRooms[roomNum]->mouseTrack.begin(); iter != createdRooms[roomNum]->mouseTrack.end(); iter++)
+		if (createdRooms[roomNum]->inPlayerNum == 1)
 		{
-			SAFE_DELETE(*iter);
+			for (auto iter = createdRooms[roomNum]->mouseTrack.begin(); iter != createdRooms[roomNum]->mouseTrack.end(); iter++)
+			{
+				SAFE_DELETE(*iter);
+			}
+			createdRooms[roomNum]->mouseTrack.clear();
+			createdRooms.erase(roomNum);
+			this->roomCount--;
 		}
-		createdRooms[roomNum]->mouseTrack.clear();
-		createdRooms.erase(roomNum);
-		this->roomNum--;
+		else
+		{
+			createdRooms[roomNum]->inPlayerNum--;
+		}
 	}
 
 	SAFE_DELETE(connectedUsers[clientSocket]);

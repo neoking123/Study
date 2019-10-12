@@ -39,6 +39,7 @@ private:
 
 public:
 	int roomNum;
+	int roomAlignCount;
 	int inPlayerNum;
 	int inPlayer[MAX_ROOM_IN_NUM] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 	int MaxInPlayerNum;
@@ -47,7 +48,7 @@ public:
 
 	Room();
 	~Room();
-	void Init(int roomNum, string name, int x, int y, int curInplayerNum, int MaxInplayerNum, bool isSecret = false, string password = "");
+	void Init(int roomNum, int roomAlignCount, string name, int x, int y, int curInplayerNum, int MaxInplayerNum, bool isSecret = false, string password = "");
 	virtual void Init(int x, int y) override;
 	virtual void Update() override;
 	virtual void Render(HDC hdc) override;
