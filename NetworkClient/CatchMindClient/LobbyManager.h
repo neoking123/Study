@@ -4,7 +4,10 @@
 #include "Room.h"
 using namespace std;
 
-class Room;
+struct Player
+{
+	char nickName[32];
+};
 
 class LobbyManager
 {
@@ -19,7 +22,9 @@ private:
 	int roomCount;
 	int maxRoomNum;
 	int roomAlignCount;
+	int playerCount;
 	map<int, Room*> rooms;
+	map<int, Player*> players;
 
 	LobbyManager();
 	void DrawBackground(HDC hdc);
@@ -45,6 +50,19 @@ public:
 	bool GetIsStart(int roomNum);
 	bool GetCanStart(int roomNum);
 	void SetCanStart(int roomNum, bool canStart);
+	void SetPlayers(int playterIndex, char* nickName);
+	void ClearPlayers();
+
+	inline int GetPlayerCount()
+	{
+		return playerCount;
+	}
+
+	inline void SetPlayerCount(int playerCount)
+	{
+		this->playerCount = playerCount;
+		mutex.unlock();
+	}
 
 	inline int GetRoomNum()
 	{

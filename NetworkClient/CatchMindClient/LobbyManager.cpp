@@ -23,6 +23,7 @@ void LobbyManager::CreateRoom(int roomNum, string roomName, int inPlayerNum)
 	newRoom->Init(roomNum, roomAlignCount, roomName, (roomAlignCount % 2) * ROOM_WIDTH + ROOM_MARGINE_WIDTH, (roomAlignCount / 2) * ROOM_HEIGHT + ROOM_MARGINE_HEIGHT, inPlayerNum, MAX_ROOM_IN_NUM);
 	rooms.insert(make_pair(roomNum, newRoom));
 	roomAlignCount++;
+	mutex.unlock();
 
 }
 
@@ -81,7 +82,7 @@ void LobbyManager::ClearRooms()
 		SAFE_DELETE(iter->second);
 	}
 	rooms.clear();
-
+	mutex.unlock();
 }
 
 void LobbyManager::UpdateRooms()
@@ -153,6 +154,24 @@ void LobbyManager::SetCanStart(int roomNum, bool canStart)
 	mutex.unlock();
 }
 
+void LobbyManager::SetPlayers(int playterIndex, char * nickName)
+{
+	Player* player = new Player;
+	strcpy(player->nickName, nickName);
+	players.insert(make_pair(playterIndex, player));
+	mutex.unlock();
+}
+
+void LobbyManager::ClearPlayers()
+{
+	for (auto iter = players.begin(); iter != players.end(); iter++)
+	{
+		SAFE_DELETE(iter->second);
+	}
+	players.clear();
+	mutex.unlock();
+}
+
 LobbyManager::~LobbyManager()
 {
 }
@@ -163,6 +182,7 @@ void LobbyManager::Init(HWND hWnd, HINSTANCE g_hInst)
 	roomCount = 0;
 	maxRoomNum = 0;
 	roomAlignCount = 0;
+	playerCount = 0;
 	isCreateRoom = false;
 }
 

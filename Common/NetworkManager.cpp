@@ -10,7 +10,7 @@ NetworkManager::NetworkManager()
 
 SOCKET NetworkManager::GetPlayerSocket(int playerIndex)
 {
-	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++)
 	{
 		if (iter->second->index == playerIndex)
 		{
@@ -21,7 +21,7 @@ SOCKET NetworkManager::GetPlayerSocket(int playerIndex)
 
 int NetworkManager::GetRoomNum(int playerIndex)
 {
-	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++)
 	{
 		if (iter->second->index == playerIndex)
 		{
@@ -43,7 +43,7 @@ void NetworkManager::Init()
 
 void NetworkManager::Release()
 {
-	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++)
 	{
 		SAFE_DELETE(iter->second);
 	}
@@ -56,10 +56,10 @@ void NetworkManager::SetClientSocket(SOCKET clientSocket)
 
 void NetworkManager::AddUser(SOCKET clientSocket)
 {
-	USER_INFO* playerInfo = new USER_INFO();
+	PLAYER_INFO* playerInfo = new PLAYER_INFO();
 	playerInfo->index = userIndex++;
-	playerInfo->userPacket.len = 0;
-	connectedUsers.insert(make_pair(clientSocket, playerInfo));
+	playerInfo->playerPacket.len = 0;
+	connectedPlayers.insert(make_pair(clientSocket, playerInfo));
 }
 
 void NetworkManager::SendCreateRoom(string roomName, int playerIndex)
@@ -96,7 +96,7 @@ void NetworkManager::SendRoomState(int roomNum, bool isStart, bool canStart)
 	//send(clientSocket, (const char*)&packetBuf, packetBuf.header.len, 0);
 }
 
-void NetworkManager::SendBackToLobby(int playerIndex, int roomNum)
+void NetworkManager::SendBackToLobby(int roomNum, int playerIndex)
 {
 	PACKET_BACK_TO_LOBBY packet;
 	packet.header.type = PACKET_TYPE::PACKET_TYPE_BACK_TO_LOBBY;
@@ -106,15 +106,25 @@ void NetworkManager::SendBackToLobby(int playerIndex, int roomNum)
 	send(clientSocket, (const char*)&packet, packet.header.len, 0);
 }
 
-void NetworkManager::SendLogin(SOCKET clientSocket)
+void NetworkManager::SendLoginToClient(SOCKET clientSocket)
 {
 	// 로그인 정보 전송
-	PACKET_LOGIN packet;
-	packet.header.type = PACKET_TYPE_LOGIN;
-	packet.header.len = sizeof(PACKET_LOGIN);
-	packet.loginIndex = connectedUsers[clientSocket]->index;
+	PACKET_LOGIN_TO_CLIENT packet;
+	packet.header.type = PACKET_TYPE_LOGIN_TO_CLIENT;
+	packet.header.len = sizeof(PACKET_LOGIN_TO_CLIENT);
+	packet.loginIndex = connectedPlayers[clientSocket]->index;
 	send(clientSocket, (const char*)&packet, packet.header.len, 0);
 	//WSASend(clientSocket, (LPWSABUF)&packetBuf, 1, (LPDWORD)packetBuf.header.len, 0, NULL, NULL);
+}
+
+void NetworkManager::SendLoginToServer(int playerIndex, char* nickName)
+{
+	PACKET_LOGIN_TO_SERVER packet;
+	packet.header.type = PACKET_TYPE_LOGIN_TO_SERVER;
+	packet.header.len = sizeof(PACKET_LOGIN_TO_SERVER);
+	packet.playerIndex = playerIndex;
+	strcpy(packet.nickName, nickName);
+	send(clientSocket, (const char*)&packet, packet.header.len, 0);
 }
 
 void NetworkManager::SendChat(int playerIndex, int roomNum, char* chat)
@@ -156,10 +166,6 @@ void NetworkManager::SendDrawToClient(int roomNum)
 		if (createdRooms[roomNum]->inPlayers[i] != -1)
 		{
 			send(GetPlayerSocket(createdRooms[roomNum]->inPlayers[i]), (const char*)&packet, packet.header.len, 0);
-		}
-		else
-		{
-			break;
 		}
 	}
 }
@@ -203,16 +209,36 @@ void NetworkManager::BroadCastLobbyData()
 	lobbyDataPacket.lobyData.maxRoomNum = MAX_ROOM_NUM;
 	lobbyDataPacket.header.len = sizeof(PACKET_HEADER) + sizeof(int) + sizeof(int) + roomCount * sizeof(ROOM_DATA);
 
-	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++)
 	{
 		send(iter->first, (const char*)&lobbyDataPacket, lobbyDataPacket.header.len, 0);
 		//WSASend(iter->first, (LPWSABUF)&lobbyDataPacket, 1, (LPDWORD)lobbyDataPacket.header.len, 0, NULL, NULL);
 	}
 }
 
+void NetworkManager::BroadCastPlayerData()
+{
+	PACKET_PLAYER_DATA packet;
+	packet.header.type = PACKET_TYPE::PACKET_TYPE_PLAYER_DATA;
+	packet.header.len = sizeof(PACKET_PLAYER_DATA);
+	packet.playerCount = connectedPlayers.size();
+
+	int i = 0;
+	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++, i++)
+	{
+		packet.playerData[i].index = iter->second->index;
+		strcpy(packet.playerData[i].nickName, iter->second->nickName);
+	}
+
+	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++)
+	{
+		send(iter->first, (const char*)&packet, packet.header.len, 0);
+	}
+}
+
 void NetworkManager::SendChatToRoom(PACKET_CHAT& packet)
 {
-	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++)
 	{
 		if (iter->second->inRoomNum == packet.roomNum)
 		{
@@ -233,7 +259,7 @@ bool NetworkManager::CreateRoom(PACKET_CREATE_ROOM packet)
 	//roomInfo->mouseTrack.reserve(1000);
 	createdRooms.insert(make_pair(roomNum, roomInfo));
 
-	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++)
 	{
 		if (iter->second->index == packet.roomData.inPlayer[0])
 		{
@@ -248,7 +274,7 @@ bool NetworkManager::CreateRoom(PACKET_CREATE_ROOM packet)
 
 void NetworkManager::EnterRoom(int roomNum, int playerIndex)
 {
-	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++)
 	{
 		if (iter->second->index == playerIndex)
 		{
@@ -273,7 +299,7 @@ void NetworkManager::BackToLobby(int roomNum, int playerIndex)
 	if (roomNum == -1)
 		return;
 
-	for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++)
+	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++)
 	{
 		if (iter->second->index == playerIndex)
 		{
@@ -302,13 +328,23 @@ void NetworkManager::BackToLobby(int roomNum, int playerIndex)
 		createdRooms.erase(roomNum);
 		this->roomCount--;
 	}
+
+	if (roomCount == 0)
+	{
+		this->roomNum = 0;
+	}
+
+	if (roomNum + 1 == this->roomNum)
+	{
+		this->roomNum--;
+	}
 }
 
 void NetworkManager::EndUser(SOCKET clientSocket)
 {
-	if (connectedUsers[clientSocket]->inRoomNum != -1)
+	if (connectedPlayers[clientSocket]->inRoomNum != -1)
 	{
-		int roomNum = connectedUsers[clientSocket]->inRoomNum;
+		int roomNum = connectedPlayers[clientSocket]->inRoomNum;
 		if (createdRooms[roomNum]->inPlayerNum == 1)
 		{
 			for (auto iter = createdRooms[roomNum]->mouseTrack.begin(); iter != createdRooms[roomNum]->mouseTrack.end(); iter++)
@@ -325,8 +361,8 @@ void NetworkManager::EndUser(SOCKET clientSocket)
 		}
 	}
 
-	SAFE_DELETE(connectedUsers[clientSocket]);
-	connectedUsers.erase(clientSocket);
+	SAFE_DELETE(connectedPlayers[clientSocket]);
+	connectedPlayers.erase(clientSocket);
 }
 
 void NetworkManager::DrawToSketchBook(int roomNum, BRUSH_DATA brushData)
@@ -339,7 +375,19 @@ void NetworkManager::DrawToSketchBook(int roomNum, BRUSH_DATA brushData)
 	createdRooms[roomNum]->mouseTrack.push_back(newBrush);
 }
 
+void NetworkManager::SetNickName(int playerIndex, char * nickName)
+{
+	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++)
+	{
+		if (iter->second->index == playerIndex)
+		{
+			strcpy(iter->second->nickName, nickName);
+			break;
+		}
+	}
+}
+
 PACKET_INFO * NetworkManager::GetUserPacket(SOCKET clientSocket)
 {
-	return &connectedUsers[clientSocket]->userPacket;
+	return &connectedPlayers[clientSocket]->playerPacket;
 }

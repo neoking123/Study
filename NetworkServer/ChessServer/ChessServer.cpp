@@ -32,12 +32,12 @@ enum CHESS_PIECES
 	PAWN_B
 };
 
-class USER_INFO
+class PLAYER_INFO
 {
 public:
 	int index;
 	char userBuf[BUFSIZE];
-	char userName[128];
+	char nickName[128];
 	int inRoomNum = -1;
 	int len;
 };
@@ -57,13 +57,13 @@ public:
 
 int userIndex = 0;
 int roomNum = 0;
-map<SOCKET, USER_INFO*> connectedUsers;
+map<SOCKET, PLAYER_INFO*> connectedUsers;
 map<int, ROOM_INFO*> createdRooms;
 //int board[8][8];
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void ProcessSocketMessage(HWND, UINT, WPARAM, LPARAM);
-bool ProcessPacket(USER_INFO* pUser, char* szBuf, int& len);
+bool ProcessPacket(PLAYER_INFO* pUser, char* szBuf, int& len);
 void err_display(const char* msg);
 void err_display(int errcode);
 void err_quit(const char* msg);
@@ -194,19 +194,19 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			err_display("WSAAsyncSelect()");
 		}
 
-		USER_INFO* playerInfo = new USER_INFO();
+		PLAYER_INFO* playerInfo = new PLAYER_INFO();
 		playerInfo->index = userIndex++;
 		playerInfo->len = 0;
 		stringstream ss;
 		ss << playerInfo->index;
 		string str = "player" + ss.str();
-		strcpy(playerInfo->userName, str.c_str());
+		strcpy(playerInfo->nickName, str.c_str());
 		connectedUsers.insert(make_pair(client_sock, playerInfo));
 
 		// 로그인 정보 전송
-		PACKET_LOGIN packet;
+		PACKET_LOGIN_TO_CLIENT packet;
 		packet.header.type = PACKET_TYPE_LOGIN;
-		packet.header.len = sizeof(PACKET_LOGIN);
+		packet.header.len = sizeof(PACKET_LOGIN_TO_CLIENT);
 		packet.loginIndex = playerInfo->index;
 		send(client_sock, (const char*)&packet, packet.header.len, 0);
 
@@ -225,7 +225,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		int k = 0;
 		for (auto iter = connectedUsers.begin(); iter != connectedUsers.end(); iter++, k++)
 		{
-			strcpy(userDatePacket.userData[k].userName, iter->second->userName);
+			strcpy(userDatePacket.userData[k].userName, iter->second->nickName);
 			userDatePacket.userData[k].inRoomNum = iter->second->inRoomNum;
 		}
 
@@ -255,7 +255,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return;
 		}
 
-		USER_INFO* user = connectedUsers[wParam];
+		PLAYER_INFO* user = connectedUsers[wParam];
 
 		while (true)
 		{
@@ -288,7 +288,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 // 패킷 처리 함수
-bool ProcessPacket(USER_INFO* userInfo, char* buf, int& len)
+bool ProcessPacket(PLAYER_INFO* userInfo, char* buf, int& len)
 {
 	if (len > 0)
 	{

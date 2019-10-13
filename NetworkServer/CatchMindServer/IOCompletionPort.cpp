@@ -125,7 +125,7 @@ void IOCompletionPort::StartServer()
 		//mutex.lock();
 		NetworkManager::GetInstance()->AddUser(clientSocket);
 		//mutex.unlock();
-		NetworkManager::GetInstance()->SendLogin(clientSocket);
+		NetworkManager::GetInstance()->SendLoginToClient(clientSocket);
 		NetworkManager::GetInstance()->BroadCastLobbyData();
 
 		printf("\n[INFO] 클라이언트 접속: IP 주소=%s, 포트번호=%d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
@@ -317,24 +317,13 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 
 	switch (header.type)
 	{
-	case PACKET_TYPE::PACKET_TYPE_LOGIN:
+	case PACKET_TYPE::PACKET_TYPE_LOGIN_TO_SERVER:
 	{
-		PACKET_LOGIN packet;
+		PACKET_LOGIN_TO_SERVER packet;
 		memcpy(&packet, buf, header.len);
-	}
-	break;
 
-	case PACKET_TYPE::PACKET_TYPE_USER_DATA:
-	{
-		PACKET_USER_DATA packet;
-		memcpy(&packet, buf, header.len);
-	}
-	break;
-
-	case PACKET_TYPE::PACKET_TYPE_LOBBY_DATA:
-	{
-		PACKET_LOBBY_DATA packet;
-		memcpy(&packet, buf, header.len);
+		NetworkManager::GetInstance()->SetNickName(packet.playerIndex, packet.nickName);
+		NetworkManager::GetInstance()->BroadCastPlayerData();
 	}
 	break;
 
@@ -358,13 +347,6 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 		NetworkManager::GetInstance()->EnterRoom(packet.roomNum, packet.playerIndex);
 		NetworkManager::GetInstance()->BroadCastLobbyData();
 		NetworkManager::GetInstance()->SendSketchBookToEnterUser(packet.roomNum, packet.playerIndex);
-	}
-	break;
-
-	case PACKET_TYPE::PACKET_TYPE_MOVE_TO:
-	{
-		PACKET_MOVE_TO packet;
-		memcpy(&packet, buf, header.len);
 	}
 	break;
 

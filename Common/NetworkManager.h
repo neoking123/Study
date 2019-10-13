@@ -6,12 +6,12 @@
 #include "CatchMindPacket.h"
 using namespace std;
 
-class USER_INFO
+class PLAYER_INFO
 {
 public:
-	PACKET_INFO userPacket;
+	PACKET_INFO playerPacket;
 	int index;
-	char userName[128];
+	char nickName[128];
 	int inRoomNum = -1;
 };
 
@@ -24,16 +24,15 @@ public:
 	bool isStart = false;
 	bool canStart = false;
 	vector<BRUSH_DATA*> mouseTrack;
-	//int board[8][8];
-	//int spectators[MAX_SPEC_NUM];
-	//int roomNameLen;
 };
+
+class PLAYER_INFO;
 
 class NetworkManager
 {
 private:
 	static NetworkManager* instance;
-	map<SOCKET, USER_INFO*> connectedUsers;
+	map<SOCKET, PLAYER_INFO*> connectedPlayers;
 	map<int, ROOM_INFO*> createdRooms;
 	SOCKET clientSocket;
 	int userIndex;
@@ -53,19 +52,22 @@ public:
 	void SendCreateRoom(string roomName, int playerIndex);
 	void SendEnterRoom(int roomNum, int playerIndex);
 	void SendRoomState(int roomNum, bool isStart = false, bool canStart = false);
-	void SendBackToLobby(int playerIndex, int roomNum);
-	void SendLogin(SOCKET clientSocket);
+	void SendBackToLobby(int roomNum, int playerIndex);
+	void SendLoginToClient(SOCKET clientSocket);
+	void SendLoginToServer(int playerIndex, char* nickName);
 	void SendChat(int playerIndex, int roomNum, char* chat);
 	void SendDrawToServer(int roomNum, BRUSH_DATA& brushData);
 	void SendDrawToClient(int roomNum);
 	void SendSketchBookToEnterUser(int roomNum, int playerIndex);
 	void BroadCastLobbyData();
+	void BroadCastPlayerData();
 	void SendChatToRoom(PACKET_CHAT& packet);
 	bool CreateRoom(PACKET_CREATE_ROOM packet);
 	void EnterRoom(int roomNum, int playerIndex);
 	void BackToLobby(int roomNum, int playerIndex);
 	void EndUser(SOCKET clientSocket);
 	void DrawToSketchBook(int roomNum, BRUSH_DATA brushData);
+	void SetNickName(int playerIndex, char* nickName);
 	PACKET_INFO* GetUserPacket(SOCKET clientSocket);
 
 	static NetworkManager* GetInstance()

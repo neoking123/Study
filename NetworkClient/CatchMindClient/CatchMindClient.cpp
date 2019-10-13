@@ -87,8 +87,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	switch (iMessage)
 	{
 	case WM_CREATE:
+		CatchMind::GetInstance()->InitLogin();
 		ChattingManager::GetInstance()->Init(hWnd, g_hInst);
-		SetFocus(ChattingManager::GetInstance()->hChat);
+		SetFocus(CatchMind::GetInstance()->hLoginEidt);
+		//SetFocus(ChattingManager::GetInstance()->hChat);
 		return 0;
 
 	case WM_LBUTTONDOWN:
@@ -114,7 +116,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_CTLCOLOREDIT:
-		if ((HWND)lParam == ChattingManager::GetInstance()->hChat || (HWND)lParam == ChattingManager::GetInstance()->hChatList)
+		if ((HWND)lParam == ChattingManager::GetInstance()->hChat || (HWND)lParam == ChattingManager::GetInstance()->hChatList
+			|| (HWND)lParam == CatchMind::GetInstance()->hLoginEidt)
 		{
 			if (hBrush) { DeleteObject(hBrush); hBrush = NULL; }
 			hBrush = CreateSolidBrush(RGB(0, 91, 184));
@@ -122,6 +125,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			SetTextColor((HDC)wParam, RGB(255, 255, 255));
 			return (LRESULT)hBrush;
 		}
+		return 0;
 
 	case WM_DESTROY:
 		DeleteObject(hBrush);

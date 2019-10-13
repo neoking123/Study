@@ -55,7 +55,7 @@ struct MOVE_DATA
 	POINT targetPos;
 };
 
-struct PACKET_LOGIN
+struct PACKET_LOGIN_TO_CLIENT
 {
 	PACKET_HEADER header;
 	int loginIndex;

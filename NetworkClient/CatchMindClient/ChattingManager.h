@@ -6,6 +6,7 @@ using namespace std;
 
 #define ID_EDIT_0 100
 #define ID_EDIT_1 101
+#define ID_EDIT_2 102
 
 class ChattingManager
 {

@@ -5,11 +5,13 @@
 #define	MAX_BUFFER		1024
 #define MAX_ROOM_NUM 10
 #define MAX_ROOM_IN_NUM 8
+#define MAX_PLAYER_NUM 100
 
 enum PACKET_TYPE
 {
-	PACKET_TYPE_LOGIN = 1,
-	PACKET_TYPE_USER_DATA,
+	PACKET_TYPE_LOGIN_TO_CLIENT = 1,
+	PACKET_TYPE_LOGIN_TO_SERVER,
+	PACKET_TYPE_PLAYER_DATA,
 	PACKET_TYPE_LOBBY_DATA,
 	PACKET_TYPE_CREATE_ROOM,
 	PACKET_TYPE_ENTER_ROOM,
@@ -42,14 +44,10 @@ struct PACKET_HEADER
 	int len;
 };
 
-struct USER_DATA
+struct PLAYER_DATA
 {
-	int userIndex;
-	int inRoomNum;
-	//int userNameLen;
-	char userName[32];
-	//int x;
-	//int y;
+	int index;
+	char nickName[32];
 };
 
 struct ROOM_DATA
@@ -85,23 +83,30 @@ struct BRUSH_DATA
 	bool isClickUp = false;
 };
 
-struct PACKET_LOGIN
+struct PACKET_LOGIN_TO_CLIENT
 {
 	PACKET_HEADER header;
 	int loginIndex;
 };
 
-struct PACKET_USER_DATA
+struct PACKET_LOGIN_TO_SERVER
 {
 	PACKET_HEADER header;
-	int userCount;
-	USER_DATA userData[20];
+	int playerIndex;
+	char nickName[32];
 };
 
 struct PACKET_LOBBY_DATA
 {
 	PACKET_HEADER header;
 	LOBY_DATA lobyData;
+};
+
+struct PACKET_PLAYER_DATA
+{
+	PACKET_HEADER header;
+	int playerCount;
+	PLAYER_DATA playerData[MAX_PLAYER_NUM];
 };
 
 struct PACKET_CREATE_ROOM

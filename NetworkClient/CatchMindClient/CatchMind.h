@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <chrono>
+#include <string>
 #include "..\..\Common\Macro.h"
 using namespace std;
 
@@ -37,7 +38,9 @@ private:
 	HBITMAP hBitmap;
 	HBITMAP hOldBitmap;
 	HWND hWnd;
+	HINSTANCE hInstance;
 	POINT cursor;
+	char nickName[32];
 	float elapseTime;
 	float reStartTime;
 	chrono::system_clock::time_point lastTime;
@@ -45,16 +48,22 @@ private:
 	SCENE_STATE sceneState;
 
 	CatchMind();
+	void DrawLogin(HDC hdc);
 	void DrawInRoom(HDC hdc);
 	void DrawInGameFrame(HDC hdc);
 	void DrawBackground(HDC hdc);
 	void DrawPalette(HDC hdc);
 	void DrawEraseAllButton(HDC hdc);
 	void DrawTimer(HDC hdc);
+	void DrawPlayersInfo(HDC hdc);
+	void DrawPlayersInfoFrame(HDC hdc);
+	void DrawKungyasToSelect(HDC hdc);
 	bool CheckIsClickedStateButton(int x, int y);
 	void CheckIsClickedBackButton(int x, int y);
+	void LoginInput();
 
 public:
+	HWND hLoginEidt;
 	int playerIndex;
 	int curTurn;
 
@@ -64,6 +73,7 @@ public:
 	void Render();
 	void Release();
 	void MouseInput(int x, int y, int mouseState);
+	void InitLogin();
 	void SetSeceneState(SCENE_STATE newState);
 	void DrawBackButton(HDC hdc);
 	void DrawExitButton(HDC hdc);

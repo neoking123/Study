@@ -270,19 +270,28 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packetBuf, char * buf, 
 
 	switch (header.type)
 	{
-	case PACKET_TYPE::PACKET_TYPE_LOGIN:
+	case PACKET_TYPE::PACKET_TYPE_LOGIN_TO_CLIENT:
 	{
-		PACKET_LOGIN packet;
+		PACKET_LOGIN_TO_CLIENT packet;
 		memcpy(&packet, packetBuf->buf, header.len);
 
 		CatchMind::GetInstance()->playerIndex = packet.loginIndex;
 	}
 	break;
 
-	case PACKET_TYPE::PACKET_TYPE_USER_DATA:
+	case PACKET_TYPE::PACKET_TYPE_PLAYER_DATA:
 	{
-		PACKET_USER_DATA packet;
+		PACKET_PLAYER_DATA packet;
 		memcpy(&packet, packetBuf->buf, header.len);
+
+		LobbyManager::GetInstanceLock()->SetPlayerCount(packet.playerCount);
+
+		LobbyManager::GetInstanceLock()->ClearPlayers();
+
+		for (int i = 0; i < LobbyManager::GetInstance()->GetPlayerCount(); i++)
+		{
+			LobbyManager::GetInstanceLock()->SetPlayers(packet.playerData[i].index, packet.playerData[i].nickName);
+		}
 	}
 	break;
 
@@ -294,7 +303,7 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packetBuf, char * buf, 
 		LobbyManager::GetInstanceLock()->SetRoomCount(packet.lobyData.roomCount);
 		LobbyManager::GetInstanceLock()->SetMaxRoomNum(packet.lobyData.maxRoomNum);
 
-		LobbyManager::GetInstance()->ClearRooms();
+		LobbyManager::GetInstanceLock()->ClearRooms();
 
 		if (LobbyManager::GetInstance()->GetRoomCount() <= 0)
 			break;
@@ -302,7 +311,7 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packetBuf, char * buf, 
 
 		for (int i = 0; i < LobbyManager::GetInstance()->GetRoomCount(); i++)
 		{
-			LobbyManager::GetInstance()->CreateRoom(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].roomName, packet.lobyData.roomsData[i].inPlayerNum);
+			LobbyManager::GetInstanceLock()->CreateRoom(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].roomName, packet.lobyData.roomsData[i].inPlayerNum);
 		}
 
 		for (int i = 0; i < LobbyManager::GetInstance()->GetRoomCount(); i++)
@@ -311,13 +320,6 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packetBuf, char * buf, 
 			LobbyManager::GetInstanceLock()->SetIsStart(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].isStart);
 			LobbyManager::GetInstanceLock()->SetCanStart(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].canStart);
 		}
-	}
-	break;
-
-	case PACKET_TYPE::PACKET_TYPE_MOVE_TO:
-	{
-		PACKET_MOVE_TO packet;
-		memcpy(&packet, packetBuf->buf, header.len);
 	}
 	break;
 

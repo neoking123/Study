@@ -11,6 +11,12 @@ CatchMind::CatchMind()
 {
 }
 
+void CatchMind::DrawLogin(HDC hdc)
+{
+	DrawBackground(hdc);
+	DrawKungyasToSelect(hdc);
+}
+
 void CatchMind::DrawInRoom(HDC hdc)
 {
 	DrawBackground(hdc);
@@ -21,6 +27,7 @@ void CatchMind::DrawInRoom(HDC hdc)
 	DrawDockBar(hdc);
 	DrawBackButton(hdc);
 	DrawExitButton(hdc);
+	DrawPlayersInfo(hdc);
 	ChattingManager::GetInstance()->DrawChat(hdc);
 }
 void CatchMind::DrawInGameFrame(HDC hdc)
@@ -53,6 +60,41 @@ void CatchMind::DrawEraseAllButton(HDC hdc)
 void CatchMind::DrawTimer(HDC hdc)
 {
 	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::TIMER_FRAME)->Draw(hdc, 380, 580);
+}
+
+void CatchMind::DrawPlayersInfo(HDC hdc)
+{
+	DrawPlayersInfoFrame(hdc);
+}
+
+void CatchMind::DrawPlayersInfoFrame(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::PLAYER_INFO_FRAME)->Draw(hdc, 130, 150);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::PLAYER_INFO_FRAME)->Draw(hdc, 130, 270);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::PLAYER_INFO_FRAME)->Draw(hdc, 130, 390);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::PLAYER_INFO_FRAME)->Draw(hdc, 130, 510);
+
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::PLAYER_INFO_FRAME)->Draw(hdc, 950, 150);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::PLAYER_INFO_FRAME)->Draw(hdc, 950, 270);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::PLAYER_INFO_FRAME)->Draw(hdc, 950, 390);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::PLAYER_INFO_FRAME)->Draw(hdc, 950, 510);
+}
+
+void CatchMind::DrawKungyasToSelect(HDC hdc)
+{
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::KUNGYA_0)->Draw(hdc, 300, 300);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::KUNGYA_1)->Draw(hdc, 400, 300);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::KUNGYA_2)->Draw(hdc, 500, 300);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::KUNGYA_3)->Draw(hdc, 600, 300);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::KUNGYA_4)->Draw(hdc, 700, 300);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::KUNGYA_5)->Draw(hdc, 800, 300);
+
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::KUNGYA_6)->Draw(hdc, 300, 400);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::KUNGYA_7)->Draw(hdc, 400, 400);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::KUNGYA_8)->Draw(hdc, 500, 400);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::KUNGYA_9)->Draw(hdc, 600, 400);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::KUNGYA_10)->Draw(hdc, 700, 400);
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::KUNGYA_11)->Draw(hdc, 800, 400);
 }
 
 bool CatchMind::CheckIsClickedStateButton(int x, int y)
@@ -101,14 +143,36 @@ void CatchMind::CheckIsClickedBackButton(int x, int y)
 	{
 		sceneState = SCENE_STATE::LOBY_SCENE;
 		LobbyManager::GetInstance()->ActivateCreateRoom();
-		//ChessBoard::GetInstance()->CleanPieces();
-		//ChessBoard::GetInstance()->Init();
 		curTurn = -1;
-		//SendBackToLobby();
 		int roomNum = LobbyManager::GetInstance()->GetRoomNum(playerIndex);
-		NetworkManager::GetInstance()->SendBackToLobby(playerIndex, roomNum);
+		NetworkManager::GetInstance()->SendBackToLobby(roomNum, playerIndex);
 		SketchBook::GetInstance()->CleanSketchBook();
 	}
+}
+
+void CatchMind::LoginInput()
+{
+	if ((GetAsyncKeyState(VK_RETURN) & 0x0001))
+	{
+		int playerIndex = CatchMind::GetInstance()->playerIndex;
+		int roomNum = LobbyManager::GetInstance()->GetRoomNum(playerIndex);
+		NetworkManager::GetInstance()->SendLoginToServer(playerIndex, nickName);
+
+		SetWindowText(hLoginEidt, "");
+	}
+	else
+	{
+		GetWindowText(hLoginEidt, nickName, 32);
+	}
+
+}
+
+void CatchMind::InitLogin()
+{
+	if (hLoginEidt != nullptr)
+		return;
+	
+	hLoginEidt = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_WANTRETURN, 500, 550, 220, 20, hWnd, (HMENU)ID_EDIT_0, hInstance, NULL);
 }
 
 CatchMind::~CatchMind()
@@ -120,6 +184,8 @@ void CatchMind::Init(HWND hWnd, HINSTANCE g_hInst)
 	lastTime = std::chrono::system_clock::now();
 	playerIndex = 0;
 	this->hWnd = hWnd;
+	hInstance = g_hInst;
+	hLoginEidt = nullptr;
 	HDC hdc = GetDC(hWnd);
 	curTurn = -1;
 	reStartTime = 0.0f;
@@ -132,8 +198,9 @@ void CatchMind::Init(HWND hWnd, HINSTANCE g_hInst)
 	LobbyManager::GetInstance()->Init(hWnd, g_hInst);
 	SketchBook::GetInstance()->Init();
 
-	sceneState = SCENE_STATE::LOBY_SCENE;
-	//InGameInit();
+	sceneState = SCENE_STATE::LOGIN_SCENE;
+	//HWND hLoginEidt = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_WANTRETURN, 568, 837, 220, 20, hWnd, (HMENU)ID_EDIT_0, g_hInst, NULL);
+
 	ReleaseDC(hWnd, hdc);
 }
 
@@ -145,27 +212,32 @@ void CatchMind::Update()
 
 	elapseTime = sec.count();
 
-	ChattingManager::GetInstance()->Input();
-
 	switch (sceneState)
 	{
 	case SCENE_STATE::LOGIN_SCENE:
+		InitLogin();
+		LoginInput();
 		break;
 
 	case SCENE_STATE::LOBY_SCENE:
+		ChattingManager::GetInstance()->Input();
 		LobbyManager::GetInstance()->Update();
 		break;
 
 	case SCENE_STATE::READY_SCENE:
+		ChattingManager::GetInstance()->Input();
 		break;
 
 	case SCENE_STATE::START_SCENE:
+		ChattingManager::GetInstance()->Input();
 		break;
 
 	case SCENE_STATE::INGAME_SCENE:
+		ChattingManager::GetInstance()->Input();
 		break;
 
 	case SCENE_STATE::RESULT_SCENE:
+		ChattingManager::GetInstance()->Input();
 		break;
 	}
 
@@ -181,6 +253,7 @@ void CatchMind::Render()
 	switch (sceneState)
 	{
 	case SCENE_STATE::LOGIN_SCENE:
+		DrawLogin(gameDC);
 		break;
 
 	case SCENE_STATE::LOBY_SCENE:
@@ -217,14 +290,6 @@ void CatchMind::Release()
 void CatchMind::MouseInput(int x, int y, int mouseState)
 {
 	cursor = { x, y };
-	/*if (mouseState == MOUSE_STATE::CLICK_DOWN)
-	{
-		cursor = { x, y };
-	}
-	else if (mouseState == MOUSE_STATE::CLICK_UP)
-	{
-		cursor = { x, y };
-	}*/
 
 	switch (sceneState)
 	{

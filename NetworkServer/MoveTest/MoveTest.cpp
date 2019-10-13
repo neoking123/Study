@@ -9,7 +9,7 @@ using namespace std;
 #define BUFSIZE 512
 #define WM_SOCKET (WM_USER + 1)
 
-class USER_INFO
+class PLAYER_INFO
 {
 public:
 	int index;
@@ -20,11 +20,11 @@ public:
 };
 
 int userIndex = 0;
-map<SOCKET, USER_INFO*> connectedUsers;
+map<SOCKET, PLAYER_INFO*> connectedUsers;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void ProcessSocketMessage(HWND, UINT, WPARAM, LPARAM);
-bool ProcessPacket(SOCKET sock, USER_INFO* pUser, char* szBuf, int& len);
+bool ProcessPacket(SOCKET sock, PLAYER_INFO* pUser, char* szBuf, int& len);
 void err_display(const char* msg);
 void err_display(int errcode);
 
@@ -165,7 +165,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			err_display("WSAAsyncSelect()");
 		}
 
-		USER_INFO* pInfo = new USER_INFO();
+		PLAYER_INFO* pInfo = new PLAYER_INFO();
 		pInfo->index = userIndex++;
 		pInfo->len = 0;
 		pInfo->x = rand() % 600;
@@ -211,7 +211,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return;
 		}
 
-		USER_INFO* pUser = connectedUsers[wParam];
+		PLAYER_INFO* pUser = connectedUsers[wParam];
 
 		while (true)
 		{
@@ -239,7 +239,7 @@ void ProcessSocketMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 // 패킷 처리 함수
-bool ProcessPacket(SOCKET sock, USER_INFO* pUser, char* szBuf, int& len)
+bool ProcessPacket(SOCKET sock, PLAYER_INFO* pUser, char* szBuf, int& len)
 {
 	if (len > 0)
 	{
