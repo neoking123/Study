@@ -290,7 +290,7 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packetBuf, char * buf, 
 
 		for (int i = 0; i < LobbyManager::GetInstance()->GetPlayerCount(); i++)
 		{
-			LobbyManager::GetInstanceLock()->SetPlayers(packet.playerData[i].index, packet.playerData[i].nickName);
+			LobbyManager::GetInstanceLock()->SetPlayers(packet.playerData[i].index, packet.playerData[i].nickName, packet.playerData[i].inRoomNum);
 		}
 	}
 	break;

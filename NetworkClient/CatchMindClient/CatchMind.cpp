@@ -157,14 +157,17 @@ void CatchMind::LoginInput()
 		int playerIndex = CatchMind::GetInstance()->playerIndex;
 		int roomNum = LobbyManager::GetInstance()->GetRoomNum(playerIndex);
 		NetworkManager::GetInstance()->SendLoginToServer(playerIndex, nickName);
-
+		SetSeceneState(SCENE_STATE::LOBY_SCENE);
+		ShowWindow(hLoginEidt, SW_HIDE);
+		ShowWindow(ChattingManager::GetInstance()->hChat, SW_SHOW);
+		ShowWindow(ChattingManager::GetInstance()->hChatList, SW_SHOW);
+		SetFocus(ChattingManager::GetInstance()->hChat);
 		SetWindowText(hLoginEidt, "");
 	}
 	else
 	{
 		GetWindowText(hLoginEidt, nickName, 32);
 	}
-
 }
 
 void CatchMind::InitLogin()
@@ -173,6 +176,7 @@ void CatchMind::InitLogin()
 		return;
 	
 	hLoginEidt = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_WANTRETURN, 500, 550, 220, 20, hWnd, (HMENU)ID_EDIT_0, hInstance, NULL);
+	SetFocus(hLoginEidt);
 }
 
 CatchMind::~CatchMind()

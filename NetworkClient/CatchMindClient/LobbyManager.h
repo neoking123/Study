@@ -6,6 +6,7 @@ using namespace std;
 
 struct Player
 {
+	int inRoomNum;
 	char nickName[32];
 };
 
@@ -30,6 +31,7 @@ private:
 	void DrawBackground(HDC hdc);
 	void DrawRooms(HDC hdc);
 	void DrawRoomCreateButton(HDC hdc);
+	void DrawConnectedPlayers(HDC hdc);
 	void UpdateRooms();
 
 public:
@@ -50,8 +52,13 @@ public:
 	bool GetIsStart(int roomNum);
 	bool GetCanStart(int roomNum);
 	void SetCanStart(int roomNum, bool canStart);
-	void SetPlayers(int playterIndex, char* nickName);
+	void SetPlayers(int playterIndex, char* nickName, int inRoomNum);
 	void ClearPlayers();
+
+	inline char* GetNickName(int playerIndex)
+	{
+		return players[playerIndex]->nickName;
+	}
 
 	inline int GetPlayerCount()
 	{

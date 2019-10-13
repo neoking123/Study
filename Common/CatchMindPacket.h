@@ -47,6 +47,7 @@ struct PACKET_HEADER
 struct PLAYER_DATA
 {
 	int index;
+	int inRoomNum;
 	char nickName[32];
 };
 

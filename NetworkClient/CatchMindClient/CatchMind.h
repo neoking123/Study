@@ -79,6 +79,11 @@ public:
 	void DrawExitButton(HDC hdc);
 	void DrawDockBar(HDC hdc);
 
+	inline SCENE_STATE GetSceneState()
+	{
+		return sceneState;
+	}
+
 	inline static CatchMind* GetInstance()
 	{
 		if (instance == nullptr)

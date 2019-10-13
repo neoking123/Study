@@ -228,6 +228,7 @@ void IOCompletionPort::WorkerThread()
 		{
 			NetworkManager::GetInstance()->EndUser(socketInfo->socket);
 			NetworkManager::GetInstance()->BroadCastLobbyData();
+			NetworkManager::GetInstance()->BroadCastPlayerData();
 			printf_s("[INFO] socket(%d) Á¢¼Ó ²÷±è\n", socketInfo->socket);
 			closesocket(socketInfo->socket);
 			free(socketInfo);
@@ -335,6 +336,7 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 		if (NetworkManager::GetInstance()->CreateRoom(packet))
 		{
 			NetworkManager::GetInstance()->BroadCastLobbyData();
+			NetworkManager::GetInstance()->BroadCastPlayerData();
 		}
 	}
 	break;
@@ -346,6 +348,7 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 
 		NetworkManager::GetInstance()->EnterRoom(packet.roomNum, packet.playerIndex);
 		NetworkManager::GetInstance()->BroadCastLobbyData();
+		NetworkManager::GetInstance()->BroadCastPlayerData();
 		NetworkManager::GetInstance()->SendSketchBookToEnterUser(packet.roomNum, packet.playerIndex);
 	}
 	break;
@@ -366,6 +369,7 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 
 		NetworkManager::GetInstance()->BackToLobby(packet.roomNum, packet.playerIndex);
 		NetworkManager::GetInstance()->BroadCastLobbyData();
+		NetworkManager::GetInstance()->BroadCastPlayerData();
 	}
 	break;
 

@@ -59,9 +59,14 @@ void ChattingManager::DrawChat(HDC hdc)
 
 void ChattingManager::PrintChat(int playerIndex, string chat)
 {
+	if (CatchMind::GetInstance()->GetSceneState() == SCENE_STATE::LOGIN_SCENE)
+		return;
+
 	stringstream ss;
 	ss << playerIndex;
-	chatList += " player" + ss.str() + " : " + chat + "\r\n";
+
+	string s = LobbyManager::GetInstance()->GetNickName(playerIndex);
+	chatList += " " + s + " : " + chat + "\r\n";
 	SetWindowText(hChatList, chatList.c_str());
 	
 	SendMessageA(hChatList, EM_SETSEL, 0, -1);

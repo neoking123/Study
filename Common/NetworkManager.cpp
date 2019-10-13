@@ -227,6 +227,7 @@ void NetworkManager::BroadCastPlayerData()
 	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++, i++)
 	{
 		packet.playerData[i].index = iter->second->index;
+		packet.playerData[i].inRoomNum = iter->second->inRoomNum;
 		strcpy(packet.playerData[i].nickName, iter->second->nickName);
 	}
 
