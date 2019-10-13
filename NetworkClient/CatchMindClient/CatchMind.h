@@ -13,11 +13,15 @@ using namespace std;
 #define BACK_BUTTON_POSITION_X 1150
 #define BACK_BUTTON_POSITION_Y 925
 #define DOCK_BAR_POSITION 921
+#define KUNGYA_SIZE 80
+#define PALETTE_SIZE 30
 
 enum MOUSE_STATE
 {
-	CLICK_DOWN,
-	CLICK_UP
+	LCLICK_DOWN,
+	LCLICK_UP,
+	RCLICK_DOWN,
+	RCLICK_UP
 };
 
 enum SCENE_STATE
@@ -43,6 +47,7 @@ private:
 	char nickName[32];
 	float elapseTime;
 	float reStartTime;
+	bool isSelectKungya;
 	chrono::system_clock::time_point lastTime;
 
 	SCENE_STATE sceneState;
@@ -57,15 +62,22 @@ private:
 	void DrawTimer(HDC hdc);
 	void DrawPlayersInfo(HDC hdc);
 	void DrawPlayersInfoFrame(HDC hdc);
+	void DrawAllPlayers(HDC hdc);
 	void DrawKungyasToSelect(HDC hdc);
+	void DrawSelectedKungya(HDC hdc);
+	void DrawLoginInfo(HDC hdc);
 	bool CheckIsClickedStateButton(int x, int y);
 	void CheckIsClickedBackButton(int x, int y);
+	void CheckIsClickedKungya(int x, int y);
+	void CheckIsClickedPalette(int x, int y, int mouseState);
+	void CheckIsCliekedEraseAll(int x, int y, int mouseState);
 	void LoginInput();
 
 public:
 	HWND hLoginEidt;
 	int playerIndex;
 	int curTurn;
+	int kungyaNum;
 
 	~CatchMind();
 	void Init(HWND hWnd, HINSTANCE g_hInst);

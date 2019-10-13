@@ -10,17 +10,6 @@ ChattingManager::ChattingManager()
 {
 }
 
-void ChattingManager::SendChat()
-{
-	PACKET_CHAT packet;
-	packet.header.type = PACKET_TYPE::PACKET_TYPE_CHAT;
-	packet.header.len = sizeof(packet);
-	//packetBuf.playerIndex = ChessGame::GetInstance()->playerIndex;
-	//packetBuf.roomNum = LobbyManager::GetInstance()->GetRoomNum(ChessGame::GetInstance()->playerIndex);
-	strcpy(packet.chat, chat);
-	//send(ChessGame::GetInstance()->GetSock(), (const char*)&packetBuf, packetBuf.header.len, 0);
-}
-
 ChattingManager::~ChattingManager()
 {
 }

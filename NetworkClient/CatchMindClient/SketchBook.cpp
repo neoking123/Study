@@ -12,15 +12,13 @@ SketchBook::SketchBook()
 
 void SketchBook::DrawSketchBook(HDC hdc)
 {
-	HPEN MyPen;
-	HPEN OldPen;
-	MyPen = CreatePen(PS_SOLID, 5, RGB(0, 0, 0));
-	OldPen = (HPEN)SelectObject(hdc, MyPen);
-
-	if (mouseTrack.size() > 1)
+	if (mouseTrack.size() > 0)
 	{
 		for (auto iter = mouseTrack.begin(); iter != mouseTrack.end(); iter++)
 		{
+			if ((*iter) == nullptr)
+				return;
+
 			if ((*iter)->isClickUp == true)
 			{
 				continue;
@@ -30,25 +28,40 @@ void SketchBook::DrawSketchBook(HDC hdc)
 				if (iter + 1 != mouseTrack.end())
 				{
 					MoveToEx(hdc, (*iter)->pos.x, (*iter)->pos.y, NULL);
+					
+					HPEN MyPen;
+					HPEN OldPen;
+					MyPen = CreatePen(PS_SOLID, (*iter)->thickness, RGB((*iter)->color.r, (*iter)->color.g, (*iter)->color.b));
+					OldPen = (HPEN)SelectObject(hdc, MyPen);
+
 					iter++;
 					LineTo(hdc, (*iter)->pos.x, (*iter)->pos.y);
 					iter--;
+
+					SelectObject(hdc, OldPen);
+					DeleteObject(MyPen);
 				}
 				else
 				{
 					MoveToEx(hdc, (*iter)->pos.x, (*iter)->pos.y, NULL);
+
+					HPEN MyPen;
+					HPEN OldPen;
+					MyPen = CreatePen(PS_SOLID, (*iter)->thickness, RGB((*iter)->color.r, (*iter)->color.g, (*iter)->color.b));
+					OldPen = (HPEN)SelectObject(hdc, MyPen);
+
 					LineTo(hdc, (*iter)->pos.x, (*iter)->pos.y);
+
+					SelectObject(hdc, OldPen);
+					DeleteObject(MyPen);
 					break;
 				}
 			}
 		}
 	}
-
-	SelectObject(hdc, OldPen);
-	DeleteObject(MyPen);
 }
 
-void SketchBook::ClickDown(int x, int y)
+void SketchBook::LClickDown(int x, int y)
 {
 	if (x < bitmap->GetSize().cx + 330 && x > 370
 		&& y < bitmap->GetSize().cy + 130 && y > 150)
@@ -73,7 +86,7 @@ void SketchBook::Init()
 	bitmap = BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::SKETCH_BOOK);
 	isClicked = false;
 	curColor = {0, 0, 0};
-	curThick = 1;
+	curThick = 5;
 	mouseTrack.reserve(5000);
 }
 
@@ -83,6 +96,7 @@ void SketchBook::Release()
 	{
 		SAFE_DELETE(*iter);
 	}
+	mouseTrack.clear();
 }
 
 void SketchBook::Render(HDC hdc)
@@ -94,15 +108,18 @@ void SketchBook::Render(HDC hdc)
 
 void SketchBook::MouseInput(int x, int y, int mouseState)
 {
-	if (mouseState == MOUSE_STATE::CLICK_DOWN)
+	if (mouseState == MOUSE_STATE::LCLICK_DOWN)
 	{
-		ClickDown(x, y);
+		LClickDown(x, y);
 	}
-	else if (mouseState == MOUSE_STATE::CLICK_UP)
+	else if (mouseState == MOUSE_STATE::RCLICK_DOWN)
+	{
+		RClickDown(x, y);
+	}
+	else if (mouseState == MOUSE_STATE::LCLICK_UP || mouseState == MOUSE_STATE::RCLICK_UP)
 	{
 		ClickUp(x, y);
 	}
-
 }
 
 void SketchBook::DrawToSketchBook(int x, int y)
@@ -143,6 +160,23 @@ void SketchBook::ClickUp(int x, int y)
 			NetworkManager::GetInstance()->SendDrawToServer(roomNum, brush);
 		}
 	}
+	curThick = 5;
+}
+
+void SketchBook::RClickDown(int x, int y)
+{
+	if (x < bitmap->GetSize().cx + 330 && x > 370
+		&& y < bitmap->GetSize().cy + 130 && y > 150)
+	{
+		isClicked = true;
+		BRUSH_DATA brush;
+		brush.pos = { x, y };
+		brush.color = curColor;
+		curThick = 30;
+		brush.thickness = curThick;
+		int roomNum = LobbyManager::GetInstance()->GetRoomNum(CatchMind::GetInstance()->playerIndex);
+		NetworkManager::GetInstance()->SendDrawToServer(roomNum, brush);
+	}
 }
 
 void SketchBook::PushBackSketchBook(BRUSH_DATA brushData)
@@ -179,4 +213,9 @@ void SketchBook::CleanSketchBook()
 		SAFE_DELETE(*iter);
 	}
 	mouseTrack.clear();
+}
+
+void SketchBook::SetColor(RGB color)
+{
+	curColor = color;
 }

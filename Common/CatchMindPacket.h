@@ -21,7 +21,9 @@ enum PACKET_TYPE
 	PACKET_TYPE_BACK_TO_LOBBY,
 	PACKET_TYPE_DRAW_TO_SERVER,
 	PACKET_TYPE_DRAW_TO_CLIENT,
-	PACKET_TYPE_SKETCH_BOOK
+	PACKET_TYPE_SKETCH_BOOK,
+	PACKET_TYPE_ERASE_ALL_TO_SERVER,
+	PACKET_TYPE_ERASE_ALL_TO_CLIENT,
 };
 
 struct RGB
@@ -48,6 +50,7 @@ struct PLAYER_DATA
 {
 	int index;
 	int inRoomNum;
+	int kungyaNum;
 	char nickName[32];
 };
 
@@ -94,6 +97,7 @@ struct PACKET_LOGIN_TO_SERVER
 {
 	PACKET_HEADER header;
 	int playerIndex;
+	int kungyaNum;
 	char nickName[32];
 };
 
@@ -174,6 +178,17 @@ struct PACKET_SKETCH_BOOK
 	PACKET_HEADER header;
 	int mouseTrackLen;
 	BRUSH_DATA mouseTrack[MAX_BUFFER * 10];
+};
+
+struct PACKET_ERASE_ALL_TO_SERVER
+{
+	PACKET_HEADER header;
+	int roomNum;
+};
+
+struct PACKET_ERASE_ALL_TO_CLIENT
+{
+	PACKET_HEADER header;
 };
 
 #pragma pack()

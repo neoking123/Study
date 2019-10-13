@@ -21,8 +21,9 @@ private:
 
 	SketchBook();
 	void DrawSketchBook(HDC hdc);
-	void ClickDown(int x, int y);
+	void LClickDown(int x, int y);
 	void ClickUp(int x, int y);
+	void RClickDown(int x, int y);
 
 public:
 	~SketchBook();
@@ -34,6 +35,7 @@ public:
 	void PushBackSketchBook(BRUSH_DATA brushData);
 	void SetSketchBook(BRUSH_DATA* brushData, int len);
 	void CleanSketchBook();
+	void SetColor(RGB color);
 	
 	inline bool GetIsClicked()
 	{

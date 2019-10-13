@@ -194,11 +194,12 @@ void LobbyManager::SetCanStart(int roomNum, bool canStart)
 	mutex.unlock();
 }
 
-void LobbyManager::SetPlayers(int playterIndex, char * nickName, int inRoomNum)
+void LobbyManager::SetPlayers(int playterIndex, char * nickName, int inRoomNum, int kungyaNum)
 {
 	Player* player = new Player;
 	strcpy(player->nickName, nickName);
 	player->inRoomNum = inRoomNum;
+	player->kungyaNum = kungyaNum;
 	players.insert(make_pair(playterIndex, player));
 	mutex.unlock();
 }
@@ -254,4 +255,9 @@ void LobbyManager::Release()
 	}
 	rooms.clear();
 
+	for (auto iter = players.begin(); iter != players.end(); iter++)
+	{
+		SAFE_DELETE(iter->second);
+	}
+	players.clear();
 }

@@ -47,6 +47,18 @@ void NetworkManager::Release()
 	{
 		SAFE_DELETE(iter->second);
 	}
+	connectedPlayers.clear();
+
+	for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++)
+	{
+		for (auto mtIter = iter->second->mouseTrack.begin(); mtIter != iter->second->mouseTrack.end(); mtIter++)
+		{
+			SAFE_DELETE(*mtIter);
+		}
+		iter->second->mouseTrack.clear();
+		SAFE_DELETE(iter->second);
+	}
+	createdRooms.clear();
 }
 
 void NetworkManager::SetClientSocket(SOCKET clientSocket)
@@ -117,12 +129,13 @@ void NetworkManager::SendLoginToClient(SOCKET clientSocket)
 	//WSASend(clientSocket, (LPWSABUF)&packetBuf, 1, (LPDWORD)packetBuf.header.len, 0, NULL, NULL);
 }
 
-void NetworkManager::SendLoginToServer(int playerIndex, char* nickName)
+void NetworkManager::SendLoginToServer(int playerIndex, char* nickName, int kungyaNum)
 {
 	PACKET_LOGIN_TO_SERVER packet;
 	packet.header.type = PACKET_TYPE_LOGIN_TO_SERVER;
 	packet.header.len = sizeof(PACKET_LOGIN_TO_SERVER);
 	packet.playerIndex = playerIndex;
+	packet.kungyaNum = kungyaNum;
 	strcpy(packet.nickName, nickName);
 	send(clientSocket, (const char*)&packet, packet.header.len, 0);
 }
@@ -170,7 +183,7 @@ void NetworkManager::SendDrawToClient(int roomNum)
 	}
 }
 
-void NetworkManager::SendSketchBookToEnterUser(int roomNum, int playerIndex)
+void NetworkManager::SendSketchBook(int roomNum, int playerIndex)
 {
 	PACKET_SKETCH_BOOK packet;
 	packet.header.type = PACKET_TYPE::PACKET_TYPE_SKETCH_BOOK;
@@ -186,6 +199,27 @@ void NetworkManager::SendSketchBookToEnterUser(int roomNum, int playerIndex)
 	}
 
 	send(GetPlayerSocket(playerIndex), (const char*)&packet, packet.header.len, 0);
+}
+
+void NetworkManager::SendSketchBook(int roomNum)
+{
+	PACKET_SKETCH_BOOK packet;
+	packet.header.type = PACKET_TYPE::PACKET_TYPE_SKETCH_BOOK;
+	packet.header.len = sizeof(PACKET_HEADER) + sizeof(int) + sizeof(BRUSH_DATA) * createdRooms[roomNum]->mouseTrack.size();
+	packet.mouseTrackLen = createdRooms[roomNum]->mouseTrack.size();
+
+	for (int i = 0; i < createdRooms[roomNum]->mouseTrack.size(); i++)
+	{
+		packet.mouseTrack[i].pos = createdRooms[roomNum]->mouseTrack[i]->pos;
+		packet.mouseTrack[i].color = createdRooms[roomNum]->mouseTrack[i]->color;
+		packet.mouseTrack[i].thickness = createdRooms[roomNum]->mouseTrack[i]->thickness;
+		packet.mouseTrack[i].isClickUp = createdRooms[roomNum]->mouseTrack[i]->isClickUp;
+	}
+
+	for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
+	{
+		send(GetPlayerSocket(createdRooms[roomNum]->inPlayers[i]), (const char*)&packet, packet.header.len, 0);
+	}
 }
 
 void NetworkManager::BroadCastLobbyData()
@@ -228,6 +262,7 @@ void NetworkManager::BroadCastPlayerData()
 	{
 		packet.playerData[i].index = iter->second->index;
 		packet.playerData[i].inRoomNum = iter->second->inRoomNum;
+		packet.playerData[i].kungyaNum = iter->second->kungyaNum;
 		strcpy(packet.playerData[i].nickName, iter->second->nickName);
 	}
 
@@ -248,6 +283,15 @@ void NetworkManager::SendChatToRoom(PACKET_CHAT& packet)
 	}
 }
 
+void NetworkManager::SendEraseAllToServer(int roomNum)
+{
+	PACKET_ERASE_ALL_TO_SERVER packet;
+	packet.header.type = PACKET_TYPE::PACKET_TYPE_ERASE_ALL_TO_SERVER;
+	packet.header.len = sizeof(PACKET_ERASE_ALL_TO_SERVER);
+	packet.roomNum = roomNum;
+	send(clientSocket, (const char*)&packet, packet.header.len, 0);
+}
+
 bool NetworkManager::CreateRoom(PACKET_CREATE_ROOM packet)
 {
 	if (roomCount >= MAX_ROOM_NUM)
@@ -257,7 +301,7 @@ bool NetworkManager::CreateRoom(PACKET_CREATE_ROOM packet)
 	strcpy(roomInfo->roomName, packet.roomData.roomName);
 	roomInfo->inPlayerNum = packet.roomData.inPlayerNum;
 	roomInfo->inPlayers[0] = packet.roomData.inPlayer[0];
-	//roomInfo->mouseTrack.reserve(1000);
+	roomInfo->mouseTrack.reserve(5000);
 	createdRooms.insert(make_pair(roomNum, roomInfo));
 
 	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++)
@@ -328,16 +372,16 @@ void NetworkManager::BackToLobby(int roomNum, int playerIndex)
 		createdRooms[roomNum]->mouseTrack.clear();
 		createdRooms.erase(roomNum);
 		this->roomCount--;
+
+		if (roomNum + 1 == this->roomNum)
+		{
+			this->roomNum--;
+		}
 	}
 
 	if (roomCount == 0)
 	{
 		this->roomNum = 0;
-	}
-
-	if (roomNum + 1 == this->roomNum)
-	{
-		this->roomNum--;
 	}
 }
 
@@ -358,7 +402,15 @@ void NetworkManager::EndUser(SOCKET clientSocket)
 		}
 		else
 		{
-			createdRooms[roomNum]->inPlayerNum--;
+			for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
+			{
+				if (createdRooms[roomNum]->inPlayers[i] == connectedPlayers[clientSocket]->index)
+				{
+					createdRooms[roomNum]->inPlayers[i] = -1;
+					createdRooms[roomNum]->inPlayerNum--;
+					break;
+				}
+			}
 		}
 	}
 
@@ -386,6 +438,27 @@ void NetworkManager::SetNickName(int playerIndex, char * nickName)
 			break;
 		}
 	}
+}
+
+void NetworkManager::SetKungyaNum(int playerIndex, int kungyaNum)
+{
+	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++)
+	{
+		if (iter->second->index == playerIndex)
+		{
+			iter->second->kungyaNum = kungyaNum;
+			break;
+		}
+	}
+}
+
+void NetworkManager::EraseAllSketchBook(int roomNum)
+{
+	for (auto iter = createdRooms[roomNum]->mouseTrack.begin(); iter != createdRooms[roomNum]->mouseTrack.end(); iter++)
+	{
+		SAFE_DELETE(*iter);
+	}
+	createdRooms[roomNum]->mouseTrack.clear();
 }
 
 PACKET_INFO * NetworkManager::GetUserPacket(SOCKET clientSocket)

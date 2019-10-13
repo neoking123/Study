@@ -323,6 +323,7 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 		PACKET_LOGIN_TO_SERVER packet;
 		memcpy(&packet, buf, header.len);
 
+		NetworkManager::GetInstance()->SetKungyaNum(packet.playerIndex, packet.kungyaNum);
 		NetworkManager::GetInstance()->SetNickName(packet.playerIndex, packet.nickName);
 		NetworkManager::GetInstance()->BroadCastPlayerData();
 	}
@@ -349,7 +350,7 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 		NetworkManager::GetInstance()->EnterRoom(packet.roomNum, packet.playerIndex);
 		NetworkManager::GetInstance()->BroadCastLobbyData();
 		NetworkManager::GetInstance()->BroadCastPlayerData();
-		NetworkManager::GetInstance()->SendSketchBookToEnterUser(packet.roomNum, packet.playerIndex);
+		NetworkManager::GetInstance()->SendSketchBook(packet.roomNum, packet.playerIndex);
 	}
 	break;
 
@@ -380,6 +381,16 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 
 		NetworkManager::GetInstance()->DrawToSketchBook(packet.roomNum , packet.brushData);
 		NetworkManager::GetInstance()->SendDrawToClient(packet.roomNum);
+	}
+	break;
+
+	case PACKET_TYPE::PACKET_TYPE_ERASE_ALL_TO_SERVER:
+	{
+		PACKET_ERASE_ALL_TO_SERVER packet;
+		memcpy(&packet, buf, header.len);
+
+		NetworkManager::GetInstance()->EraseAllSketchBook(packet.roomNum);
+		NetworkManager::GetInstance()->SendSketchBook(packet.roomNum);
 	}
 	break;
 

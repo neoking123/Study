@@ -19,7 +19,6 @@ private:
 	float returnInputTime;
 
 	ChattingManager();
-	void SendChat();
 
 public:
 	HWND hChat;

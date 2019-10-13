@@ -11,6 +11,7 @@ class PLAYER_INFO
 public:
 	PACKET_INFO playerPacket;
 	int index;
+	int kungyaNum;
 	char nickName[128];
 	int inRoomNum = -1;
 };
@@ -54,20 +55,24 @@ public:
 	void SendRoomState(int roomNum, bool isStart = false, bool canStart = false);
 	void SendBackToLobby(int roomNum, int playerIndex);
 	void SendLoginToClient(SOCKET clientSocket);
-	void SendLoginToServer(int playerIndex, char* nickName);
+	void SendLoginToServer(int playerIndex, char* nickName, int koungyaNum);
 	void SendChat(int playerIndex, int roomNum, char* chat);
 	void SendDrawToServer(int roomNum, BRUSH_DATA& brushData);
 	void SendDrawToClient(int roomNum);
-	void SendSketchBookToEnterUser(int roomNum, int playerIndex);
+	void SendSketchBook(int roomNum, int playerIndex);
+	void SendSketchBook(int roomNum);
+	void SendChatToRoom(PACKET_CHAT& packet);
+	void SendEraseAllToServer(int roomNum);
 	void BroadCastLobbyData();
 	void BroadCastPlayerData();
-	void SendChatToRoom(PACKET_CHAT& packet);
 	bool CreateRoom(PACKET_CREATE_ROOM packet);
 	void EnterRoom(int roomNum, int playerIndex);
 	void BackToLobby(int roomNum, int playerIndex);
 	void EndUser(SOCKET clientSocket);
 	void DrawToSketchBook(int roomNum, BRUSH_DATA brushData);
 	void SetNickName(int playerIndex, char* nickName);
+	void SetKungyaNum(int playerIndex, int kungyaNum);
+	void EraseAllSketchBook(int roomNum);
 	PACKET_INFO* GetUserPacket(SOCKET clientSocket);
 
 	static NetworkManager* GetInstance()

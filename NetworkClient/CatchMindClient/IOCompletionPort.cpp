@@ -290,7 +290,7 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packetBuf, char * buf, 
 
 		for (int i = 0; i < LobbyManager::GetInstance()->GetPlayerCount(); i++)
 		{
-			LobbyManager::GetInstanceLock()->SetPlayers(packet.playerData[i].index, packet.playerData[i].nickName, packet.playerData[i].inRoomNum);
+			LobbyManager::GetInstanceLock()->SetPlayers(packet.playerData[i].index, packet.playerData[i].nickName, packet.playerData[i].inRoomNum, packet.playerData[i].kungyaNum);
 		}
 	}
 	break;
@@ -336,7 +336,7 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packetBuf, char * buf, 
 	{
 		PACKET_DRAW_TO_CLIENT packet;
 		memcpy(&packet, packetBuf->buf, header.len);
-		mutex mutex;
+		
 		SketchBook::GetInstanceLock()->PushBackSketchBook(packet.brushData);
 	}
 	break;
@@ -346,6 +346,7 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packetBuf, char * buf, 
 		PACKET_SKETCH_BOOK packet;
 		memcpy(&packet, packetBuf->buf, header.len);
 
+		SketchBook::GetInstance()->CleanSketchBook();
 		SketchBook::GetInstanceLock()->SetSketchBook(packet.mouseTrack, packet.mouseTrackLen);
 	}
 	break;

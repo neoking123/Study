@@ -2,7 +2,14 @@
 #include "ChattingManager.h"
 #include "CatchMind.h"
 #include "SketchBook.h"
+#include <crtdbg.h>
 using namespace std;
+
+#ifdef _DEBUG
+#define new new(_CLIENT_BLOCK, __FILE__, __LINE__)
+#define malloc(s) _malloc_db(s, _NORMAL_BLOCK, __FILE__, __LINE__)
+#endif // _DEBUG
+
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void err_display(const char* msg);
@@ -14,14 +21,14 @@ HBRUSH hBrush = NULL;
 HWND hChatCtrl = NULL;
 
 char g_szClassName[256] = "CatchMindClient";
-MOUSE_STATE mouseState = MOUSE_STATE::CLICK_UP;
+MOUSE_STATE mouseState = MOUSE_STATE::LCLICK_UP;
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
 	//메모리 릭
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	_CrtDumpMemoryLeaks();
-	//_CrtSetBreakAlloc(160);
+	//_CrtSetBreakAlloc(323);
 
 	HWND hWnd;
 	MSG Message;
@@ -73,9 +80,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 			CatchMind::GetInstance()->Update();
 		}
 	}
-
+	//IOCompletionPort::FreeInstance();
+	NetworkManager::GetInstance()->Release();
+	NetworkManager::FreeInstance();
 	CatchMind::GetInstance()->Release();
-	
+	CatchMind::FreeInstance();
 	return (int)Message.wParam;
 }
 
@@ -89,16 +98,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 		CatchMind::GetInstance()->InitLogin();
 		ChattingManager::GetInstance()->Init(hWnd, g_hInst);
-		SetFocus(CatchMind::GetInstance()->hLoginEidt);
-		//SetFocus(ChattingManager::GetInstance()->hChat);
 		return 0;
 
 	case WM_LBUTTONDOWN:
-		CatchMind::GetInstance()->MouseInput(LOWORD(lParam), HIWORD(lParam), MOUSE_STATE::CLICK_DOWN);
+		CatchMind::GetInstance()->MouseInput(LOWORD(lParam), HIWORD(lParam), MOUSE_STATE::LCLICK_DOWN);
 		return 0;
 
 	case WM_LBUTTONUP:
-		CatchMind::GetInstance()->MouseInput(LOWORD(lParam), HIWORD(lParam), MOUSE_STATE::CLICK_UP);
+		CatchMind::GetInstance()->MouseInput(LOWORD(lParam), HIWORD(lParam), MOUSE_STATE::LCLICK_UP);
+		return 0;
+
+	case WM_RBUTTONDOWN:
+		CatchMind::GetInstance()->MouseInput(LOWORD(lParam), HIWORD(lParam), MOUSE_STATE::RCLICK_DOWN);
+		return 0;
+
+	case WM_RBUTTONUP:
+		CatchMind::GetInstance()->MouseInput(LOWORD(lParam), HIWORD(lParam), MOUSE_STATE::RCLICK_UP);
 		return 0;
 
 	case WM_MOUSEMOVE:
@@ -116,8 +131,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_CTLCOLOREDIT:
-		if ((HWND)lParam == ChattingManager::GetInstance()->hChat || (HWND)lParam == ChattingManager::GetInstance()->hChatList
-			|| (HWND)lParam == CatchMind::GetInstance()->hLoginEidt)
+		if ((HWND)lParam == ChattingManager::GetInstance()->hChat || (HWND)lParam == ChattingManager::GetInstance()->hChatList)
 		{
 			if (hBrush) { DeleteObject(hBrush); hBrush = NULL; }
 			hBrush = CreateSolidBrush(RGB(0, 91, 184));

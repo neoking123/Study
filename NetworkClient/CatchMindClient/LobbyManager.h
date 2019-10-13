@@ -7,6 +7,8 @@ using namespace std;
 struct Player
 {
 	int inRoomNum;
+	int kungyaNum;
+	int answerCount;
 	char nickName[32];
 };
 
@@ -52,12 +54,63 @@ public:
 	bool GetIsStart(int roomNum);
 	bool GetCanStart(int roomNum);
 	void SetCanStart(int roomNum, bool canStart);
-	void SetPlayers(int playterIndex, char* nickName, int inRoomNum);
+	void SetPlayers(int playterIndex, char* nickName, int inRoomNum, int kungyaNum);
 	void ClearPlayers();
+
+	inline int GetKungyaNum(int playerIndex)
+	{
+		if (players[playerIndex] != nullptr)
+			return players[playerIndex]->kungyaNum;
+		else
+			return -1;
+	}
+
+	inline int GetKungyaNum(int roomNum, int index)
+	{
+		if (roomNum == -1)
+		{
+			mutex.unlock();
+			return -1;
+		}
+
+		if (rooms[roomNum]->inPlayer[index] == -1)
+		{
+			mutex.unlock();
+			return -1;
+		}
+		else
+		{
+			mutex.unlock();
+			return GetKungyaNum(rooms[roomNum]->inPlayer[index]);
+		}
+	}
 
 	inline char* GetNickName(int playerIndex)
 	{
-		return players[playerIndex]->nickName;
+		if (players[playerIndex] != nullptr)
+			return players[playerIndex]->nickName;
+		else
+			return nullptr;
+	}
+
+	inline char* GetNickName(int roomNum, int index)
+	{
+		if (roomNum == -1)
+		{
+			mutex.unlock();
+			return nullptr;
+		}
+
+		if (rooms[roomNum]->inPlayer[index] == -1)
+		{
+			mutex.unlock();
+			return nullptr;
+		}
+		else
+		{
+			mutex.unlock();
+			return GetNickName(rooms[roomNum]->inPlayer[index]);
+		}
 	}
 
 	inline int GetPlayerCount()
