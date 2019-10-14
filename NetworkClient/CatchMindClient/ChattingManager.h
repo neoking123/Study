@@ -30,6 +30,7 @@ public:
 	void Input();
 	void DrawChat(HDC hdc);
 	void PrintChat(int playerIndex, string chat);
+	void PrintAnswer(int playerIndex, string answer);
 
 	static ChattingManager* GetInstance()
 	{

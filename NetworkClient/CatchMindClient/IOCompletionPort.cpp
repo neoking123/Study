@@ -353,6 +353,15 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packetBuf, char * buf, 
 	}
 	break;
 
+	case PACKET_TYPE::PACKET_TYPE_ANSWER_PLAYER:
+	{
+		PACKET_ANSWER_PLAYER packet;
+		memcpy(&packet, packetBuf->buf, header.len);
+
+		ChattingManager::GetInstance()->PrintAnswer(packet.playerIndex, packet.answerWord);
+	}
+	break;
+
 	}
 
 	memcpy(&packetBuf->buf, &packetBuf->buf[header.len], packetBuf->len - header.len);

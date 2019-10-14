@@ -253,7 +253,7 @@ void CatchMind::DrawAnswer(HDC hdc)
 	char answerWord[32];
 	strcpy(answerWord, LobbyManager::GetInstance()->GetAnswerWord(roomNum));
 	wsprintf(answer, TEXT("%s"), answerWord);
-	TextOut(hdc, 588, 65, answer, lstrlen(answer));
+	TextOut(hdc, 570, 65, answer, lstrlen(answer));
 
 	SetTextColor(hdc, RGB(0, 0, 0));
 	SetBkColor(hdc, RGB(255, 255, 255));

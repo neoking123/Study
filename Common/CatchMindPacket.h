@@ -24,6 +24,7 @@ enum PACKET_TYPE
 	PACKET_TYPE_SKETCH_BOOK,
 	PACKET_TYPE_ERASE_ALL_TO_SERVER,
 	PACKET_TYPE_ERASE_ALL_TO_CLIENT,
+	PACKET_TYPE_ANSWER_PLAYER
 };
 
 struct RGB
@@ -194,6 +195,14 @@ struct PACKET_ERASE_ALL_TO_SERVER
 struct PACKET_ERASE_ALL_TO_CLIENT
 {
 	PACKET_HEADER header;
+};
+
+struct PACKET_ANSWER_PLAYER
+{
+	PACKET_HEADER header;
+	int roomNum;
+	int playerIndex;
+	char answerWord[32];
 };
 
 #pragma pack()

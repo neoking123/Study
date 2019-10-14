@@ -39,7 +39,6 @@ void WordManager::LoadWords(string fileName)
 	for (int i = 0; i < wordCount; i++)
 	{
 		getline(inFile, readString);
-		//string s = readString;
 		char* c = new char;
 		strcpy(c, readString.c_str());
 		wordList.insert(make_pair(i, c));
@@ -48,6 +47,6 @@ void WordManager::LoadWords(string fileName)
 
 char * WordManager::GetRandomWord()
 {
-	int randomIndex = rand() % 20;
+	int randomIndex = rand() % wordCount;
 	return wordList[randomIndex];
 }   

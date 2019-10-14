@@ -69,3 +69,14 @@ void ChattingManager::PrintChat(int playerIndex, string chat)
 	SendMessageA(hChatList, EM_SETSEL, -1, -1);
 	SendMessageA(hChatList, EM_SCROLLCARET, 0, 0);
 }
+
+void ChattingManager::PrintAnswer(int playerIndex, string answer)
+{
+	string answerPlayer = LobbyManager::GetInstance()->GetNickName(playerIndex);
+	chatList += "<정답 : " + answer + ", 맞추신 분 : " + answerPlayer + ">" + "\r\n";
+
+	SetWindowText(hChatList, chatList.c_str());
+	SendMessageA(hChatList, EM_SETSEL, 0, -1);
+	SendMessageA(hChatList, EM_SETSEL, -1, -1);
+	SendMessageA(hChatList, EM_SCROLLCARET, 0, 0);
+}

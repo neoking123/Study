@@ -67,6 +67,7 @@ public:
 	void SendSketchBook(int roomNum);
 	void SendChatToRoom(PACKET_CHAT& packet);
 	void SendEraseAllToServer(int roomNum);
+	void SendAnswerPlayer(int roomNum, int playerIndex, char* answerWord);
 	void SetAnswerWordInServer(int roomNum, char* answerWord);
 	void BroadCastLobbyData();
 	void BroadCastPlayerData();

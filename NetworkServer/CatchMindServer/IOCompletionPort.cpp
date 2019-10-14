@@ -376,10 +376,13 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 		PACKET_CHAT packet;
 		memcpy(&packet, buf, header.len);
 
+		NetworkManager::GetInstance()->SendChatToRoom(packet);
+
 		if (NetworkManager::GetInstance()->CheckIsStart(packet.roomNum))
 		{
 			if (NetworkManager::GetInstance()->CheckIsAnswer(packet.roomNum, packet.chat))
 			{
+				NetworkManager::GetInstance()->SendAnswerPlayer(packet.roomNum, packet.playerIndex, packet.chat);
 				NetworkManager::GetInstance()->EraseAllSketchBook(packet.roomNum);
 				NetworkManager::GetInstance()->SendSketchBook(packet.roomNum);
 				NetworkManager::GetInstance()->SetAnswerWordInServer(packet.roomNum, WordManager::GetInstance()->GetRandomWord());
@@ -387,7 +390,6 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 				NetworkManager::GetInstance()->BroadCastLobbyData();
 			}
 		}
-		NetworkManager::GetInstance()->SendChatToRoom(packet);
 	}
 	break;
 

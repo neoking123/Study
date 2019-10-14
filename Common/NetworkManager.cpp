@@ -298,6 +298,24 @@ void NetworkManager::SendEraseAllToServer(int roomNum)
 	send(clientSocket, (const char*)&packet, packet.header.len, 0);
 }
 
+void NetworkManager::SendAnswerPlayer(int roomNum, int playerIndex, char* answerWord)
+{
+	PACKET_ANSWER_PLAYER packet;
+	packet.header.type = PACKET_TYPE::PACKET_TYPE_ANSWER_PLAYER;
+	packet.header.len = sizeof(PACKET_ANSWER_PLAYER);
+	packet.playerIndex = playerIndex;
+	packet.roomNum = roomNum;
+	strcpy(packet.answerWord, answerWord);
+
+	for (auto iter = connectedPlayers.begin(); iter != connectedPlayers.end(); iter++)
+	{
+		if (iter->second->inRoomNum == roomNum)
+		{
+			send(iter->first, (const char*)&packet, packet.header.len, 0);
+		}
+	}
+}
+
 void NetworkManager::SetAnswerWordInServer(int roomNum, char* answerWord)
 {
 	strcpy(createdRooms[roomNum]->answer, answerWord);
