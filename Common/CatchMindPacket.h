@@ -58,8 +58,12 @@ struct ROOM_DATA
 {
 	int roomNum;
 	int inPlayerNum;
+	int roomMasterNum;
 	char roomName[32];
+	char answerWord[32];
 	int inPlayer[MAX_ROOM_IN_NUM];
+	bool readyState[MAX_ROOM_IN_NUM];
+	int curTurn;
 	bool isStart;
 	bool canStart;
 };
@@ -131,8 +135,9 @@ struct PACKET_ROOM_STATE
 {
 	PACKET_HEADER header;
 	int roomNum;
+	int playerIndex;
+	bool isReady;
 	bool isStart;
-	bool canStart;
 };
 
 struct PACKET_MOVE_TO

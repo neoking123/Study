@@ -17,10 +17,10 @@ void LobbyManager::DrawBackground(HDC hdc)
 	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::LOBY_BACK)->Draw(hdc, 0, 0, 2, 2);
 }
 
-void LobbyManager::CreateRoom(int roomNum, string roomName, int inPlayerNum)
+void LobbyManager::CreateRoom(int roomNum, string roomName, int inPlayerNum, int roomMasterIndex)
 {
 	Room* newRoom = new Room();
-	newRoom->Init(roomNum, roomAlignCount, roomName, (roomAlignCount % 2) * ROOM_WIDTH + ROOM_MARGINE_WIDTH, (roomAlignCount / 2) * ROOM_HEIGHT + ROOM_MARGINE_HEIGHT, inPlayerNum, MAX_ROOM_IN_NUM);
+	newRoom->Init(roomNum, roomAlignCount, roomName, (roomAlignCount % 2) * ROOM_WIDTH + ROOM_MARGINE_WIDTH, (roomAlignCount / 2) * ROOM_HEIGHT + ROOM_MARGINE_HEIGHT, inPlayerNum, MAX_ROOM_IN_NUM, roomMasterIndex);
 	rooms.insert(make_pair(roomNum, newRoom));
 	roomAlignCount++;
 	mutex.unlock();
@@ -95,10 +95,9 @@ void LobbyManager::CheckIsClickedRoomCB(int x, int y)
 	{
 		isCreateRoom = true;
 		string roomName = s + "´ÔÀÇ ¹æ";
-		NetworkManager::GetInstance()->SendCreateRoom(roomName, CatchMind::GetInstance()->playerIndex);
+		NetworkManager::GetInstance()->SendCreateRoom(roomName, CatchMind::GetInstance()->playerIndex, CatchMind::GetInstance()->playerIndex);
 		CatchMind::GetInstance()->SetSeceneState(SCENE_STATE::READY_SCENE);
 	}
-
 }
 
 void LobbyManager::CheckIsClickedRoom(int x, int y)
@@ -109,7 +108,6 @@ void LobbyManager::CheckIsClickedRoom(int x, int y)
 		{
 			NetworkManager::GetInstance()->SendEnterRoom(iter->first, CatchMind::GetInstance()->playerIndex);
 			CatchMind::GetInstance()->SetSeceneState(SCENE_STATE::READY_SCENE);
-			CatchMind::GetInstance()->curTurn = CatchMind::GetInstance()->playerIndex;
 		}
 	}
 	
@@ -133,11 +131,12 @@ void LobbyManager::UpdateRooms()
 	}
 }
 
-void LobbyManager::SetInPlayer(int roomNum, int* inPlayer)
+void LobbyManager::SetInPlayer(int roomNum, int* inPlayer, bool* readyState)
 {
 	for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
 	{
 		rooms[roomNum]->inPlayer[i] = inPlayer[i];
+		rooms[roomNum]->reayState[i] = readyState[i];
 	}
 
 	mutex.unlock();
@@ -167,12 +166,11 @@ int LobbyManager::GetRoomNum(int playerIndex)
 
 bool LobbyManager::CheckIsRoomMaster(int playerIndex)
 {
-	for (auto iter = rooms.begin(); iter != rooms.end(); iter++)
+	int roomNum = GetRoomNum(playerIndex);
+	
+	if (rooms[roomNum]->roomMasterIndex == playerIndex)
 	{
-		if (iter->second->inPlayer[0] == playerIndex)
-		{
-			return true;
-		}
+		return true;
 	}
 
 	return false;
@@ -211,6 +209,41 @@ void LobbyManager::ClearPlayers()
 		SAFE_DELETE(iter->second);
 	}
 	players.clear();
+	mutex.unlock();
+}
+
+bool LobbyManager::CheckCanStart(int roomNum, int playerIndex)
+{
+	if (rooms[roomNum]->inPlayerNum == 1)
+		return false;
+
+	int readyCount = 0;
+	for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
+	{
+		if (rooms[roomNum]->inPlayer[i] == playerIndex)
+			continue;
+		else
+		{
+			if (rooms[roomNum]->reayState[i] == true)
+			{
+				readyCount++;
+			}
+		}
+	}
+
+	if (readyCount == rooms[roomNum]->inPlayerNum - 1)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void LobbyManager::SetAnswerWordInClient(int roomNum, char * answerWord)
+{
+	strcpy(rooms[roomNum]->answerWord, answerWord);
 	mutex.unlock();
 }
 

@@ -2,6 +2,7 @@
 #include <map>
 #include <mutex>
 #include "Room.h"
+#include "..\..\Common\Macro.h"
 using namespace std;
 
 struct Player
@@ -46,8 +47,8 @@ public:
 	void CheckIsClickedRoomCB(int x, int y);
 	void CheckIsClickedRoom(int x, int y);
 	void ClearRooms();
-	void CreateRoom(int roomNum, string roomName, int inPlayerNum = 0);
-	void SetInPlayer(int roomNum, int* inPlayer);
+	void CreateRoom(int roomNum, string roomName, int inPlayerNum = 0, int roomMasterIndex = -1);
+	void SetInPlayer(int roomNum, int* inPlayer, bool* readyState);
 	void SetIsStart(int roomNum, bool isStart);
 	int GetRoomNum(int playerIndex);
 	bool CheckIsRoomMaster(int playerIndex);
@@ -56,6 +57,34 @@ public:
 	void SetCanStart(int roomNum, bool canStart);
 	void SetPlayers(int playterIndex, char* nickName, int inRoomNum, int kungyaNum);
 	void ClearPlayers();
+	bool CheckCanStart(int roomNum, int playerIndex);
+	void SetAnswerWordInClient(int roomNum, char* answerWord);
+
+	inline char* GetAnswerWord(int roomNum)
+	{
+		return rooms[roomNum]->answerWord;
+	}
+
+	inline int GetCurrentTurn(int roomNum)
+	{
+		return rooms[roomNum]->curTurn;
+	}
+
+	inline void SetCurrentTurn(int roomNum, int curTurn)
+	{
+		rooms[roomNum]->curTurn = curTurn;
+		mutex.unlock();
+	}
+	
+	inline bool CheckIsReady(int roomNum, int i)
+	{
+		return rooms[roomNum]->reayState[i];
+	}
+
+	inline int GetPlayerIndex(int roomNum, int index)
+	{
+		return rooms[roomNum]->inPlayer[index];
+	}
 
 	inline int GetKungyaNum(int playerIndex)
 	{
@@ -198,11 +227,7 @@ public:
 
 	inline static void FreeInstance()
 	{
-		if (instance != nullptr)
-		{
-			delete instance;
-			instance = nullptr;
-		}
+		SAFE_DELETE(instance);
 	}
 };
 

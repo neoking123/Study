@@ -21,7 +21,11 @@ class ROOM_INFO
 public:
 	char roomName[128];
 	int inPlayerNum;
+	int roomMasyerNum;
 	int inPlayers[MAX_ROOM_IN_NUM] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+	bool readyState[MAX_ROOM_IN_NUM] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	int curTurn = -1;
+	char answer[32];
 	bool isStart = false;
 	bool canStart = false;
 	vector<BRUSH_DATA*> mouseTrack;
@@ -50,9 +54,9 @@ public:
 	void Release();
 	void SetClientSocket(SOCKET clientSocket);
 	void AddUser(SOCKET clientSocket);
-	void SendCreateRoom(string roomName, int playerIndex);
+	void SendCreateRoom(string roomName, int playerIndex, int roomMasterNum);
 	void SendEnterRoom(int roomNum, int playerIndex);
-	void SendRoomState(int roomNum, bool isStart = false, bool canStart = false);
+	void SendRoomState(int roomNum, int playerIndex, bool isReady, bool isStart = false);
 	void SendBackToLobby(int roomNum, int playerIndex);
 	void SendLoginToClient(SOCKET clientSocket);
 	void SendLoginToServer(int playerIndex, char* nickName, int koungyaNum);
@@ -63,6 +67,7 @@ public:
 	void SendSketchBook(int roomNum);
 	void SendChatToRoom(PACKET_CHAT& packet);
 	void SendEraseAllToServer(int roomNum);
+	void SetAnswerWordInServer(int roomNum, char* answerWord);
 	void BroadCastLobbyData();
 	void BroadCastPlayerData();
 	bool CreateRoom(PACKET_CREATE_ROOM packet);
@@ -73,6 +78,10 @@ public:
 	void SetNickName(int playerIndex, char* nickName);
 	void SetKungyaNum(int playerIndex, int kungyaNum);
 	void EraseAllSketchBook(int roomNum);
+	void SetRoomState(int roomNum, int playerIndex, bool isReady, bool isStart);
+	bool CheckIsStart(int roomNum);
+	bool CheckIsAnswer(int roomNum, char* answerWord);
+	void SetNextTurn(int roomNum);
 	PACKET_INFO* GetUserPacket(SOCKET clientSocket);
 
 	static NetworkManager* GetInstance()
@@ -86,10 +95,7 @@ public:
 
 	static void FreeInstance()
 	{
-		if (instance != nullptr)
-		{
-			SAFE_DELETE(instance);
-		}
+		SAFE_DELETE(instance);
 	}
 };
 

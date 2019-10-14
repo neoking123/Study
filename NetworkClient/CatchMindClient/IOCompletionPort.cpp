@@ -311,12 +311,14 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packetBuf, char * buf, 
 
 		for (int i = 0; i < LobbyManager::GetInstance()->GetRoomCount(); i++)
 		{
-			LobbyManager::GetInstanceLock()->CreateRoom(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].roomName, packet.lobyData.roomsData[i].inPlayerNum);
+			LobbyManager::GetInstanceLock()->CreateRoom(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].roomName, packet.lobyData.roomsData[i].inPlayerNum, packet.lobyData.roomsData[i].roomMasterNum);
 		}
 
 		for (int i = 0; i < LobbyManager::GetInstance()->GetRoomCount(); i++)
 		{
-			LobbyManager::GetInstanceLock()->SetInPlayer(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].inPlayer);
+			LobbyManager::GetInstanceLock()->SetAnswerWordInClient(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].answerWord);
+			LobbyManager::GetInstanceLock()->SetCurrentTurn(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].curTurn);
+			LobbyManager::GetInstanceLock()->SetInPlayer(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].inPlayer, packet.lobyData.roomsData[i].readyState);
 			LobbyManager::GetInstanceLock()->SetIsStart(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].isStart);
 			LobbyManager::GetInstanceLock()->SetCanStart(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].canStart);
 		}

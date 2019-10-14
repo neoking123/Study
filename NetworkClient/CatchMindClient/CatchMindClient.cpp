@@ -28,7 +28,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	//메모리 릭
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	_CrtDumpMemoryLeaks();
-	//_CrtSetBreakAlloc(323);
+	//_CrtSetBreakAlloc(300);
 
 	HWND hWnd;
 	MSG Message;

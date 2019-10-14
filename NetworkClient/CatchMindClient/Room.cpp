@@ -130,7 +130,7 @@ Room::~Room()
 {
 }
 
-void Room::Init(int roomNum, int roomAlignCount, string roomName, int x, int y, int curInplayerNum, int MaxInPlayerNum, bool isSecret, string password)
+void Room::Init(int roomNum, int roomAlignCount, string roomName, int x, int y, int curInplayerNum, int MaxInPlayerNum, int roomMasterIndex, bool isSecret, string password)
 {
 	tag = "room";
 	this->roomNum = roomNum;
@@ -142,6 +142,7 @@ void Room::Init(int roomNum, int roomAlignCount, string roomName, int x, int y, 
 	
 	inPlayerNum = curInplayerNum;
 	this->MaxInPlayerNum = MaxInPlayerNum;
+	this->roomMasterIndex = roomMasterIndex;
 	this->isSecret = isSecret;
 	this->password = password;
 	isStart = false;

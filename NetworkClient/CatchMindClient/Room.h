@@ -42,13 +42,17 @@ public:
 	int roomAlignCount;
 	int inPlayerNum;
 	int inPlayer[MAX_ROOM_IN_NUM] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+	bool reayState[MAX_ROOM_IN_NUM] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	char answerWord[32];
+	int curTurn = -1;
 	int MaxInPlayerNum;
+	int roomMasterIndex;
 	bool isStart;
 	bool canStart;
 
 	Room();
 	~Room();
-	void Init(int roomNum, int roomAlignCount, string name, int x, int y, int curInplayerNum, int MaxInplayerNum, bool isSecret = false, string password = "");
+	void Init(int roomNum, int roomAlignCount, string name, int x, int y, int curInplayerNum, int MaxInplayerNum, int roomMasterIndex, bool isSecret = false, string password = "");
 	virtual void Init(int x, int y) override;
 	virtual void Update() override;
 	virtual void Render(HDC hdc) override;

@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="GameObject">
+      <UniqueIdentifier>{75ea7372-62aa-4703-b71e-ba3a2c1fdec8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CatchMindServer.cpp">
@@ -25,7 +28,10 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SketchBook.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="WordManager.cpp">
+      <Filter>GameObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -36,7 +42,10 @@
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="SketchBook.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="WordManager.h">
+      <Filter>GameObject</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

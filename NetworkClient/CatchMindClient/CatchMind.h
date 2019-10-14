@@ -8,8 +8,8 @@ using namespace std;
 #define FPS	60.0f
 #define INGAME_WIDTH 1280
 #define INGAME_HEIGHT 960
-#define START_BUTTON_POSITION_X 800
-#define START_BUTTON_POSITION_Y 500
+#define START_BUTTON_POSITION_X 675
+#define START_BUTTON_POSITION_Y 550
 #define BACK_BUTTON_POSITION_X 1150
 #define BACK_BUTTON_POSITION_Y 925
 #define DOCK_BAR_POSITION 921
@@ -48,6 +48,7 @@ private:
 	float elapseTime;
 	float reStartTime;
 	bool isSelectKungya;
+	bool isReady;
 	chrono::system_clock::time_point lastTime;
 
 	SCENE_STATE sceneState;
@@ -55,6 +56,7 @@ private:
 	CatchMind();
 	void DrawLogin(HDC hdc);
 	void DrawInRoom(HDC hdc);
+	void DrawInGame(HDC hdc);
 	void DrawInGameFrame(HDC hdc);
 	void DrawBackground(HDC hdc);
 	void DrawPalette(HDC hdc);
@@ -66,17 +68,20 @@ private:
 	void DrawKungyasToSelect(HDC hdc);
 	void DrawSelectedKungya(HDC hdc);
 	void DrawLoginInfo(HDC hdc);
+	void DrawStartButton(HDC hdc);
+	void DrawRoomState(HDC hdc);
+	void DrawAnswer(HDC hdc);
 	bool CheckIsClickedStateButton(int x, int y);
 	void CheckIsClickedBackButton(int x, int y);
 	void CheckIsClickedKungya(int x, int y);
 	void CheckIsClickedPalette(int x, int y, int mouseState);
 	void CheckIsCliekedEraseAll(int x, int y, int mouseState);
+	void CheckStart();
 	void LoginInput();
 
 public:
 	HWND hLoginEidt;
 	int playerIndex;
-	int curTurn;
 	int kungyaNum;
 
 	~CatchMind();
@@ -107,10 +112,7 @@ public:
 
 	inline static void FreeInstance()
 	{
-		if (instance != nullptr)
-		{
-			SAFE_DELETE(instance);
-		}
+		SAFE_DELETE(instance);
 	}
 };
 

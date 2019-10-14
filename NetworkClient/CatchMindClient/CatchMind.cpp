@@ -29,8 +29,26 @@ void CatchMind::DrawInRoom(HDC hdc)
 	DrawBackButton(hdc);
 	DrawExitButton(hdc);
 	DrawPlayersInfo(hdc);
+	DrawStartButton(hdc);
+	DrawRoomState(hdc);
 	ChattingManager::GetInstance()->DrawChat(hdc);
 }
+
+void CatchMind::DrawInGame(HDC hdc)
+{
+	DrawBackground(hdc);
+	DrawInGameFrame(hdc);
+	DrawPalette(hdc);
+	DrawEraseAllButton(hdc);
+	DrawTimer(hdc);
+	DrawDockBar(hdc);
+	DrawBackButton(hdc);
+	DrawExitButton(hdc);
+	DrawPlayersInfo(hdc);
+	DrawAnswer(hdc);
+	ChattingManager::GetInstance()->DrawChat(hdc);
+}
+
 void CatchMind::DrawInGameFrame(HDC hdc)
 {
 	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::IN_GAME_FRAME)->Draw(hdc, 342, 130);
@@ -85,10 +103,11 @@ void CatchMind::DrawPlayersInfoFrame(HDC hdc)
 void CatchMind::DrawAllPlayers(HDC hdc)
 {
 	TCHAR nickName[128];
+	TCHAR roomMaster[128];
 	HFONT myFont = CreateFont(18, 0, 0, 0, 1000, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "Arial");
 	HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
 	SetTextColor(hdc, RGB(8, 99, 165));
-	SetBkColor(hdc, RGB(206, 206, 206));
+	//SetBkColor(hdc, RGB(206, 206, 206));
 
 	int roomNum = LobbyManager::GetInstance()->GetRoomNum(playerIndex);
 
@@ -100,8 +119,18 @@ void CatchMind::DrawAllPlayers(HDC hdc)
 			{
 				BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::KUNGYA_0 + LobbyManager::GetInstanceLock()->GetKungyaNum(roomNum, i))->Draw(hdc, 135 + (i % 2) * 820, 160 + (i / 2) * 120);
 			}
+			SetTextColor(hdc, RGB(8, 99, 165));
+			SetBkColor(hdc, RGB(206, 206, 206));
 			wsprintf(nickName, TEXT("%s"), LobbyManager::GetInstanceLock()->GetNickName(roomNum, i));
 			TextOut(hdc, 230 + (i % 2) * 820, 172 + (i / 2) * 120, nickName, lstrlen(nickName));
+
+			if (LobbyManager::GetInstance()->CheckIsRoomMaster(LobbyManager::GetInstance()->GetPlayerIndex(roomNum, i)))
+			{
+				SetTextColor(hdc, RGB(255, 0, 0));
+				SetBkColor(hdc, RGB(123, 115, 140));
+				wsprintf(roomMaster, TEXT("☆방장☆"));
+				TextOut(hdc, 230 + (i % 2) * 820, 197 + (i / 2) * 120, roomMaster, lstrlen(roomMaster));
+			}
 		}
 	}
 
@@ -154,6 +183,84 @@ void CatchMind::DrawLoginInfo(HDC hdc)
 	DeleteObject(myFont);
 }
 
+void CatchMind::DrawStartButton(HDC hdc)
+{
+	if (LobbyManager::GetInstance()->CheckIsRoomMaster(playerIndex))
+	{
+		BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BUTTON_START)->Draw(hdc, START_BUTTON_POSITION_X, START_BUTTON_POSITION_Y);
+	}
+	else
+	{
+		BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BUTTON_READY)->Draw(hdc, START_BUTTON_POSITION_X, START_BUTTON_POSITION_Y);
+	}
+}
+
+void CatchMind::DrawRoomState(HDC hdc)
+{
+	TCHAR ready[128];
+	HFONT myFont = CreateFont(18, 0, 0, 0, 1000, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "Arial");
+	HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
+	SetTextColor(hdc, RGB(255, 0, 0));
+	SetBkColor(hdc, RGB(123, 115, 140));
+
+	int roomNum = LobbyManager::GetInstance()->GetRoomNum(playerIndex);
+	for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
+	{
+		if (LobbyManager::GetInstance()->CheckIsReady(roomNum, i))
+		{
+			wsprintf(ready, TEXT("Reday"));
+			TextOut(hdc, 230 + (i % 2) * 820, 197 + (i / 2) * 120, ready, lstrlen(ready));
+		}
+	}
+
+	SetTextColor(hdc, RGB(0, 0, 0));
+	SetBkColor(hdc, RGB(255, 255, 255));
+	SelectObject(hdc, oldFont);
+	DeleteObject(myFont);
+}
+
+void CatchMind::DrawAnswer(HDC hdc)
+{
+	int roomNum = LobbyManager::GetInstance()->GetRoomNum(CatchMind::GetInstance()->playerIndex);
+
+	TCHAR turnName[128];
+	HFONT myFont = CreateFont(24, 0, 0, 0, 1000, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "Arial");
+	HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
+	SetTextColor(hdc, RGB(255, 255, 255));
+	SetBkColor(hdc, RGB(8, 123, 181));
+
+	char turn[32];
+	strcpy(turn, LobbyManager::GetInstance()->GetNickName(LobbyManager::GetInstance()->GetCurrentTurn(roomNum)));
+	wsprintf(turnName, TEXT("%s님이 그리는 중"), turn);
+	TextOut(hdc, 700, 580, turnName, lstrlen(turnName));
+
+	SetTextColor(hdc, RGB(0, 0, 0));
+	SetBkColor(hdc, RGB(255, 255, 255));
+	SelectObject(hdc, oldFont);
+	DeleteObject(myFont);
+
+	if (LobbyManager::GetInstance()->GetCurrentTurn(roomNum) != CatchMind::GetInstance()->playerIndex)
+		return;
+
+	TCHAR answer[128];
+	HFONT newMyFont = CreateFont(28, 0, 0, 0, 1000, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "Arial");
+	HFONT newOldFont = (HFONT)SelectObject(hdc, newMyFont);
+	SetTextColor(hdc, RGB(255, 255, 255));
+	SetBkColor(hdc, RGB(8, 123, 181));
+
+	BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::ANSWER_WORD_FRAME)->Draw(hdc, 560, 60);
+
+	char answerWord[32];
+	strcpy(answerWord, LobbyManager::GetInstance()->GetAnswerWord(roomNum));
+	wsprintf(answer, TEXT("%s"), answerWord);
+	TextOut(hdc, 588, 65, answer, lstrlen(answer));
+
+	SetTextColor(hdc, RGB(0, 0, 0));
+	SetBkColor(hdc, RGB(255, 255, 255));
+	SelectObject(hdc, newOldFont);
+	DeleteObject(newMyFont);
+}
+
 bool CatchMind::CheckIsClickedStateButton(int x, int y)
 {
 	if (x > START_BUTTON_POSITION_X && x < START_BUTTON_POSITION_X + BitMapManager::GetInstance()->GetBitMap(BITMAP_RES::BUTTON_START)->GetSize().cx
@@ -162,31 +269,25 @@ bool CatchMind::CheckIsClickedStateButton(int x, int y)
 		int roomNum = LobbyManager::GetInstance()->GetRoomNum(playerIndex);
 		if (LobbyManager::GetInstance()->CheckIsRoomMaster(playerIndex))
 		{
-			if (LobbyManager::GetInstance()->GetCanStart(roomNum))
+			if (LobbyManager::GetInstance()->CheckCanStart(roomNum, playerIndex))
 			{
 				bool isStart = true;
-				LobbyManager::GetInstance()->SetIsStart(roomNum, isStart);
-				NetworkManager::GetInstance()->SendRoomState(roomNum, isStart);
+				//LobbyManager::GetInstanceLock()->SetIsStart(roomNum, isStart);
+				NetworkManager::GetInstance()->SendRoomState(roomNum, playerIndex, true, isStart);
 			}
 		}
 		else
 		{
-			bool canStart;
-			if (LobbyManager::GetInstance()->GetIsStart(roomNum))
-				return true;
-
-			if (LobbyManager::GetInstance()->GetCanStart(roomNum))
+			if (!isReady)
 			{
-				canStart = false;
-				LobbyManager::GetInstance()->SetCanStart(roomNum, canStart);
-				NetworkManager::GetInstance()->SendRoomState(roomNum, canStart);
+				isReady = true;
+				NetworkManager::GetInstance()->SendRoomState(roomNum, playerIndex, isReady);
 			}
-			else
+			/*else
 			{
-				canStart = true;
-				LobbyManager::GetInstance()->SetCanStart(roomNum, canStart);
-				NetworkManager::GetInstance()->SendRoomState(roomNum, canStart);
-			}
+				isReady = true;
+				NetworkManager::GetInstance()->SendRoomState(roomNum, playerIndex, isReady);
+			}*/
 		}
 		return true;
 	}
@@ -200,7 +301,7 @@ void CatchMind::CheckIsClickedBackButton(int x, int y)
 	{
 		sceneState = SCENE_STATE::LOBY_SCENE;
 		LobbyManager::GetInstance()->ActivateCreateRoom();
-		curTurn = -1;
+		isReady = false;
 		int roomNum = LobbyManager::GetInstance()->GetRoomNum(playerIndex);
 		NetworkManager::GetInstance()->SendBackToLobby(roomNum, playerIndex);
 		SketchBook::GetInstance()->CleanSketchBook();
@@ -274,6 +375,13 @@ void CatchMind::CheckIsClickedKungya(int x, int y)
 
 void CatchMind::CheckIsClickedPalette(int x, int y, int mouseState)
 {
+	if (CatchMind::GetInstance()->GetSceneState() == SCENE_STATE::INGAME_SCENE)
+	{
+		int roomNum = LobbyManager::GetInstance()->GetRoomNum(CatchMind::GetInstance()->playerIndex);
+		if (LobbyManager::GetInstance()->GetCurrentTurn(roomNum) != CatchMind::GetInstance()->playerIndex)
+			return;
+	}
+
 	if (mouseState != MOUSE_STATE::LCLICK_DOWN)
 		return;
 
@@ -309,12 +417,36 @@ void CatchMind::CheckIsClickedPalette(int x, int y, int mouseState)
 
 void CatchMind::CheckIsCliekedEraseAll(int x, int y, int mouseState)
 {
+	if (CatchMind::GetInstance()->GetSceneState() == SCENE_STATE::INGAME_SCENE)
+	{
+		int roomNum = LobbyManager::GetInstance()->GetRoomNum(CatchMind::GetInstance()->playerIndex);
+		if (LobbyManager::GetInstance()->GetCurrentTurn(roomNum) != CatchMind::GetInstance()->playerIndex)
+			return;
+	}
+
 	if (mouseState != MOUSE_STATE::LCLICK_DOWN)
 		return;
 
 	if (x > 720 && x < 720 + 84 && y > 500 && y < 500 + 29)
 	{
 		NetworkManager::GetInstance()->SendEraseAllToServer(LobbyManager::GetInstance()->GetRoomNum(playerIndex));
+	}
+}
+
+void CatchMind::CheckStart()
+{
+	int roomNum = LobbyManager::GetInstance()->GetRoomNum(playerIndex);
+	if (LobbyManager::GetInstance()->GetIsStart(roomNum))
+	{
+		if (LobbyManager::GetInstance()->CheckIsRoomMaster(playerIndex))
+		{
+			//curTurn = -1;
+		}
+		else
+		{
+			//curTurn = playerIndex;
+		}
+		sceneState = SCENE_STATE::INGAME_SCENE;
 	}
 }
 
@@ -359,9 +491,9 @@ void CatchMind::Init(HWND hWnd, HINSTANCE g_hInst)
 	hInstance = g_hInst;
 	hLoginEidt = nullptr;
 	HDC hdc = GetDC(hWnd);
-	curTurn = -1;
 	reStartTime = 0.0f;
 	isSelectKungya = false;
+	isReady = false;
 	kungyaNum = -1;
 
 	gameDC = CreateCompatibleDC(hdc);
@@ -373,7 +505,6 @@ void CatchMind::Init(HWND hWnd, HINSTANCE g_hInst)
 	SketchBook::GetInstance()->Init();
 
 	sceneState = SCENE_STATE::LOGIN_SCENE;
-	//HWND hLoginEidt = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_WANTRETURN, 568, 837, 220, 20, hWnd, (HMENU)ID_EDIT_0, g_hInst, NULL);
 
 	ReleaseDC(hWnd, hdc);
 }
@@ -400,10 +531,11 @@ void CatchMind::Update()
 
 	case SCENE_STATE::READY_SCENE:
 		ChattingManager::GetInstance()->Input();
+		CheckStart();
 		break;
 
 	case SCENE_STATE::START_SCENE:
-		ChattingManager::GetInstance()->Input();
+		//ChattingManager::GetInstance()->Input();
 		break;
 
 	case SCENE_STATE::INGAME_SCENE:
@@ -411,7 +543,7 @@ void CatchMind::Update()
 		break;
 
 	case SCENE_STATE::RESULT_SCENE:
-		ChattingManager::GetInstance()->Input();
+		//ChattingManager::GetInstance()->Input();
 		break;
 	}
 
@@ -444,7 +576,8 @@ void CatchMind::Render()
 		break;
 
 	case SCENE_STATE::INGAME_SCENE:
-		//DrawInGame(gameDC);
+		DrawInGame(gameDC);
+		SketchBook::GetInstanceLock()->Render(gameDC);
 		break;
 
 	case SCENE_STATE::RESULT_SCENE:
@@ -494,8 +627,10 @@ void CatchMind::MouseInput(int x, int y, int mouseState)
 		break;
 
 	case SCENE_STATE::INGAME_SCENE:
-		//ChessBoard::GetInstance()->MouseInput(cursor.x, cursor.y);
 		CheckIsClickedBackButton(cursor.x, cursor.y);
+		CheckIsClickedPalette(cursor.x, cursor.y, mouseState);
+		CheckIsCliekedEraseAll(cursor.x, cursor.y, mouseState);
+		SketchBook::GetInstance()->MouseInput(cursor.x, cursor.y, mouseState);
 		break;
 
 	case SCENE_STATE::RESULT_SCENE:

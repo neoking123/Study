@@ -28,10 +28,7 @@ public:
 
 	inline static void FreeInstance()
 	{
-		if (instance != nullptr)
-		{
-			SAFE_DELETE(instance);
-		}
+		SAFE_DELETE(instance);
 	}
 };
 

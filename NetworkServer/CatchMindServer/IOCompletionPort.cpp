@@ -2,6 +2,7 @@
 #include <process.h>
 #include <mutex>
 #include "SketchBook.h"
+#include "WordManager.h"
 
 IOCompletionPort* IOCompletionPort::instance = nullptr;
 
@@ -354,11 +355,38 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 	}
 	break;
 
+	case PACKET_TYPE::PACKET_TYPE_ROOM_STATE:
+	{
+		PACKET_ROOM_STATE packet;
+		memcpy(&packet, buf, header.len);
+
+		NetworkManager::GetInstance()->SetRoomState(packet.roomNum, packet.playerIndex, packet.isReady, packet.isStart);
+		if (NetworkManager::GetInstance()->CheckIsStart(packet.roomNum))
+		{
+			NetworkManager::GetInstance()->EraseAllSketchBook(packet.roomNum);
+			NetworkManager::GetInstance()->SendSketchBook(packet.roomNum);
+			NetworkManager::GetInstance()->SetAnswerWordInServer(packet.roomNum, WordManager::GetInstance()->GetRandomWord());
+		}
+		NetworkManager::GetInstance()->BroadCastLobbyData();
+	}
+	break;
+
 	case PACKET_TYPE::PACKET_TYPE_CHAT:
 	{
 		PACKET_CHAT packet;
 		memcpy(&packet, buf, header.len);
 
+		if (NetworkManager::GetInstance()->CheckIsStart(packet.roomNum))
+		{
+			if (NetworkManager::GetInstance()->CheckIsAnswer(packet.roomNum, packet.chat))
+			{
+				NetworkManager::GetInstance()->EraseAllSketchBook(packet.roomNum);
+				NetworkManager::GetInstance()->SendSketchBook(packet.roomNum);
+				NetworkManager::GetInstance()->SetAnswerWordInServer(packet.roomNum, WordManager::GetInstance()->GetRandomWord());
+				NetworkManager::GetInstance()->SetNextTurn(packet.roomNum);
+				NetworkManager::GetInstance()->BroadCastLobbyData();
+			}
+		}
 		NetworkManager::GetInstance()->SendChatToRoom(packet);
 	}
 	break;

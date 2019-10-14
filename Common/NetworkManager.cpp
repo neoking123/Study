@@ -74,7 +74,7 @@ void NetworkManager::AddUser(SOCKET clientSocket)
 	connectedPlayers.insert(make_pair(clientSocket, playerInfo));
 }
 
-void NetworkManager::SendCreateRoom(string roomName, int playerIndex)
+void NetworkManager::SendCreateRoom(string roomName, int playerIndex, int roomMasterNum)
 {
 	PACKET_CREATE_ROOM packet;
 	packet.header.type = PACKET_TYPE::PACKET_TYPE_CREATE_ROOM;
@@ -82,6 +82,7 @@ void NetworkManager::SendCreateRoom(string roomName, int playerIndex)
 	strcpy(packet.roomData.roomName, roomName.c_str());
 	packet.roomData.inPlayerNum = 1;
 	packet.roomData.inPlayer[0] = playerIndex;
+	packet.roomData.roomMasterNum = roomMasterNum;
 	packet.roomData.isStart = false;
 	packet.roomData.canStart = false;
 	send(clientSocket, (const char*)&packet, packet.header.len, 0);
@@ -97,15 +98,16 @@ void NetworkManager::SendEnterRoom(int roomNum, int playerIndex)
 	send(clientSocket, (const char*)&packet, packet.header.len, 0);
 }
 
-void NetworkManager::SendRoomState(int roomNum, bool isStart, bool canStart)
+void NetworkManager::SendRoomState(int roomNum, int playerIndex, bool isReay, bool isStart)
 {
 	PACKET_ROOM_STATE packet;
 	packet.header.type = PACKET_TYPE::PACKET_TYPE_ROOM_STATE;
 	packet.header.len = sizeof(packet);
-	packet.isStart = isStart;
-	packet.canStart = canStart;
 	packet.roomNum = roomNum;
-	//send(clientSocket, (const char*)&packetBuf, packetBuf.header.len, 0);
+	packet.playerIndex = playerIndex;
+	packet.isReady = isReay;
+	packet.isStart = isStart;
+	send(clientSocket, (const char*)&packet, packet.header.len, 0);
 }
 
 void NetworkManager::SendBackToLobby(int roomNum, int playerIndex)
@@ -230,13 +232,17 @@ void NetworkManager::BroadCastLobbyData()
 	for (auto iter = createdRooms.begin(); iter != createdRooms.end(); iter++, i++)
 	{
 		strcpy(lobbyDataPacket.lobyData.roomsData[i].roomName, iter->second->roomName);
+		strcpy(lobbyDataPacket.lobyData.roomsData[i].answerWord, iter->second->answer);
 		lobbyDataPacket.lobyData.roomsData[i].roomNum = iter->first;
 		lobbyDataPacket.lobyData.roomsData[i].inPlayerNum = iter->second->inPlayerNum;
 		lobbyDataPacket.lobyData.roomsData[i].isStart = iter->second->isStart;
 		lobbyDataPacket.lobyData.roomsData[i].canStart = iter->second->canStart;
+		lobbyDataPacket.lobyData.roomsData[i].roomMasterNum = iter->second->roomMasyerNum;
+		lobbyDataPacket.lobyData.roomsData[i].curTurn = iter->second->curTurn;
 		for (int j = 0; j < MAX_ROOM_IN_NUM; j++)
 		{
 			lobbyDataPacket.lobyData.roomsData[i].inPlayer[j] = iter->second->inPlayers[j];
+			lobbyDataPacket.lobyData.roomsData[i].readyState[j] = iter->second->readyState[j];
 		}
 	}
 	lobbyDataPacket.lobyData.roomCount = roomCount;
@@ -292,6 +298,11 @@ void NetworkManager::SendEraseAllToServer(int roomNum)
 	send(clientSocket, (const char*)&packet, packet.header.len, 0);
 }
 
+void NetworkManager::SetAnswerWordInServer(int roomNum, char* answerWord)
+{
+	strcpy(createdRooms[roomNum]->answer, answerWord);
+}
+
 bool NetworkManager::CreateRoom(PACKET_CREATE_ROOM packet)
 {
 	if (roomCount >= MAX_ROOM_NUM)
@@ -301,6 +312,7 @@ bool NetworkManager::CreateRoom(PACKET_CREATE_ROOM packet)
 	strcpy(roomInfo->roomName, packet.roomData.roomName);
 	roomInfo->inPlayerNum = packet.roomData.inPlayerNum;
 	roomInfo->inPlayers[0] = packet.roomData.inPlayer[0];
+	roomInfo->roomMasyerNum = packet.roomData.roomMasterNum;
 	roomInfo->mouseTrack.reserve(5000);
 	createdRooms.insert(make_pair(roomNum, roomInfo));
 
@@ -357,6 +369,7 @@ void NetworkManager::BackToLobby(int roomNum, int playerIndex)
 		if (createdRooms[roomNum]->inPlayers[i] == playerIndex)
 		{
 			createdRooms[roomNum]->inPlayers[i] = -1;
+			createdRooms[roomNum]->readyState[i] = false;
 			break;
 		}
 	}
@@ -377,6 +390,17 @@ void NetworkManager::BackToLobby(int roomNum, int playerIndex)
 		{
 			this->roomNum--;
 		}
+	}
+	else
+	{
+		for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
+		{
+			if (createdRooms[roomNum]->inPlayers[i] != -1)
+			{
+				createdRooms[roomNum]->roomMasyerNum = createdRooms[roomNum]->inPlayers[i];
+				break;
+			}
+		}		
 	}
 
 	if (roomCount == 0)
@@ -407,6 +431,7 @@ void NetworkManager::EndUser(SOCKET clientSocket)
 				if (createdRooms[roomNum]->inPlayers[i] == connectedPlayers[clientSocket]->index)
 				{
 					createdRooms[roomNum]->inPlayers[i] = -1;
+					createdRooms[roomNum]->readyState[i] = false;
 					createdRooms[roomNum]->inPlayerNum--;
 					break;
 				}
@@ -459,6 +484,84 @@ void NetworkManager::EraseAllSketchBook(int roomNum)
 		SAFE_DELETE(*iter);
 	}
 	createdRooms[roomNum]->mouseTrack.clear();
+}
+
+void NetworkManager::SetRoomState(int roomNum, int playerIndex, bool isReady, bool isStart)
+{
+	for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
+	{
+		if (createdRooms[roomNum]->inPlayers[i] == playerIndex)
+		{
+			createdRooms[roomNum]->readyState[i] = isReady;
+		}
+	}
+	createdRooms[roomNum]->isStart = isStart;
+
+	if (createdRooms[roomNum]->isStart)
+	{
+		for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
+		{
+			if (createdRooms[roomNum]->inPlayers[i] != -1)
+			{
+				createdRooms[roomNum]->curTurn = createdRooms[roomNum]->inPlayers[i];
+				break;
+			}
+		}
+	}
+}
+
+bool NetworkManager::CheckIsStart(int roomNum)
+{
+	if (createdRooms[roomNum]->isStart)
+	{
+		for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
+		{
+			if (createdRooms[roomNum]->inPlayers[i] != -1)
+			{
+				if (createdRooms[roomNum]->curTurn == -1)
+				{
+					createdRooms[roomNum]->curTurn = createdRooms[roomNum]->inPlayers[i];
+					return true;
+				}
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool NetworkManager::CheckIsAnswer(int roomNum, char* answerWord)
+{
+	return !strcmp(createdRooms[roomNum]->answer, answerWord);
+}
+
+void NetworkManager::SetNextTurn(int roomNum)
+
+{
+	int curTurnPlayerIndex;
+	for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
+	{
+		if (createdRooms[roomNum]->inPlayers[i] == createdRooms[roomNum]->curTurn)
+		{
+			curTurnPlayerIndex = i;
+			break;
+		}
+	}
+
+	while(true)
+	{
+		if (++curTurnPlayerIndex >= MAX_ROOM_IN_NUM)
+		{
+			curTurnPlayerIndex = 0;
+		}
+
+		if (createdRooms[roomNum]->inPlayers[curTurnPlayerIndex] != -1)
+		{
+			createdRooms[roomNum]->curTurn = createdRooms[roomNum]->inPlayers[curTurnPlayerIndex];
+			break;
+		}
+	}
 }
 
 PACKET_INFO * NetworkManager::GetUserPacket(SOCKET clientSocket)

@@ -26,6 +26,13 @@ void ChattingManager::Init(HWND hWnd, HINSTANCE g_hInst)
 
 void ChattingManager::Input()
 {
+	if (CatchMind::GetInstance()->GetSceneState() == SCENE_STATE::INGAME_SCENE)
+	{
+		int roomNum = LobbyManager::GetInstance()->GetRoomNum(CatchMind::GetInstance()->playerIndex);
+		if (LobbyManager::GetInstance()->GetCurrentTurn(roomNum) == CatchMind::GetInstance()->playerIndex)
+			return;
+	}
+
 	if ((GetAsyncKeyState(VK_RETURN) & 0x0001))
 	{
 		int playerIndex = CatchMind::GetInstance()->playerIndex;

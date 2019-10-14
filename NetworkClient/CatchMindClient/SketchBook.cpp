@@ -87,7 +87,7 @@ void SketchBook::Init()
 	isClicked = false;
 	curColor = {0, 0, 0};
 	curThick = 5;
-	mouseTrack.reserve(5000);
+	//mouseTrack.reserve(5000);
 }
 
 void SketchBook::Release()
@@ -108,6 +108,13 @@ void SketchBook::Render(HDC hdc)
 
 void SketchBook::MouseInput(int x, int y, int mouseState)
 {
+	if (CatchMind::GetInstance()->GetSceneState() == SCENE_STATE::INGAME_SCENE)
+	{
+		int roomNum = LobbyManager::GetInstance()->GetRoomNum(CatchMind::GetInstance()->playerIndex);
+		if (LobbyManager::GetInstance()->GetCurrentTurn(roomNum) != CatchMind::GetInstance()->playerIndex)
+			return;
+	}
+
 	if (mouseState == MOUSE_STATE::LCLICK_DOWN)
 	{
 		LClickDown(x, y);
