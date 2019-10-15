@@ -4,7 +4,7 @@
 using namespace std;
 
 #define	MAX_BUFFER		1024 * 10
-#define SERVER_IP		"127.0.0.1"
+#define SERVER_IP		"10.30.10.204"
 #define SERVER_PORT		9000
 
 struct SOCKET_INFO

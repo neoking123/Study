@@ -530,6 +530,9 @@ void NetworkManager::SetRoomState(int roomNum, int playerIndex, bool isReady, bo
 
 bool NetworkManager::CheckIsStart(int roomNum)
 {
+	if (roomNum == -1)
+		return false;
+
 	if (createdRooms[roomNum]->isStart)
 	{
 		for (int i = 0; i < MAX_ROOM_IN_NUM; i++)

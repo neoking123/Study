@@ -2,6 +2,7 @@
 #include "..\..\Common\NetworkManager.h"
 #include "WordManager.h"
 #include <crtdbg.h>
+#include <ctime>
 
 #define WORDLIST_DIR "WordList\\WorldList.txt"
 
@@ -17,7 +18,7 @@ int main()
 	_CrtDumpMemoryLeaks();
 	//_CrtSetBreakAlloc(157);
 
-	srand(GetTickCount());
+	srand(static_cast<unsigned int>(std::time(0)));
 	WordManager::GetInstance()->Init();
 	WordManager::GetInstance()->LoadWords(WORDLIST_DIR);
 
