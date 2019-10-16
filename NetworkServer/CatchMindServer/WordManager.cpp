@@ -18,10 +18,6 @@ void WordManager::Init()
 
 void WordManager::Release()
 {
-	for (auto iter = wordList.begin(); iter != wordList.end(); iter++)
-	{
-		SAFE_DELETE(iter->second);
-	}
 	wordList.clear();
 }
 
@@ -45,8 +41,29 @@ void WordManager::LoadWords(string fileName)
 	}
 }
 
-char * WordManager::GetRandomWord()
+string WordManager::GetRandomWord()
 {
 	int randomIndex = rand() % wordCount;
 	return wordList[randomIndex];
-}   
+}
+
+void WordManager::SetWordList(vector<string>& wordList, int count)
+{
+	int i = 0;
+	while(i < count)
+	{
+		string s = GetRandomWord();
+		auto iter = wordList.begin();
+		for (; iter != wordList.end(); iter++)
+		{
+			if (*iter == s)
+				break;
+		}
+
+		if (iter == wordList.end())
+		{
+			wordList.push_back(s);
+			i++;
+		}
+	}
+}

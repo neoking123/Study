@@ -2,9 +2,12 @@
 //#include <WinSock2.h>
 #include <map>
 #include <vector>
+#include <string>
 #include "Macro.h"
 #include "CatchMindPacket.h"
 using namespace std;
+
+#define ROUND_NUM 20
 
 class PLAYER_INFO
 {
@@ -25,10 +28,12 @@ public:
 	int inPlayers[MAX_ROOM_IN_NUM] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 	bool readyState[MAX_ROOM_IN_NUM] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	int curTurn = -1;
+	int turnCount = 0;
 	char answer[32];
 	bool isStart = false;
 	bool canStart = false;
 	vector<BRUSH_DATA*> mouseTrack;
+	vector<string> wordList;
 };
 
 class PLAYER_INFO;
@@ -68,7 +73,8 @@ public:
 	void SendChatToRoom(PACKET_CHAT& packet);
 	void SendEraseAllToServer(int roomNum);
 	void SendAnswerPlayer(int roomNum, int playerIndex, char* answerWord);
-	void SetAnswerWordInServer(int roomNum, char* answerWord);
+	void SendEndGameToClient(int roomNum);
+	void SetAnswerWordInServer(int roomNum);
 	void BroadCastLobbyData();
 	void BroadCastPlayerData();
 	bool CreateRoom(PACKET_CREATE_ROOM packet);
@@ -83,9 +89,25 @@ public:
 	bool CheckIsStart(int roomNum);
 	bool CheckIsAnswer(int roomNum, char* answerWord);
 	void SetNextTurn(int roomNum);
+	void SetInitTurn(int roomNum);
 	PACKET_INFO* GetUserPacket(SOCKET clientSocket);
 
-	static NetworkManager* GetInstance()
+	inline int GetTurnCount(int roomNum)
+	{
+		return createdRooms[roomNum]->turnCount;
+	}
+
+	inline vector<string>& GetWorldList(int roomNum)
+	{
+		return createdRooms[roomNum]->wordList;
+	}
+
+	inline int GetRoomNum(SOCKET socket)
+	{
+		return connectedPlayers[socket]->inRoomNum;
+	}
+
+	inline static NetworkManager* GetInstance()
 	{
 		if(instance == nullptr)
 		{
@@ -94,7 +116,7 @@ public:
 		return instance;
 	}
 
-	static void FreeInstance()
+	inline static void FreeInstance()
 	{
 		SAFE_DELETE(instance);
 	}

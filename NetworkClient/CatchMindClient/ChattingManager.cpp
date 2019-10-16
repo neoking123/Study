@@ -37,7 +37,11 @@ void ChattingManager::Input()
 	{
 		int playerIndex = CatchMind::GetInstance()->playerIndex;
 		int roomNum = LobbyManager::GetInstance()->GetRoomNum(playerIndex);
-		NetworkManager::GetInstance()->SendChat(playerIndex, roomNum, chat);
+
+		if (strcmp(chat, ""))
+		{
+			NetworkManager::GetInstance()->SendChat(playerIndex, roomNum, chat);
+		}
 
 		SetWindowText(hChat, "");
 		GetWindowText(hChat, chat, 128);

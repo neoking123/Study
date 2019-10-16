@@ -60,6 +60,11 @@ public:
 	bool CheckCanStart(int roomNum, int playerIndex);
 	void SetAnswerWordInClient(int roomNum, char* answerWord);
 
+	inline int GetTurnCount(int roomNum)
+	{
+		return rooms[roomNum]->turnCount;
+	}
+
 	inline char* GetAnswerWord(int roomNum)
 	{
 		return rooms[roomNum]->answerWord;
@@ -68,6 +73,12 @@ public:
 	inline int GetCurrentTurn(int roomNum)
 	{
 		return rooms[roomNum]->curTurn;
+	}
+
+	inline void SetTurnCount(int roomNum, int turnCount)
+	{
+		rooms[roomNum]->turnCount = turnCount;
+		mutex.unlock();
 	}
 
 	inline void SetCurrentTurn(int roomNum, int curTurn)

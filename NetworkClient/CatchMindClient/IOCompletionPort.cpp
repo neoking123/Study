@@ -318,6 +318,7 @@ bool IOCompletionPort::ProcessClientPacket(PACKET_INFO * packetBuf, char * buf, 
 		{
 			LobbyManager::GetInstanceLock()->SetAnswerWordInClient(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].answerWord);
 			LobbyManager::GetInstanceLock()->SetCurrentTurn(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].curTurn);
+			LobbyManager::GetInstanceLock()->SetTurnCount(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].turnCount);
 			LobbyManager::GetInstanceLock()->SetInPlayer(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].inPlayer, packet.lobyData.roomsData[i].readyState);
 			LobbyManager::GetInstanceLock()->SetIsStart(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].isStart);
 			LobbyManager::GetInstanceLock()->SetCanStart(packet.lobyData.roomsData[i].roomNum, packet.lobyData.roomsData[i].canStart);

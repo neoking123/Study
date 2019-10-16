@@ -71,6 +71,7 @@ private:
 	void DrawStartButton(HDC hdc);
 	void DrawRoomState(HDC hdc);
 	void DrawAnswer(HDC hdc);
+	void DrawTurnCount(HDC hdc);
 	bool CheckIsClickedStateButton(int x, int y);
 	void CheckIsClickedBackButton(int x, int y);
 	void CheckIsClickedKungya(int x, int y);

@@ -178,6 +178,8 @@ bool LobbyManager::CheckIsRoomMaster(int playerIndex)
 
 bool LobbyManager::GetIsStart(int roomNum)
 {
+	if (roomNum == -1)
+		return false;
 	return rooms[roomNum]->isStart;
 }
 

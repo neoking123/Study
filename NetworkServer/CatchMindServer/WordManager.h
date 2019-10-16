@@ -1,8 +1,11 @@
 #pragma once
+#include <Windows.h>
+#include <vector>
 #include <map>
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 #include "..\..\Common\Macro.h"
 using namespace std;
 
@@ -11,10 +14,11 @@ class WordManager
 private:
 	static WordManager* instance;
 
-	map<int, char*> wordList;
+	map<int, string> wordList;
 	int wordCount;
 
 	WordManager();
+	string GetRandomWord();
 
 public:
 	~WordManager();
@@ -22,7 +26,7 @@ public:
 	void Init();
 	void Release();
 	void LoadWords(string fileName);
-	char* GetRandomWord();
+	void SetWordList(vector<string>& wordList, int count);
 
 	inline static WordManager* GetInstance()
 	{

@@ -239,6 +239,8 @@ void NetworkManager::BroadCastLobbyData()
 		lobbyDataPacket.lobyData.roomsData[i].canStart = iter->second->canStart;
 		lobbyDataPacket.lobyData.roomsData[i].roomMasterNum = iter->second->roomMasyerNum;
 		lobbyDataPacket.lobyData.roomsData[i].curTurn = iter->second->curTurn;
+		lobbyDataPacket.lobyData.roomsData[i].turnCount = iter->second->turnCount;
+
 		for (int j = 0; j < MAX_ROOM_IN_NUM; j++)
 		{
 			lobbyDataPacket.lobyData.roomsData[i].inPlayer[j] = iter->second->inPlayers[j];
@@ -316,9 +318,11 @@ void NetworkManager::SendAnswerPlayer(int roomNum, int playerIndex, char* answer
 	}
 }
 
-void NetworkManager::SetAnswerWordInServer(int roomNum, char* answerWord)
+void NetworkManager::SetAnswerWordInServer(int roomNum)
 {
-	strcpy(createdRooms[roomNum]->answer, answerWord);
+	int turnCount = createdRooms[roomNum]->turnCount;
+	string answer = createdRooms[roomNum]->wordList[turnCount];
+	strcpy(createdRooms[roomNum]->answer, answer.c_str());
 }
 
 bool NetworkManager::CreateRoom(PACKET_CREATE_ROOM packet)
@@ -558,9 +562,8 @@ bool NetworkManager::CheckIsAnswer(int roomNum, char* answerWord)
 }
 
 void NetworkManager::SetNextTurn(int roomNum)
-
 {
-	int curTurnPlayerIndex;
+	int curTurnPlayerIndex = -1;
 	for (int i = 0; i < MAX_ROOM_IN_NUM; i++)
 	{
 		if (createdRooms[roomNum]->inPlayers[i] == createdRooms[roomNum]->curTurn)
@@ -569,6 +572,11 @@ void NetworkManager::SetNextTurn(int roomNum)
 			break;
 		}
 	}
+
+	if (curTurnPlayerIndex == -1)
+		return;
+
+	createdRooms[roomNum]->turnCount++;
 
 	while(true)
 	{
@@ -583,6 +591,11 @@ void NetworkManager::SetNextTurn(int roomNum)
 			break;
 		}
 	}
+}
+
+void NetworkManager::SetInitTurn(int roomNum)
+{
+	createdRooms[roomNum]->turnCount == 0;
 }
 
 PACKET_INFO * NetworkManager::GetUserPacket(SOCKET clientSocket)

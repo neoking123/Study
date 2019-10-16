@@ -46,6 +46,7 @@ void CatchMind::DrawInGame(HDC hdc)
 	DrawExitButton(hdc);
 	DrawPlayersInfo(hdc);
 	DrawAnswer(hdc);
+	DrawTurnCount(hdc);
 	ChattingManager::GetInstance()->DrawChat(hdc);
 }
 
@@ -259,6 +260,26 @@ void CatchMind::DrawAnswer(HDC hdc)
 	SetBkColor(hdc, RGB(255, 255, 255));
 	SelectObject(hdc, newOldFont);
 	DeleteObject(newMyFont);
+}
+
+void CatchMind::DrawTurnCount(HDC hdc)
+{
+	int roomNum = LobbyManager::GetInstance()->GetRoomNum(CatchMind::GetInstance()->playerIndex);
+
+	TCHAR turnCount[128];
+	HFONT myFont = CreateFont(24, 0, 0, 0, 1000, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, "Arial");
+	HFONT oldFont = (HFONT)SelectObject(hdc, myFont);
+	SetTextColor(hdc, RGB(255, 255, 255));
+	SetBkColor(hdc, RGB(8, 123, 181));
+
+	int turn = LobbyManager::GetInstance()->GetTurnCount(roomNum) + 1;
+	wsprintf(turnCount, TEXT("Round %d"), turn);
+	TextOut(hdc, 800, 610, turnCount, lstrlen(turnCount));
+
+	SetTextColor(hdc, RGB(0, 0, 0));
+	SetBkColor(hdc, RGB(255, 255, 255));
+	SelectObject(hdc, oldFont);
+	DeleteObject(myFont);
 }
 
 bool CatchMind::CheckIsClickedStateButton(int x, int y)

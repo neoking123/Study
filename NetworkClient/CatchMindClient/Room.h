@@ -45,6 +45,7 @@ public:
 	bool reayState[MAX_ROOM_IN_NUM] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	char answerWord[32];
 	int curTurn = -1;
+	int turnCount = 0;
 	int MaxInPlayerNum;
 	int roomMasterIndex;
 	bool isStart;

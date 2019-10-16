@@ -65,6 +65,7 @@ struct ROOM_DATA
 	int inPlayer[MAX_ROOM_IN_NUM];
 	bool readyState[MAX_ROOM_IN_NUM];
 	int curTurn;
+	int turnCount;
 	bool isStart;
 	bool canStart;
 };

@@ -195,6 +195,8 @@ bool IOCompletionPort::CreateWorkerThread()
 
 void IOCompletionPort::WorkerThread()
 {
+	srand(GetTickCount());
+
 	// 함수 호출 성공 여부
 	BOOL	bResult;
 	int		nResult;
@@ -225,11 +227,21 @@ void IOCompletionPort::WorkerThread()
 			INFINITE						// 대기할 시간
 		);
 
+		// 유저 종료 시
 		if (!bResult && recvBytes == 0)
 		{
+			int roomNum = NetworkManager::GetInstance()->GetRoomNum(socketInfo->socket);
+			if (NetworkManager::GetInstance()->CheckIsStart(roomNum))
+			{
+				NetworkManager::GetInstance()->EraseAllSketchBook(roomNum);
+				NetworkManager::GetInstance()->SendSketchBook(roomNum);
+				NetworkManager::GetInstance()->SetNextTurn(roomNum);
+				NetworkManager::GetInstance()->SetAnswerWordInServer(roomNum);
+			}
 			NetworkManager::GetInstance()->EndUser(socketInfo->socket);
 			NetworkManager::GetInstance()->BroadCastLobbyData();
 			NetworkManager::GetInstance()->BroadCastPlayerData();
+
 			printf_s("[INFO] socket(%d) 접속 끊김\n", socketInfo->socket);
 			closesocket(socketInfo->socket);
 			free(socketInfo);
@@ -363,9 +375,11 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 		NetworkManager::GetInstance()->SetRoomState(packet.roomNum, packet.playerIndex, packet.isReady, packet.isStart);
 		if (NetworkManager::GetInstance()->CheckIsStart(packet.roomNum))
 		{
+			WordManager::GetInstance()->SetWordList(NetworkManager::GetInstance()->GetWorldList(packet.roomNum), ROUND_NUM);
 			NetworkManager::GetInstance()->EraseAllSketchBook(packet.roomNum);
 			NetworkManager::GetInstance()->SendSketchBook(packet.roomNum);
-			NetworkManager::GetInstance()->SetAnswerWordInServer(packet.roomNum, WordManager::GetInstance()->GetRandomWord());
+			NetworkManager::GetInstance()->SetInitTurn(packet.roomNum);
+			NetworkManager::GetInstance()->SetAnswerWordInServer(packet.roomNum);
 		}
 		NetworkManager::GetInstance()->BroadCastLobbyData();
 	}
@@ -385,8 +399,13 @@ bool IOCompletionPort::ProcessServerPacket(PACKET_INFO * packet, char * buf, int
 				NetworkManager::GetInstance()->SendAnswerPlayer(packet.roomNum, packet.playerIndex, packet.chat);
 				NetworkManager::GetInstance()->EraseAllSketchBook(packet.roomNum);
 				NetworkManager::GetInstance()->SendSketchBook(packet.roomNum);
-				NetworkManager::GetInstance()->SetAnswerWordInServer(packet.roomNum, WordManager::GetInstance()->GetRandomWord());
 				NetworkManager::GetInstance()->SetNextTurn(packet.roomNum);
+				if (NetworkManager::GetInstance()->GetTurnCount(packet.roomNum) > ROUND_NUM - 1)
+				{
+
+				}
+
+				NetworkManager::GetInstance()->SetAnswerWordInServer(packet.roomNum);
 				NetworkManager::GetInstance()->BroadCastLobbyData();
 			}
 		}
