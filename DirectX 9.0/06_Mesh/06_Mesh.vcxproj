@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{34E1FE89-E7ED-491E-9858-C0781AB46D13}</ProjectGuid>
+    <ProjectGuid>{F519BBD5-5446-4B68-A71C-A2D502476445}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>My03Matrix</RootNamespace>
+    <RootNamespace>My06Mesh</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -140,11 +140,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="03_main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Camera.h" />
+    <ClCompile Include="..\..\Common\Camera.cpp" />
+    <ClCompile Include="06_main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

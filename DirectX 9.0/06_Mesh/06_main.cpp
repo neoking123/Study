@@ -1,10 +1,8 @@
+#include <d3d9.h>
 #include <d3dx9.h>
 #include <mmsystem.h>
-#include "SAFE_DELETE.h"
-
-#pragma comment(lib , "d3d9.lib")
-#pragma comment(lib , "d3dx9.lib")
-#pragma comment(lib , "winmm.lib")
+#include "..\..\Common\Camera.h"
+#include "..\..\Common\Macro.h"
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst;
@@ -12,15 +10,12 @@ char g_szClassName[256] = "Hello World!!";
 
 LPDIRECT3D9					g_pD3D = NULL;
 LPDIRECT3DDEVICE9			g_pD3DDevice = NULL;
-LPDIRECT3DVERTEXBUFFER9		g_pVB = NULL;
+LPD3DXMESH					g_pMesh = NULL;
+D3DMATERIAL9*				g_pMeshMaterials = NULL;
+LPDIRECT3DTEXTURE9*			g_pMeshTextures = NULL;
+DWORD						g_dwNumMaterials = 0;
 
-struct CUSTOMVECTEX
-{
-	float x, y, z;
-	DWORD color;
-};
-
-#define D3DFVF_CUSTOMVERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE)
+Camera camera;
 
 HRESULT InitD3D(HWND hWnd)
 {
@@ -33,6 +28,8 @@ HRESULT InitD3D(HWND hWnd)
 	d3dpp.Windowed = TRUE;
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	d3dpp.EnableAutoDepthStencil = TRUE;
+	d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 
 	if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 		D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &g_pD3DDevice)))
@@ -40,39 +37,60 @@ HRESULT InitD3D(HWND hWnd)
 		return E_FAIL;
 	}
 
-	g_pD3DDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	g_pD3DDevice->SetRenderState(D3DRS_AMBIENT, 0xffffffff);
 
-	g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	g_pD3DDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 
+	camera.Init(g_pD3DDevice);
 
 	return S_OK;
 }
 
 HRESULT InitGeometry()
 {
-	CUSTOMVECTEX vertices[] =
+	LPD3DXBUFFER pD3dXMtrlBuffer;
+
+	// http://telnet.or.kr/directx/graphics/reference/d3dx/functions/mesh/d3dxloadmeshfromx.htm ÂüÁ¶
+	if (FAILED(D3DXLoadMeshFromXA("Tiger.x", D3DXMESH_SYSTEMMEM, g_pD3DDevice, NULL, &pD3dXMtrlBuffer,
+		NULL, &g_dwNumMaterials, &g_pMesh)))
 	{
-		{ -1.0f , -1.0f , 0.0f , 0xffff0000 } ,
-		{ 1.0f , -1.0f , 0.0f , 0xff0000ff } ,
-		{ 0.0f , 1.0f ,  0.0f , 0xffffffff }
-	};
+		MessageBox(NULL, "Could not find tiger.x", "ERROR", MB_OK);
+	}
 
-	if (FAILED(g_pD3DDevice->CreateVertexBuffer(3 * sizeof(CUSTOMVECTEX), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pVB, NULL)))
-		return E_FAIL;
+	D3DXMATERIAL* d3dxMaterials = (D3DXMATERIAL*)pD3dXMtrlBuffer->GetBufferPointer();
+	g_pMeshMaterials = new D3DMATERIAL9[g_dwNumMaterials];
+	g_pMeshTextures = new LPDIRECT3DTEXTURE9[g_dwNumMaterials];
 
-	void* pVertices;
-	if (FAILED(g_pVB->Lock(0, sizeof(vertices), (void**)&pVertices, 0)))
-		return E_FAIL;
-
-	memcpy(pVertices, vertices, sizeof(vertices));
-	g_pVB->Unlock();
-
+	for (int i = 0; i < g_dwNumMaterials; i++)
+	{
+		g_pMeshMaterials[i] = d3dxMaterials[i].MatD3D;
+		g_pMeshMaterials[i].Ambient = g_pMeshMaterials[i].Diffuse;
+		g_pMeshTextures[i] = NULL;
+		if (d3dxMaterials[i].pTextureFilename != NULL && strlen(d3dxMaterials[i].pTextureFilename) > 0)
+		{
+			if (FAILED(D3DXCreateTextureFromFile(g_pD3DDevice, d3dxMaterials[i].pTextureFilename, &g_pMeshTextures[i])))
+			{
+				MessageBox(NULL, "Could not find texture map", "Textrue", MB_OK);
+				return E_FAIL;
+			}
+		}
+	}
+	pD3dXMtrlBuffer->Release();
 	return S_OK;
 }
 
 void CleanUp()
 {
-	SAFE_RELEASE(g_pVB);
+	SAFE_DELETE_ARRAY(g_pMeshMaterials);
+	if (g_pMeshTextures)
+	{
+		for (int i = 0; i < g_dwNumMaterials; i++)
+		{
+			SAFE_RELEASE(g_pMeshTextures[i]);
+		}
+	}
+
+	SAFE_RELEASE(g_pMesh);
 	SAFE_RELEASE(g_pD3DDevice);
 	SAFE_RELEASE(g_pD3D);
 }
@@ -80,15 +98,9 @@ void CleanUp()
 void SetupMareices()
 {
 	D3DXMATRIXA16 matWorld;
-	UINT iTime = timeGetTime() % 1000;
-	FLOAT fAngle = iTime * (2.0f * D3DX_PI) / 1000.0f;
-	//D3DXMatrixIdentity(&matWorld2);
-	//D3DXMatrixTranslation(&matWorld , )
-	//D3DXMatrixScaling()
-	D3DXMatrixRotationY(&matWorld, fAngle);
+	D3DXMatrixIdentity(&matWorld);
+	D3DXMatrixRotationY(&matWorld, timeGetTime() / 1000.0f);
 	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
-
-	//wasd
 
 	D3DXVECTOR3 vEyept(0.0f, 3.0f, -5.0f);
 	D3DXVECTOR3 vLootatPt(0.0f, 0.0f, 0.0f);
@@ -99,7 +111,6 @@ void SetupMareices()
 
 	D3DXMATRIXA16 matProj;
 	D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI / 4, 1.0f, 1.0f, 100.0f);
-
 	g_pD3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
 }
 
@@ -108,17 +119,20 @@ void Render()
 	if (g_pD3DDevice == NULL)
 		return;
 
-	g_pD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
+	g_pD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
 
 	if (SUCCEEDED(g_pD3DDevice->BeginScene()))
 	{
-		SetupMareices();
+		//SetupMareices();
+		camera.View();
 
-		g_pD3DDevice->SetStreamSource(0, g_pVB, 0, sizeof(CUSTOMVECTEX));
-		g_pD3DDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
-		g_pD3DDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 1);
+		for (int i = 0; i < g_dwNumMaterials; i++)
+		{
+			g_pD3DDevice->SetMaterial(&g_pMeshMaterials[i]);
+			g_pD3DDevice->SetTexture(0, g_pMeshTextures[i]);
 
-		//g_pMesh->DrawSubset(0);
+			g_pMesh->DrawSubset(i);
+		}
 
 		g_pD3DDevice->EndScene();
 	}
@@ -178,18 +192,34 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
+	static int x;
+	static int y;
+
 	switch (iMessage)
 	{
-	case WM_LBUTTONUP:
-	{
-		D3DXVECTOR3 posPlayer = { 10 , 10 , 10 };
-		D3DXVECTOR3 posEnemy = { 20 , 20 , 10 };
-		D3DXVECTOR3 dir = posEnemy - posPlayer;
-		D3DXVec3Normalize(&dir, &dir);
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case 0x41:
+			camera.MoveLeft();
+			break;
+		case 0x44:
+			camera.MoveRight();
+			break;
+		case 0x57:
+			camera.MoveUp();
+			break;
+		case 0x53:
+			camera.MoveDown();
+			break;
+		}
+		return 0;
+	case WM_MOUSEMOVE:
+		x = LOWORD(lParam);
+		y = HIWORD(lParam);
+		camera.Rotation(x, y);
 
-		MessageBox(hWnd, "", "", MB_OK);
-	}
-	return 0;
+		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
