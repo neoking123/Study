@@ -20,8 +20,7 @@ void Camera::Init(LPDIRECT3DDEVICE9 D3DDevice)
 	D3DXMatrixRotationX(&matWorld, fAngleX);
 	D3DXMatrixRotationY(&matWorld, fAngleY);
 
-	prePos;
-	ZeroMemory(&prePos, sizeof(POINT));
+	prePos = { 0,0 };
 }
 
 void Camera::View()
