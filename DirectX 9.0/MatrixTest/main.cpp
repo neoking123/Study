@@ -134,6 +134,19 @@ void MatrixRotationX(Matrix& matrix, float angle)
 	matrix = matrix * rotationMat;
 }
 
+void MatrixRotationX(Vector& vec, float angle)
+{
+	Matrix rotationMat;
+	MatrixIdentity(rotationMat);
+
+	rotationMat.arr[1][1] = cos(angle);
+	rotationMat.arr[1][2] = sin(angle);
+	rotationMat.arr[2][1] = -sin(angle);
+	rotationMat.arr[2][2] = cos(angle);
+
+	vec = rotationMat * vec;
+}
+
 void MatrixRotationY(Matrix& matrix, float angle)
 {
 	Matrix rotationMat;
@@ -145,6 +158,19 @@ void MatrixRotationY(Matrix& matrix, float angle)
 	rotationMat.arr[2][2] = cos(angle);
 
 	matrix = rotationMat * matrix;
+}
+
+void MatrixRotationY(Vector& vec, float angle)
+{
+	Matrix rotationMat;
+	MatrixIdentity(rotationMat);
+
+	rotationMat.arr[0][0] = cos(angle);
+	rotationMat.arr[0][2] = -sin(angle);
+	rotationMat.arr[2][0] = sin(angle);
+	rotationMat.arr[2][2] = cos(angle);
+
+	vec = rotationMat * vec;
 }
 
 void MatrixRotationZ(Matrix& matrix, float angle)
@@ -160,6 +186,19 @@ void MatrixRotationZ(Matrix& matrix, float angle)
 	matrix = matrix * rotationMat;
 }
 
+void MatrixRotationZ(Vector& vec, float angle)
+{
+	Matrix rotationMat;
+	MatrixIdentity(rotationMat);
+
+	rotationMat.arr[0][0] = cos(angle);
+	rotationMat.arr[0][1] = sin(angle);
+	rotationMat.arr[1][0] = -sin(angle);
+	rotationMat.arr[1][1] = cos(angle);
+
+	vec = rotationMat * vec;
+}
+
 void MatrixScale(Matrix& matrix, Vector vec)
 {
 	Matrix scaleMat;
@@ -172,7 +211,7 @@ void MatrixScale(Matrix& matrix, Vector vec)
 	matrix = matrix * scaleMat;
 }
 
-void MatrixProjection(Matrix& matrix, float left, float right, float top, float bottom, float nearVal, float farVal)
+void MatrixProjection(Vector& vec, float left, float right, float top, float bottom, float nearVal, float farVal)
 {
 	Matrix ProjMat;
 	MatrixIdentity(ProjMat);
@@ -180,9 +219,25 @@ void MatrixProjection(Matrix& matrix, float left, float right, float top, float 
 	ProjMat.arr[0][0] = 2 * nearVal / (right - left);
 	ProjMat.arr[0][2] = (right + left) / (right - left);
 	ProjMat.arr[1][1] = 2 * nearVal / top - bottom;
-	ProjMat.arr[1][2] = -((farVal + nearVal) / (farVal - nearVal));
-	ProjMat.arr[2][2] = 2 * nearVal / right - left;
-	ProjMat.arr[2][3] = 2 * nearVal / right - left;
+	ProjMat.arr[1][2] = (top + bottom) / (top - bottom);
+	ProjMat.arr[2][2] = -((farVal + nearVal) / (farVal - nearVal));
+	ProjMat.arr[2][3] = -2 * farVal * nearVal / (farVal - nearVal);
+	ProjMat.arr[3][2] = -1;
+
+	vec = ProjMat * vec;
+}
+
+void MatrixProjection(Matrix& matrix, float left, float right, float top, float bottom, float nearVal, float farVal)
+{
+	Matrix ProjMat;
+	MatrixIdentity(ProjMat);
+
+	ProjMat.arr[0][0] = 2 * nearVal / (right - left);
+	ProjMat.arr[0][2] = (right + left) / (right - left);
+	ProjMat.arr[1][1] = 2 * nearVal / top - bottom;
+	ProjMat.arr[1][2] = (top + bottom) / (top - bottom);
+	ProjMat.arr[2][2] = -((farVal + nearVal) / (farVal - nearVal));
+	ProjMat.arr[2][3] = -2 * farVal * nearVal / (farVal - nearVal);
 	ProjMat.arr[3][2] = -1;
 
 	matrix = matrix * ProjMat;
@@ -237,9 +292,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 	static Vector vLootatPt = { 0.0f, 0.0f, 0.0f, 0.0f };
 	static Vector vUpVec = { 0.0f, 1.0f, 0.0f, 0.0f };
 
-	Vector v1 = { 400, 400, 0, 1 };
-	Vector v2 = { 600, 400, 0, 1 };
-	Vector v3 = { 500, 250, 0, 1 };
+	Vector v1 = { -100, 400, 0, 1 };
+	Vector v2 = { 100, 400, 0, 1 };
+	Vector v3 = { 0, 250, 0, 1 };
 
 	float arr1[][4] = { 1,2,3,4, 2,1,3,1, 4,1,2,1, 5,0,2,1 };
 	float arr2[][4] = { 3,2,4,1, 1,2,2,1, 3,3,2,1, 4,1,0,0 };
@@ -250,14 +305,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 	switch (iMessage)
 	{
 	case WM_CREATE:
-		SetTimer(hWnd, 1, 1000, NULL);
+		SetTimer(hWnd, 1, 100, NULL);
 		return 0;
 
 	case WM_TIMER:
 		GetLocalTime(&st);
 
 		timeFlow += 0.1f;
-		MatrixRotationY(world, timeFlow);
+		MatrixRotationY(v1, timeFlow);
+		MatrixRotationY(v2, timeFlow);
+		MatrixRotationY(v3, timeFlow);
 
 		InvalidateRect(hWnd, NULL, TRUE);
 		return 0;
@@ -276,10 +333,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM IParam)
 		v2 = world * v2;
 		v3 = world * v3;
 
-		//MatrixTranslation(v2, Vector(200, 0, 0, 0));
-
-
-
+		MatrixTranslation(v1, { 500,0,0,0 });
+		MatrixTranslation(v2, { 500,0,0,0 });
+		MatrixTranslation(v3, { 500,0,0,0 });
 
 		MoveToEx(hdc, v1.x, v1.y, NULL);
 		LineTo(hdc, v1.x, v1.y);

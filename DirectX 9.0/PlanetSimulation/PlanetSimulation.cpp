@@ -1,5 +1,6 @@
 #include <d3dx9.h>
 #include <mmsystem.h>
+#include "Planet.h"
 #include "..\..\Common\Camera.h"
 #include "..\..\Common\Macro.h"
 
@@ -13,6 +14,9 @@ LPDIRECT3DVERTEXBUFFER9		g_pVB = NULL;
 LPDIRECT3DINDEXBUFFER9		g_pIB = NULL;
 
 Camera camera;
+Planet Sun;
+Planet Earth;
+Planet Moon;
 
 struct CUSTOMVERTEX
 {
@@ -54,6 +58,9 @@ HRESULT InitD3D(HWND hWnd)
 	g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 
 	camera.Init(g_pD3DDevice);
+	Sun.Init(0, 0, 0);
+	Earth.Init(15, 0, 0);
+	Moon.Init(5, 0, 0);
 
 	return S_OK;
 }
@@ -64,7 +71,7 @@ HRESULT InitVB()
 	{
 		{ -1 , 1 , 1 , 0xffff0000 } ,
 		{ 1 , 1 , 1 , 0xff00ff00 } ,
-		{ 1 ,   1 ,  -1 , 0xff0000ff },
+		{ 1 , 1 ,  -1 , 0xff0000ff },
 		{ -1 , 1 ,  -1 , 0xffffff00 },
 
 		{ -1 , -1 , 1 , 0xff00ffff } ,
@@ -143,10 +150,26 @@ void SetupMareices()
 	g_pD3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
 }
 
+void DrawMesh(D3DXMATRIXA16* pMat)
+{
+	g_pD3DDevice->SetTransform(D3DTS_WORLD, pMat);
+	g_pD3DDevice->SetStreamSource(0, g_pVB, 0, sizeof(CUSTOMVERTEX));
+	g_pD3DDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
+	g_pD3DDevice->SetIndices(g_pIB);
+	g_pD3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
+}
+
 void Render()
 {
+	D3DXMATRIXA16 matWorld;
+
 	if (g_pD3DDevice == NULL)
 		return;
+
+	Sun.Rotate(-1, 10.0f);
+	Earth.Rotate(1, 100.0f);
+	Moon.Rotate(-1, 200.0f);
+	//Earth.MultiplyToRT(Sun.GetMatrixTranslation());
 
 	g_pD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
 
@@ -155,10 +178,18 @@ void Render()
 		//SetupMareices();
 		camera.View();
 
-		g_pD3DDevice->SetStreamSource(0, g_pVB, 0, sizeof(CUSTOMVERTEX));
-		g_pD3DDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
-		g_pD3DDevice->SetIndices(g_pIB);
-		g_pD3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
+		//matWorld = Sun.GetRotationTranslation();
+		//DrawMesh(&matWorld);
+		matWorld = Sun.GetRotationTranslation();
+		DrawMesh(&Sun.GetRotationTranslation());
+
+		//matWorld = Earth.GetRotationTranslation() * matWorld;
+		//DrawMesh(&matWorld);
+		matWorld = Earth.GetRotationTranslation() * Sun.GetRotationTranslation();
+		DrawMesh(&matWorld);
+
+		matWorld = Moon.GetRotationTranslation() * Earth.GetRotationTranslation() * Sun.GetRotationTranslation();
+		DrawMesh(&matWorld);
 
 		g_pD3DDevice->EndScene();
 	}
@@ -243,12 +274,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		return 0;
-	case WM_MOUSEMOVE:
+	/*case WM_MOUSEMOVE:
 		x = LOWORD(lParam);
 		y = HIWORD(lParam);
 		camera.Rotation(x, y);
 
-		return 0;
+		return 0;*/
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;

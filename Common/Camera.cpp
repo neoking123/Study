@@ -12,7 +12,7 @@ Camera::~Camera()
 void Camera::Init(LPDIRECT3DDEVICE9 D3DDevice)
 {
 	this->D3DDevice = D3DDevice;
-	vEyept = { 0.0f, 0.0f, -10.0f };
+	vEyept = { 0.0f, 0.0f, -50.0f };
 	vLootatPt = { 0.0f, 0.0f, 0.0f };
 	vUpVec = { 0.0f, 1.0f, 0.0f };
 	fAngleX = 0.0f;

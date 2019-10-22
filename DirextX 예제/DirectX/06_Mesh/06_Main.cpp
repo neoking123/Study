@@ -98,6 +98,18 @@ void CleanUp()
 
 void SetupMareices()
 {
+	//D3DXMatrixMultiply();
+	//D3DXMatrixIdentity(&matWorld);
+	//D3DXMatrixInverse(, NULL, );
+	//D3DXMatrixTranslation();
+	//D3DXMatrixRotationX()
+	//D3DXMatrixRotationY()
+	//D3DXMatrixRotationZ()
+	//D3DXMatrixRotationAxis;
+	//D3DXMatrixRotationYawPitchRoll
+	//D3DXMatrixRotationQuaternion()
+	//D3DXMatrixScaling()
+
 	D3DXMATRIXA16 matWorld;
 	D3DXMatrixIdentity(&matWorld);
 	D3DXMatrixRotationY(&matWorld, timeGetTime() / 1000.0f);

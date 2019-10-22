@@ -1,5 +1,6 @@
 #include <d3dx9.h>
 #include <mmsystem.h>
+#include "Character.h"
 #include "..\..\Common\Camera.h"
 #include "..\..\Common\Macro.h"
 
@@ -13,6 +14,7 @@ LPDIRECT3DVERTEXBUFFER9		g_pVB = NULL;
 LPDIRECT3DINDEXBUFFER9		g_pIB = NULL;
 
 Camera camera;
+Character MyCharacter;
 
 struct CUSTOMVERTEX
 {
@@ -54,6 +56,7 @@ HRESULT InitD3D(HWND hWnd)
 	g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 
 	camera.Init(g_pD3DDevice);
+	MyCharacter.Init();
 
 	return S_OK;
 }
@@ -64,7 +67,7 @@ HRESULT InitVB()
 	{
 		{ -1 , 1 , 1 , 0xffff0000 } ,
 		{ 1 , 1 , 1 , 0xff00ff00 } ,
-		{ 1 ,   1 ,  -1 , 0xff0000ff },
+		{ 1 , 1 ,  -1 , 0xff0000ff },
 		{ -1 , 1 ,  -1 , 0xffffff00 },
 
 		{ -1 , -1 , 1 , 0xff00ffff } ,
@@ -143,8 +146,19 @@ void SetupMareices()
 	g_pD3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
 }
 
+void DrawMesh(D3DXMATRIXA16* pMat)
+{
+	g_pD3DDevice->SetTransform(D3DTS_WORLD, pMat);
+	g_pD3DDevice->SetStreamSource(0, g_pVB, 0, sizeof(CUSTOMVERTEX));
+	g_pD3DDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
+	g_pD3DDevice->SetIndices(g_pIB);
+	g_pD3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
+}
+
 void Render()
 {
+	D3DXMATRIXA16 matWorld;
+
 	if (g_pD3DDevice == NULL)
 		return;
 
@@ -155,10 +169,7 @@ void Render()
 		//SetupMareices();
 		camera.View();
 
-		g_pD3DDevice->SetStreamSource(0, g_pVB, 0, sizeof(CUSTOMVERTEX));
-		g_pD3DDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
-		g_pD3DDevice->SetIndices(g_pIB);
-		g_pD3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
+		MyCharacter.DrawMesh(g_pD3DDevice, g_pVB, g_pIB, D3DFVF_CUSTOMVERTEX, sizeof(CUSTOMVERTEX));
 
 		g_pD3DDevice->EndScene();
 	}
@@ -243,12 +254,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		return 0;
+
 	case WM_MOUSEMOVE:
 		x = LOWORD(lParam);
 		y = HIWORD(lParam);
 		camera.Rotation(x, y);
-
 		return 0;
+
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;

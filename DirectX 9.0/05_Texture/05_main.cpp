@@ -17,7 +17,7 @@ LPDIRECT3DVERTEXBUFFER9		g_pVB = NULL;
 LPDIRECT3DTEXTURE9			g_pTexture = NULL;
 
 //#define SHOW_HOW_TO_USE_TCI
-struct CUSTOMVECTEX
+struct CUSTOMVERTEX
 {
 	D3DXVECTOR3 position;
 	D3DCOLOR color;
@@ -69,10 +69,10 @@ HRESULT InitGeometry()
 		return E_FAIL;
 	}
 
-	if (FAILED(g_pD3DDevice->CreateVertexBuffer(50 * 2 * sizeof(CUSTOMVECTEX), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pVB, NULL)))
+	if (FAILED(g_pD3DDevice->CreateVertexBuffer(50 * 2 * sizeof(CUSTOMVERTEX), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pVB, NULL)))
 		return E_FAIL;
 
-	CUSTOMVECTEX* pVertices;
+	CUSTOMVERTEX* pVertices;
 	if (FAILED(g_pVB->Lock(0, 0, (void**)&pVertices, 0)))
 		return E_FAIL;
 
@@ -153,7 +153,7 @@ void Render()
 		g_pD3DDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
 		g_pD3DDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEPOSITION);
 #endif
-		g_pD3DDevice->SetStreamSource(0, g_pVB, 0, sizeof(CUSTOMVECTEX));
+		g_pD3DDevice->SetStreamSource(0, g_pVB, 0, sizeof(CUSTOMVERTEX));
 		g_pD3DDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
 		g_pD3DDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2 * 50 - 2);
 		g_pD3DDevice->EndScene();
