@@ -15,6 +15,11 @@ enum MISSILE_ANIM_STATE
 	NOT_FIRED
 };
 
+/**
+* @brief 미사일 클래스
+* @author Dayeol Hyeon
+*/
+
 class Missile :public GameObject
 {
 public:

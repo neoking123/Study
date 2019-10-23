@@ -4,6 +4,12 @@
 #include "..\..\Common\NetworkManager.h"
 using namespace std;
 
+/**
+* @brief 스케치북 그림 데이터를 관리하는 클래스
+* @details 마우스로 그려진 여러 픽셀들을 벡터로 관리한다
+* @author Dayeol Hyeon
+*/
+
 class SketchBook
 {
 private:

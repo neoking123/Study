@@ -1,3 +1,8 @@
+/**
+* @mainpage BattleCity 매뉴얼
+* @brief BattleCity 개발에 사용된 자료형 및 함수 설명
+*/
+
 #include <Windows.h>
 #include "BattleCity.h"
 
@@ -5,7 +10,6 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst;
 HWND hWnd;
 LPCTSTR lpszClass = TEXT("Battle City");
-//BattleCity battleCity;
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {

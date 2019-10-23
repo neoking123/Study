@@ -16,6 +16,11 @@ enum TILE_ANIM_STATE
 	EGLE_BOMB_START,
 };
 
+/**
+* @brief 타일 클래스
+* @author Dayeol Hyeon
+*/
+
 class Tile : public GameObject
 {
 public:
@@ -34,7 +39,20 @@ public:
 	void Init(InputComponent* input, int x = 0, int y = 0, string tag = "", int tileNum = 47);
 	virtual void Update(float elapseTime) override;
 	virtual void Render(HDC hdc) override;
+
+	/**
+	* @brief 위치 설정 함수
+	* @details x, y의 위치로 설정한다
+	* @param int x x 좌표
+	* @param int y y 좌표
+	*/
 	virtual void SetPosition(int x, int y) override;
+
+	/**
+	* @brief 애니메이션 상태 설정 함수
+	* @details 새로운 애니메이션 상태로 설정한다
+	* @param TILE_ANIM_STATE newState 애니메이션 상태
+	*/
 	void SetAnimState(TILE_ANIM_STATE newState);
 };
 

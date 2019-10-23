@@ -7,6 +7,13 @@ __interface InputInterface
 	void Update(GameObject& gameObject);
 };
 
+/**
+* @brief 입력 추상 클래스
+* @details 이 클래스를 상속받아 여러 입력 컨트롤러를 작성할 수 있다
+* @details ex) 플레이어 컨트롤러, AI 컨트롤러
+* @author Dayeol Hyeon
+*/
+
 class InputComponent abstract : public InputInterface
 {
 public:

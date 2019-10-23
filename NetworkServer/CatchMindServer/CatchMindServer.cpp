@@ -1,3 +1,8 @@
+/**
+* @mainpage CatchMind 서버
+* @brief CatchMind 서버의 데이터 및 함수 설명
+*/
+
 #include "IOCompletionPort.h"
 #include "..\..\Common\NetworkManager.h"
 #include "WordManager.h"

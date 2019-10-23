@@ -65,6 +65,13 @@ enum BITMAP_RES
 	END
 };
 
+/**
+* @brief 비트맵 객체를 관리하는 클래스
+* @details 비트맵 객체의 초기화와 접근을 관리한다
+* @details 비트맵 객체를 벡터로 관리한다
+* @author Dayeol Hyeon
+*/
+
 class BitMapManager
 {
 private:

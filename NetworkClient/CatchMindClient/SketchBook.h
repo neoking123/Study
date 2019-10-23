@@ -7,6 +7,12 @@ using std::vector;
 
 class BitMap;
 
+/**
+* @brief 그림이 그려지는 스케치북
+* @details 마우스 입력을 받아 브러시 정보를 벡터에 저장한다
+* @author Dayeol Hyeon
+*/
+
 class SketchBook
 {
 private:

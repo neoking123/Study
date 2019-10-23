@@ -3,6 +3,13 @@
 #include <string>
 using namespace std;
 
+/**
+* @brief 비트맵 클래스
+* @details bmp파일을 로드하여 관리하는 객체
+* @details bmp파일의 사이즈를 반환하거나 들고 있는 bmp파일을 출력한다
+* @author Dayeol Hyeon
+*/
+
 class BitMap
 {
 private:

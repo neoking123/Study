@@ -34,10 +34,26 @@ public:
 
 };
 
+template <typename T>
+void Swap(T& a, T& b)
+{
+	T temp = a;
+	a = b;
+	b = temp;
+}
+
 int main()
 {
-	STUDENT st(10);
-	STUDENT sOther = st;
+	float a = 3.14f;
+	float b = 2.056f;
+
+	cout << "a : " << a << endl;
+	cout << "b : " << b << endl;
+
+	Swap(a, b);
+
+	cout << "a : " << a << endl;
+	cout << "b : " << b << endl;
 
 	return 0;
 }

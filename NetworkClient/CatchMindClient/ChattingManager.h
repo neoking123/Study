@@ -8,6 +8,12 @@ using namespace std;
 #define ID_EDIT_1 101
 #define ID_EDIT_2 102
 
+/**
+* @brief 채팅을 관리하는 매니저
+* @details 서버로 부터 받은 채팅을 관리한다
+* @author Dayeol Hyeon
+*/
+
 class ChattingManager
 {
 private:
