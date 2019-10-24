@@ -9,6 +9,12 @@
 #include "..\..\Common\Macro.h"
 using namespace std;
 
+/**
+* @brief 제시어 관리 클래스
+* @details 텍스트의 제시어를 파싱하여 제시어를 설정한다
+* @author Dayeol Hyeon
+*/
+
 class WordManager
 {
 private:

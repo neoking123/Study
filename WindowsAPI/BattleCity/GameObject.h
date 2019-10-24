@@ -15,6 +15,11 @@ __interface GameObjectInterface
 	void SetPosition(int x, int y);
 };
 
+/**
+* @brief 게임 오브젝트 추상 클래스
+* @author Dayeol Hyeon
+*/
+
 class GameObject abstract : public GameObjectInterface
 {
 public:

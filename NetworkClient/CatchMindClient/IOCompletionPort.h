@@ -17,6 +17,13 @@ struct SOCKET_INFO
 	int				sendBytes;
 };
 
+/**
+* @brief 클라이언트 IOCP
+* @details 소켓 등록 및 서버 정보 설정
+* @details 작업 스레드 생성, 패킷 처리
+* @author Dayeol Hyeon
+*/
+
 class IOCompletionPort
 {
 private:

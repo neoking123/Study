@@ -1,6 +1,11 @@
 #pragma once
 #include "Tank.h"
 
+/**
+* @brief 적 탱크 클래스
+* @author Dayeol Hyeon
+*/
+
 class Enemy : public Tank
 {
 public:

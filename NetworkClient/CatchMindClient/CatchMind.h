@@ -34,6 +34,13 @@ enum SCENE_STATE
 	RESULT_SCENE,
 };
 
+/**
+* @brief Catch Mind 게임 클래스
+* @details 게임의 메인 프레임워크
+* @details 초기화, 업데이트, 입력, 렌더링등을 처리한다
+* @author Dayeol Hyeon
+*/
+
 class CatchMind
 {
 private:

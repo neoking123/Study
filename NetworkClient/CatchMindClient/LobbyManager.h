@@ -13,6 +13,13 @@ struct Player
 	char nickName[32];
 };
 
+/**
+* @brief 로비를 관리하는 매니저
+* @details 서버로 부터 받은 로비 정보를 관리한다
+* @details 방, 플레이어 정보를 관리한다
+* @author Dayeol Hyeon
+*/
+
 class LobbyManager
 {
 private:

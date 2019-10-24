@@ -22,6 +22,11 @@ struct Size
 	int height = 0;
 };
 
+/**
+* @brief 위치, 크기 데이터를 가진 컴포넌트 클래스
+* @author Dayeol Hyeon
+*/
+
 class TransformComponent
 {
 public:

@@ -18,6 +18,13 @@ enum ROOM_STATE
 	ROOM_PLAYING
 };
 
+/**
+* @brief 로비의 방 정보를 관리
+* @details 로비에서 생성된 방 객체
+* @details 서버로 부터 받은 방 정보를 관리한다
+* @author Dayeol Hyeon
+*/
+
 class Room : public UIObject
 {
 private:

@@ -1,3 +1,8 @@
+/**
+* @mainpage Catch Mind 클라이언트 매뉴얼
+* @brief Catch Mind 클라이언트의 데이터 및 함수 설명
+*/
+
 #include "IOCompletionPort.h"
 #include "ChattingManager.h"
 #include "CatchMind.h"

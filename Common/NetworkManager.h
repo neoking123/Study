@@ -38,6 +38,13 @@ public:
 
 class PLAYER_INFO;
 
+/**
+* @brief 소켓 통신을 담당하는 클래스
+* @details 접속한 유저의 소켓 정보 관리
+* @details 로비에 생성된 방 관리
+* @author Dayeol Hyeon
+*/
+
 class NetworkManager
 {
 private:
@@ -50,7 +57,21 @@ private:
 	int roomCount;
 
 	NetworkManager();
+
+	/**
+	* @brief 플레이어 소켓 리턴
+	* @details 플레이어 인덱스의 해당하는 소켓을 리턴한다
+	* @param int playerIndex 플레이어 인덱스
+	* @return SOCKET playerIndex의 소켓
+	*/
 	SOCKET GetPlayerSocket(int playerIndex);
+
+	/**
+	* @brief 플레이어 방번호 리턴
+	* @details 플레이어 인덱스의 해당하는 방번호를 리턴한다
+	* @param int playerIndex 플레이어 인덱스
+	* @return inRoomNum playerIndex의 방번호
+	*/
 	int GetRoomNum(int playerIndex);
 
 public:
