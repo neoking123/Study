@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08_KeyFrameAni", "08_KeyFra
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "09_LightMap", "09_LightMap\09_LightMap.vcxproj", "{3666C758-9DB5-4AEF-BC20-81815E652A46}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "10_HeightMap", "10_HeightMap\10_HeightMap.vcxproj", "{98984FBC-33A1-424A-9D97-1AF6B23F2383}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -101,6 +103,14 @@ Global
 		{3666C758-9DB5-4AEF-BC20-81815E652A46}.Release|x64.Build.0 = Release|x64
 		{3666C758-9DB5-4AEF-BC20-81815E652A46}.Release|x86.ActiveCfg = Release|Win32
 		{3666C758-9DB5-4AEF-BC20-81815E652A46}.Release|x86.Build.0 = Release|Win32
+		{98984FBC-33A1-424A-9D97-1AF6B23F2383}.Debug|x64.ActiveCfg = Debug|x64
+		{98984FBC-33A1-424A-9D97-1AF6B23F2383}.Debug|x64.Build.0 = Debug|x64
+		{98984FBC-33A1-424A-9D97-1AF6B23F2383}.Debug|x86.ActiveCfg = Debug|Win32
+		{98984FBC-33A1-424A-9D97-1AF6B23F2383}.Debug|x86.Build.0 = Debug|Win32
+		{98984FBC-33A1-424A-9D97-1AF6B23F2383}.Release|x64.ActiveCfg = Release|x64
+		{98984FBC-33A1-424A-9D97-1AF6B23F2383}.Release|x64.Build.0 = Release|x64
+		{98984FBC-33A1-424A-9D97-1AF6B23F2383}.Release|x86.ActiveCfg = Release|Win32
+		{98984FBC-33A1-424A-9D97-1AF6B23F2383}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

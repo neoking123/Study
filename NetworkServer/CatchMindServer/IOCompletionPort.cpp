@@ -215,7 +215,7 @@ void IOCompletionPort::WorkerThread()
 
 	while (bWorkerThread)
 	{
-		/**
+		/*
 		 * 이 함수로 인해 쓰레드들은 WaitingThread Queue 에 대기상태로 들어가게 됨
 		 * 완료된 Overlapped I/O 작업이 발생하면 IOCP Queue 에서 완료된 작업을 가져와
 		 * 뒷처리를 함

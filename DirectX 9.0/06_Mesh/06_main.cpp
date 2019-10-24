@@ -2,20 +2,26 @@
 #include <d3dx9.h>
 #include <mmsystem.h>
 #include "..\..\Common\Camera.h"
+#include "..\..\Common\ZCamera.h"
 #include "..\..\Common\Macro.h"
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst;
 char g_szClassName[256] = "Hello World!!";
 
+HWND hWnd = NULL;
 LPDIRECT3D9					g_pD3D = NULL;
 LPDIRECT3DDEVICE9			g_pD3DDevice = NULL;
 LPD3DXMESH					g_pMesh = NULL;
 D3DMATERIAL9*				g_pMeshMaterials = NULL;
 LPDIRECT3DTEXTURE9*			g_pMeshTextures = NULL;
 DWORD						g_dwNumMaterials = 0;
+DWORD						g_cxHeight = 0;
+DWORD						g_czHeight = 0;
+DWORD						g_dwMouseX = 0;
+DWORD						g_dwMouseY = 0;
 
-Camera camera;
+//Camera camera;
 
 HRESULT InitD3D(HWND hWnd)
 {
@@ -41,7 +47,7 @@ HRESULT InitD3D(HWND hWnd)
 
 	g_pD3DDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 
-	camera.Init(g_pD3DDevice);
+	//camera.Init(g_pD3DDevice);
 
 	return S_OK;
 }
@@ -114,6 +120,86 @@ void SetupMareices()
 	g_pD3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
 }
 
+void ProcessMouse()
+{
+	POINT pt;
+	float fDelta = 0.001f;
+	GetCursorPos(&pt);
+	int dx = pt.x - g_dwMouseX;
+	int dy = pt.y - g_dwMouseY;
+
+	ZCamera::GetInstance()->RotateLocalX(dy * fDelta);
+	ZCamera::GetInstance()->RotateLocalY(dx * fDelta);
+	D3DXMATRIXA16* pmatView = ZCamera::GetInstance()->GetViewMatrix();
+	g_pD3DDevice->SetTransform(D3DTS_VIEW, pmatView);
+
+	RECT	rc;
+	GetClientRect(hWnd, &rc);
+	pt.x = (rc.right - rc.left) / 2;
+	pt.y = (rc.bottom - rc.top) / 2;
+	ClientToScreen(hWnd, &pt);
+	SetCursorPos(pt.x, pt.y);
+	g_dwMouseX = pt.x;
+	g_dwMouseY = pt.y;
+}
+
+void ProcessKey()
+{
+	if (GetAsyncKeyState('A'))
+		ZCamera::GetInstance()->MoveLocalZ(0.5f);
+
+	if (GetAsyncKeyState('Z'))
+		ZCamera::GetInstance()->MoveLocalZ(-0.5f);
+
+	if (GetAsyncKeyState(VK_ESCAPE))
+		PostMessage(hWnd, WM_DESTROY, 0, 0);
+
+	if (GetAsyncKeyState(VK_LBUTTON))
+		g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+
+	if (GetAsyncKeyState(VK_RBUTTON))
+		g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+}
+
+void ProcessInputs(void)
+{
+	ProcessMouse();
+	ProcessKey();
+}
+
+VOID Animate()
+{
+	/// 0 ~ 2PI 까지(0~360도) 값을 변화시킴 Fixed Point기법 사용
+	DWORD d = GetTickCount() % ((int)((D3DX_PI * 2) * 1000));
+	/// Y축 회전행렬
+	//	D3DXMatrixRotationY( &g_matAni, d / 1000.0f );
+
+	ProcessInputs();
+}
+
+void DrawBillBoard()
+{
+	D3DXMATRIXA16 matBillboard;
+	D3DXMatrixIdentity(&matBillboard);
+
+	// Y축 회전행렬은 _11, _13, _31, _33번 행렬에 회전값이 들어간다
+		// 카메라의 Y축 회전행렬값을 읽어서 역행렬을 만들면 X,Z축이 고정된
+		// Y축 회전 빌보드 행렬을 만들수 있다
+	matBillboard._11 = ZCamera::GetInstance()->GetViewMatrix()->_11;
+	matBillboard._13 = ZCamera::GetInstance()->GetViewMatrix()->_13;
+	matBillboard._31 = ZCamera::GetInstance()->GetViewMatrix()->_31;
+	matBillboard._33 = ZCamera::GetInstance()->GetViewMatrix()->_33;
+	D3DXMatrixInverse(&matBillboard, NULL, &matBillboard);
+
+	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matBillboard);
+	/*g_pD3DDevice->SetStreamSource(0, g_pVB, 0, sizeof(CUSTOMVERTEX));
+	g_pD3DDevice->SetFVF(D3DFVF_CUSTOMVVERTEX);
+	g_pD3DDevice->SetIndices(g_pIB);*/
+	g_pD3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, g_cxHeight * g_czHeight, 0,
+		(g_cxHeight - 1) * (g_czHeight - 1) * 2);
+
+}
+
 void Render()
 {
 	if (g_pD3DDevice == NULL)
@@ -121,10 +207,12 @@ void Render()
 
 	g_pD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
 
+	Animate();
+
 	if (SUCCEEDED(g_pD3DDevice->BeginScene()))
 	{
 		//SetupMareices();
-		camera.View();
+		//camera.View();
 
 		for (int i = 0; i < g_dwNumMaterials; i++)
 		{
@@ -133,7 +221,7 @@ void Render()
 
 			g_pMesh->DrawSubset(i);
 		}
-
+		//DrawBillBoard();
 		g_pD3DDevice->EndScene();
 	}
 
@@ -142,7 +230,7 @@ void Render()
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
-	HWND hWnd;
+	
 	MSG Message;
 	WNDCLASS WndClass;
 	g_hInst = hInstance;
@@ -192,35 +280,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
-	static int x;
-	static int y;
-
 	switch (iMessage)
 	{
 	case WM_KEYDOWN:
-		switch (wParam)
-		{
-		case 0x41:
-			camera.MoveLeft();
-			break;
-		case 0x44:
-			camera.MoveRight();
-			break;
-		case 0x57:
-			camera.MoveUp();
-			break;
-		case 0x53:
-			camera.MoveDown();
-			break;
-		}
-		return 0;
-	case WM_MOUSEMOVE:
-		x = LOWORD(lParam);
-		y = HIWORD(lParam);
-		camera.Rotation(x, y);
-
+		if (wParam == VK_ESCAPE)
+			PostMessage(hWnd, WM_DESTROY, 0, 0);
 		return 0;
 	case WM_DESTROY:
+		CleanUp();
 		PostQuitMessage(0);
 		return 0;
 	}
