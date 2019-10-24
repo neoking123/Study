@@ -42,7 +42,7 @@ HRESULT InitVB()
 {
 	CUSTOMVERTEX vertices[] = 
 	{
-		{ 150.0f, 250.0f, 0.5f, 1.0f, 0xffff0000 },
+		{ 150.0f, 250.0f, 0.5f, 1.0f, 0x00000000 },
 		{ 150.0f, 150.0f, 0.5f, 1.0f, 0xffff0000 },
 		{ 250.0f, 250.0f, 0.5f, 1.0f, 0xffff0000 },
 

@@ -1,0 +1,21 @@
+#pragma once
+#include <d3dx9.h>
+
+#define MAX_VB 1024
+#define MAX_IB 1024
+
+struct CUSTOMVERTEX
+{
+	D3DXVECTOR3	position;
+	//D3DXVECTOR3	normal;
+	//D3DXVECTOR3	texture;
+	DWORD color;
+};
+
+//#define D3DFVF_CUSTOMVERTEX (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1 | D3DFVF_DIFFUSE)
+#define D3DFVF_CUSTOMVERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE)
+
+struct CUSTOMINDEX
+{
+	WORD _0, _1, _2;
+};

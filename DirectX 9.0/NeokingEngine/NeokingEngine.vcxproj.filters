@@ -19,6 +19,9 @@
     <Filter Include="Manager">
       <UniqueIdentifier>{5d566fbd-809f-41ff-bf98-31849c95a073}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Polygon">
+      <UniqueIdentifier>{503ac288-7fe0-4734-b653-11f89c04df42}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreEngine.h">
@@ -42,6 +45,12 @@
     <ClInclude Include="MessageManager.h">
       <Filter>Manager</Filter>
     </ClInclude>
+    <ClInclude Include="Polygon.h">
+      <Filter>Polygon</Filter>
+    </ClInclude>
+    <ClInclude Include="3DBase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreEngine.cpp">
@@ -64,6 +73,12 @@
     </ClCompile>
     <ClCompile Include="MessageManager.cpp">
       <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineTest.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Polygon.cpp">
+      <Filter>Polygon</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

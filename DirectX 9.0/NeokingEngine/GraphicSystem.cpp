@@ -1,5 +1,7 @@
 #include "GraphicSystem.h"
 
+GraphicSystem* GraphicSystem::instance = nullptr;
+
 GraphicSystem::GraphicSystem()
 {
 }
@@ -9,11 +11,9 @@ GraphicSystem::~GraphicSystem()
 {
 }
 
-HRESULT GraphicSystem::InitD3D(HWND hWnd)
+void GraphicSystem::InitD3D(HWND hWnd)
 {
 	D3D = Direct3DCreate9(D3D_SDK_VERSION);
-	if (D3D == NULL)
-		return E_FAIL;
 
 	D3DPRESENT_PARAMETERS d3dpp;
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
@@ -21,13 +21,7 @@ HRESULT GraphicSystem::InitD3D(HWND hWnd)
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 
-	if (FAILED(D3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
-		D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &D3DDevice)))
-	{
-		return E_FAIL;
-	}
-
-	return S_OK;
+	D3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &D3DDevice);
 }
 
 void GraphicSystem::Render()
@@ -39,7 +33,9 @@ void GraphicSystem::Render()
 
 	if (SUCCEEDED(D3DDevice->BeginScene()))
 	{
+		SetupMareices();
 		// Print
+
 
 		D3DDevice->EndScene();
 	}
@@ -51,4 +47,26 @@ void GraphicSystem::Release()
 {
 	SAFE_RELEASE(D3DDevice);
 	SAFE_RELEASE(D3D);
+}
+
+void GraphicSystem::SetupMareices()
+{
+	D3DXMATRIXA16 matWorld;
+	UINT iTime = timeGetTime() % 1000;
+	FLOAT fAngle = iTime * (2.0f * D3DX_PI) / 1000.0f;
+	D3DXMatrixRotationY(&matWorld, fAngle);
+	D3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
+
+	//wasd
+	D3DXVECTOR3 vEyept(0.0f, 3.0f, -5.0f);
+	D3DXVECTOR3 vLootatPt(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
+	D3DXMATRIXA16 matView;
+	D3DXMatrixLookAtLH(&matView, &vEyept, &vLootatPt, &vUpVec);
+	D3DDevice->SetTransform(D3DTS_VIEW, &matView);
+
+	D3DXMATRIXA16 matProj;
+	D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI / 4, 1.0f, 1.0f, 100.0f);
+
+	D3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
 }

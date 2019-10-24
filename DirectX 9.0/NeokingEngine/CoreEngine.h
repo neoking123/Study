@@ -1,25 +1,49 @@
 #pragma once
+#include "..\..\Common\Macro.h"
 #include "WindowSystem.h"
-#include "GraphicSystem.h"
 #include "PhysicsSystem.h"
 #include "InputSystem.h"
 #include "MessageManager.h"
+#include "Polygon.h"
+
+typedef void(*UpdateFunc)();
 
 class CoreEngine
 {
 private:
+	static CoreEngine* instance;
+
+	CoreEngine();
+
+public:
 	WindowSystem windowSystem;
-	GraphicSystem graphicSystem;
 	InputSystem inputSystem;
 	PhysicsSystem phsicsSystem;
 	MessageManager messageManager;
-	
+
 public:
-	CoreEngine();
 	~CoreEngine();
 
-	void Init();
+	void Init(HINSTANCE hInstance);
+	void Update(UpdateFunc Update);
 	void Release();
+
+	static CoreEngine* GetInstance()
+	{
+		if (instance == nullptr)
+		{
+			instance = new CoreEngine();
+		}
+		return instance;
+	}
+
+	static void FreeInstance()
+	{
+		if (instance != nullptr)
+		{
+			SAFE_DELETE(instance);
+		}
+	}
 };
 
 // À©µµ¿ì ·¦ÇÎ

@@ -370,7 +370,6 @@ void Render()
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
-
 	switch (iMessage)
 	{
 	case WM_DESTROY:
