@@ -4,8 +4,6 @@
 #include "ZCamera.h"
 #include "SAFE_DELETE.h"
 
-#define MAINBODY
-
 #define WINDOW_W		500
 #define WINDOW_H		500
 #define WINDOW_TITLE	"HeightMap-TList"

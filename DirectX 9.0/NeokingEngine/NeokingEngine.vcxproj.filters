@@ -22,6 +22,12 @@
     <Filter Include="Polygon">
       <UniqueIdentifier>{503ac288-7fe0-4734-b653-11f89c04df42}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameFrame">
+      <UniqueIdentifier>{81c745e0-2d04-46ba-9c07-f70b8f5ee05e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3DBase">
+      <UniqueIdentifier>{a76b24a7-f2b1-4d95-b4be-b8eaa017fd5a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreEngine.h">
@@ -48,8 +54,11 @@
     <ClInclude Include="Polygon.h">
       <Filter>Polygon</Filter>
     </ClInclude>
+    <ClInclude Include="GameFrame.h">
+      <Filter>GameFrame</Filter>
+    </ClInclude>
     <ClInclude Include="3DBase.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>3DBase</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +88,9 @@
     </ClCompile>
     <ClCompile Include="Polygon.cpp">
       <Filter>Polygon</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFrame.cpp">
+      <Filter>GameFrame</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

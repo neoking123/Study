@@ -1,5 +1,6 @@
 #include "WindowSystem.h"
 #include "GraphicSystem.h"
+#include "GameFrame.h"
 
 WindowSystem::WindowSystem()
 {
@@ -51,7 +52,7 @@ void WindowSystem::InitWindow()
 	UpdateWindow(hWnd);
 }
 
-void WindowSystem::ProcessMessage(void(*Update)())
+void WindowSystem::ProcessMessage()
 {
 	MSG message;
 
@@ -68,11 +69,7 @@ void WindowSystem::ProcessMessage(void(*Update)())
 		}
 		else
 		{
-			if (Update)
-			{
-				Update();
-				//GraphicSystem::GetInstance()->Render();
-			}
+			GameFrame::GetInstance()->Update();
 			GraphicSystem::GetInstance()->Render();
 		}
 	}

@@ -47,7 +47,7 @@ public:
 		m_pThis = NULL;
 	}
 private:
-	ZFLog(UINT32 nTarget, LPSTR szFilename = NULL);
+	ZFLog(UINT32 nTarget, const char* szFilename = NULL);
 	static	LRESULT CALLBACK WndProcZFLog( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 };
 #endif // _ZFLOG_H_

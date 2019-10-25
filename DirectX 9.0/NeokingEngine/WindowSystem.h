@@ -42,9 +42,8 @@ public:
 	@details 윈도우 메세지를 처리한다
 	@details 게임 프레임 워크의 업데이트 함수를 파라미터로 받아
 	@details 메세지 루프가 비었을 때 처리한다
-	@param void(*Update)() 게임 프레임워크의 업데이트 함수
 	*/
-	void ProcessMessage(void(*Update)());
+	void ProcessMessage();
 
 	HWND GetWindowHandle()
 	{

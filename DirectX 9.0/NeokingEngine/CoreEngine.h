@@ -1,12 +1,12 @@
 #pragma once
-#include "..\..\Common\Macro.h"
+#include "Macro.h"
 #include "WindowSystem.h"
 #include "PhysicsSystem.h"
 #include "InputSystem.h"
 #include "MessageManager.h"
 #include "Polygon.h"
 
-typedef void(*UpdateFunc)();
+#define CORE_ENGINE CoreEngine::GetInstance()
 
 class CoreEngine
 {
@@ -25,7 +25,7 @@ public:
 	~CoreEngine();
 
 	void Init(HINSTANCE hInstance);
-	void Update(UpdateFunc Update);
+	void Update();
 	void Release();
 
 	static CoreEngine* GetInstance()
@@ -39,10 +39,7 @@ public:
 
 	static void FreeInstance()
 	{
-		if (instance != nullptr)
-		{
-			SAFE_DELETE(instance);
-		}
+		SAFE_DELETE(instance);
 	}
 };
 

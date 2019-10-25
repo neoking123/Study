@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClInclude Include="3DBase.h" />
     <ClInclude Include="CoreEngine.h" />
+    <ClInclude Include="GameFrame.h" />
     <ClInclude Include="GraphicSystem.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="MessageManager.h" />
@@ -156,6 +157,7 @@
   <ItemGroup>
     <ClCompile Include="CoreEngine.cpp" />
     <ClCompile Include="EngineTest.cpp" />
+    <ClCompile Include="GameFrame.cpp" />
     <ClCompile Include="GraphicSystem.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="MessageManager.cpp" />

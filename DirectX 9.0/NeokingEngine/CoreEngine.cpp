@@ -17,15 +17,15 @@ void CoreEngine::Init(HINSTANCE hInstance)
 {
 	windowSystem.Init(hInstance, "Neoking Engine");
 	windowSystem.InitWindow();
-	GraphicSystem::GetInstance()->InitD3D(windowSystem.GetWindowHandle());
+	GRAPHIC_SYSTEM->InitD3D(windowSystem.GetWindowHandle());
 }
 
-void CoreEngine::Update(UpdateFunc Update)
+void CoreEngine::Update()
 {
-	windowSystem.ProcessMessage(Update);
+	windowSystem.ProcessMessage();
 }
 
 void CoreEngine::Release()
 {
-	GraphicSystem::GetInstance()->Release();
+	GRAPHIC_SYSTEM->Release();
 }

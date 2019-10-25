@@ -11,28 +11,28 @@ Polygon::~Polygon()
 {
 }
 
-void Polygon::InitVB(CUSTOMVERTEX vertexes[])
+void Polygon::InitVB(CUSTOMVERTEX vertexes[], int size, int len)
 {
-	memcpy(this->vertexes, vertexes, sizeof(vertexes));
+	memcpy(this->vertexes, vertexes, size);
 
-	GraphicSystem::GetInstance()->GetDevice()->CreateVertexBuffer(8 * sizeof(CUSTOMVERTEX), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &vertextBuffer, NULL);
+	DXDEVICE->CreateVertexBuffer(len * sizeof(CUSTOMVERTEX), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &vertextBuffer, NULL);
 
 	void* pVertices;
-	vertextBuffer->Lock(0, sizeof(vertexes), (void**)&pVertices, 0);
+	vertextBuffer->Lock(0, size, (void**)&pVertices, 0);
 
-	memcpy(pVertices, vertexes, sizeof(vertexes));
+	memcpy(pVertices, vertexes, size);
 	vertextBuffer->Unlock();
 }
 
-void Polygon::InitIB(CUSTOMINDEX indexes[])
+void Polygon::InitIB(CUSTOMINDEX indexes[], int size, int len)
 {
-	memcpy(this->indexes, indexes, sizeof(indexes));
+	memcpy(this->indexes, indexes, size);
 
-	GraphicSystem::GetInstance()->GetDevice()->CreateIndexBuffer(12 * sizeof(CUSTOMINDEX), 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &indexBuffer, NULL);
+	DXDEVICE->CreateIndexBuffer(len * sizeof(CUSTOMINDEX), 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &indexBuffer, NULL);
 
 	void* pIndices;
-	indexBuffer->Lock(0, sizeof(indexes), (void**)&pIndices, 0);
+	indexBuffer->Lock(0, size, (void**)&pIndices, 0);
 
-	memcpy(pIndices, indexes, sizeof(indexes));
+	memcpy(pIndices, indexes, size);
 	indexBuffer->Unlock();
 }
