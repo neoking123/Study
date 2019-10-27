@@ -2,6 +2,9 @@
 #include <Windows.h>
 #include "System.h"
 
+#define WINDOW_SYSTEM WindowSystem::GetInstance()
+#define WINDOW_HANDLE WindowSystem::GetInstance()->GetWindowHandle()
+
 class GraphicSystem;
 
 /**
@@ -14,13 +17,16 @@ class GraphicSystem;
 class WindowSystem : public System
 {
 private:
+	static WindowSystem* instance;
+
 	HWND hWnd;
 	HINSTANCE hInstance;
 	int exitState;
 	char windowName[256];
 
-public:
 	WindowSystem();
+
+public:
 	virtual ~WindowSystem();
 
 	/**
@@ -48,5 +54,22 @@ public:
 	HWND GetWindowHandle()
 	{
 		return hWnd;
+	}
+
+	static WindowSystem* GetInstance()
+	{
+		if (instance == nullptr)
+		{
+			instance = new WindowSystem();
+		}
+		return instance;
+	}
+
+	static void FreeInstance()
+	{
+		if (instance != nullptr)
+		{
+			SAFE_DELETE(instance);
+		}
 	}
 };

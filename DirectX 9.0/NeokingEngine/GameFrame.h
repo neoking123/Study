@@ -1,7 +1,10 @@
 #pragma once
 #include "..\..\Common\Macro.h"
-#include "CoreEngine.h"
+#include "Polygon.h"
+#include "GameObject.h"
+#include "Terrain.h"
 
+#define BMP_HEIGHTMAP	"map129.bmp"
 #define GAME_FRAME GameFrame::GetInstance()
 
 class GameFrame
@@ -9,6 +12,8 @@ class GameFrame
 private:
 	static GameFrame* instance;
 	Object3D::Polygon p;
+	GameObject tiger;
+	Terrain* terrain;
 
 	GameFrame();
 
@@ -17,6 +22,7 @@ public:
 	void Init();
 	void Update();
 	void Render();
+	void Release();
 
 	static GameFrame* GetInstance()
 	{

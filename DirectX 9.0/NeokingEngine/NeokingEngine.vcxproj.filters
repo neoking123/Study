@@ -28,6 +28,18 @@
     <Filter Include="3DBase">
       <UniqueIdentifier>{a76b24a7-f2b1-4d95-b4be-b8eaa017fd5a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameObject">
+      <UniqueIdentifier>{833b42e7-e524-4dee-ae05-d61dc3317fed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Terrain">
+      <UniqueIdentifier>{eddd2328-6e3e-4515-877c-515cb56ee011}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FileIO">
+      <UniqueIdentifier>{4d2eb883-dc48-481d-be98-d24d8ba1d3ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{ec0626fe-6033-4d51-8ed2-38d878edff85}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreEngine.h">
@@ -60,6 +72,27 @@
     <ClInclude Include="3DBase.h">
       <Filter>3DBase</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadTree.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Frustum.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Dib.h">
+      <Filter>FileIO</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalFunc.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreEngine.cpp">
@@ -91,6 +124,27 @@
     </ClCompile>
     <ClCompile Include="GameFrame.cpp">
       <Filter>GameFrame</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Terrain.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="QuadTree.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Frustum.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Dib.cpp">
+      <Filter>FileIO</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalFunc.cpp">
+      <Filter>Utility</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

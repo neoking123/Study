@@ -1,6 +1,9 @@
 #include "WindowSystem.h"
 #include "GraphicSystem.h"
+#include "InputSystem.h"
 #include "GameFrame.h"
+
+WindowSystem* WindowSystem::instance = nullptr;
 
 WindowSystem::WindowSystem()
 {
@@ -14,6 +17,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
 	switch (iMessage)
 	{
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_ESCAPE:
+			PostMessage(hWnd, WM_DESTROY, 0, 0L);
+			break;
+		case '1':
+			GRAPHIC_SYSTEM->bWireframe = !GRAPHIC_SYSTEM->bWireframe;
+			break;
+		case '2':
+			GRAPHIC_SYSTEM->bLockFrustum = !GRAPHIC_SYSTEM->bLockFrustum;
+			GRAPHIC_SYSTEM->bHideFrustum = !GRAPHIC_SYSTEM->bHideFrustum;
+			break;
+		}
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
@@ -69,8 +87,9 @@ void WindowSystem::ProcessMessage()
 		}
 		else
 		{
-			GameFrame::GetInstance()->Update();
-			GraphicSystem::GetInstance()->Render();
+			INPUT_SYSTEM->ProcessInput();
+			GAME_FRAME->Update();
+			GRAPHIC_SYSTEM->Render();
 		}
 	}
 }
