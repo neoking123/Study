@@ -3,7 +3,8 @@
 void QuadTree::AllInFrustum()
 {
 	culled = FALSE;
-	if (!child[0]) return;
+	if (!child[0]) 
+		return;
 	child[0]->AllInFrustum();
 	child[1]->AllInFrustum();
 	child[2]->AllInFrustum();
@@ -27,7 +28,8 @@ int QuadTree::IsInFrustum(TERRAINVERTEX * pHeightMap, Frustum * pFrustum)
 	b[3] = pFrustum->IsIn((D3DXVECTOR3*)(pHeightMap + corner[3]));
 
 	// 4개모두 프러스텀 안에 있음
-	if ((b[0] + b[1] + b[2] + b[3]) == 4) return FRUSTUM_COMPLETELY_IN;
+	if ((b[0] + b[1] + b[2] + b[3]) == 4) 
+		return FRUSTUM_COMPLETELY_IN;
 
 	// 일부분이 프러스텀에 있는 경우
 	return FRUSTUM_PARTIALLY_IN;

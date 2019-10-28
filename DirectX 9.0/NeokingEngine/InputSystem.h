@@ -12,6 +12,7 @@ private:
 	DWORD mouseX = 0;
 	DWORD mouseY = 0;
 	float cameraMoveForce;
+	float moveForce;
 
 	InputSystem();
 

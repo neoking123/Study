@@ -22,8 +22,6 @@ private:
 	Frustum();
 
 public:
-	~Frustum();
-
 	// 카메라(view) * 프로젝션(projection)행렬을 입력받아 6개의 평면을 만든다.
 	BOOL	Make(D3DXMATRIXA16* pmatViewProj);
 

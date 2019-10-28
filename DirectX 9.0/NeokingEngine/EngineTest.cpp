@@ -8,12 +8,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	// 엔진 초기화
 	CORE_ENGINE->Init(hInstance);
 
-	// 게임 초기화 부분
+	// 게임 초기화
 	GAME_FRAME->Init();
 
 	// 게임 루프
 	CORE_ENGINE->Update();
 
-	// 엔진 해제
+	// 엔진 종료
 	CORE_ENGINE->Release();
 }

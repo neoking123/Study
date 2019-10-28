@@ -1,6 +1,7 @@
 #include "InputSystem.h"
 #include "WindowSystem.h"
 #include "GraphicSystem.h"
+#include "GameFrame.h"
 #include "Camera.h"
 
 InputSystem* InputSystem::instance = nullptr;
@@ -23,6 +24,7 @@ void InputSystem::Init()
 	mouseY = pt.y;
 
 	cameraMoveForce = 0.1f;
+	moveForce = 0.1f;
 }
 
 void InputSystem::ProcessInput()
@@ -61,24 +63,44 @@ void InputSystem::ProcessMouse()
 void InputSystem::ProcessKey()
 {
 	if (KEYDOWN(VK_SHIFT))
+	{
+		moveForce = 0.5f;
 		cameraMoveForce = 0.5f;
-
+	}
+		
 	if (KEYUP(VK_SHIFT))
+	{
+		moveForce = 0.1f;
 		cameraMoveForce = 0.1f;
+	}
 
 	//if (KEYDOWN(VK_ESCAPE))
 	//	PostMessage(WINDOW_HANDLE, WM_DESTROY, 0, 0L);
 	//if (KEYDOWN('1'))
 	//	GRAPHIC_SYSTEM->bWireframe = !GRAPHIC_SYSTEM->bWireframe;
-		
 
 	if (KEYDOWN('W'))
-		CAMERA->MoveLocalZ(cameraMoveForce);	// 카메라 전진!
+		//CAMERA->MoveLocalZ(cameraMoveForce);	// 카메라 전진!
+		GAME_FRAME->GetTank()->MoveLocalZ(moveForce);
 	if (KEYDOWN('S'))
-		CAMERA->MoveLocalZ(-cameraMoveForce);	// 카메라 후진!
+		//CAMERA->MoveLocalZ(-cameraMoveForce);	// 카메라 후진!
+		GAME_FRAME->GetTank()->MoveLocalZ(-moveForce);
 	if (KEYDOWN('A'))
-		CAMERA->MoveLocalX(-cameraMoveForce);	// 카메라 오른쪽 이동!
+		//CAMERA->MoveLocalX(-cameraMoveForce);	// 카메라 오른쪽 이동!
+		GAME_FRAME->GetTank()->MoveLocalX(-moveForce);
 	if (KEYDOWN('D'))
-		CAMERA->MoveLocalX(cameraMoveForce);	// 카메라 왼쪽 이동!
+		//CAMERA->MoveLocalX(cameraMoveForce);	// 카메라 왼쪽 이동!
+		GAME_FRAME->GetTank()->MoveLocalX(moveForce);
+
+	if (KEYDOWN(VK_UP))
+		CAMERA->MoveLocalZ(cameraMoveForce);	// 카메라 전진!
+	if (KEYDOWN(VK_DOWN))
+		CAMERA->MoveLocalZ(-cameraMoveForce);	// 카메라 후진!
+	if (KEYDOWN(VK_RIGHT))
+		CAMERA->MoveLocalX(cameraMoveForce);	// 카메라 오른쪽 이동!
+	if (KEYDOWN(VK_LEFT))
+		CAMERA->MoveLocalX(-cameraMoveForce);	// 카메라 왼쪽 이동!
+	
+
 
 }

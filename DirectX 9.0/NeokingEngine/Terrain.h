@@ -11,6 +11,9 @@
 class Terrain
 {
 private:
+	D3DXVECTOR3				vPos;						// 물체의 현재 위치
+	D3DXMATRIXA16			matTrans;					// 물체 위치 행렬
+
 	int						cxDIB;						// DIB의 가로픽셀수
 	int						czDIB;						// DIB의 세로픽셀수
 	int						cyDIB;						// DIB의 최대높이값(즉 0 ~ 255사이의 값)

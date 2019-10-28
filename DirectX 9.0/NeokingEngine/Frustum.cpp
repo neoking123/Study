@@ -148,8 +148,3 @@ BOOL Frustum::Draw(LPDIRECT3DDEVICE9 pDev)
 	pDev->SetRenderState(D3DRS_LIGHTING, FALSE);
 	return TRUE;
 }
-
-
-Frustum::~Frustum()
-{
-}

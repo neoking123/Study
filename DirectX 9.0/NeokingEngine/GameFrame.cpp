@@ -24,15 +24,15 @@ void GameFrame::Init()
 	//	{ {150.0f, 150.0f, 0.5f}, 0xffff0000 },
 	//	{ {250.0f, 150.0f, 0.5f}, 0xffff0000 }*/
 
-	//	{ { -1 , 1 , 1 }, 0xffff0000 } ,
-	//	{ { 1 , 1 , 1 }, 0xff00ff00 } ,
-	//	{ { 1 ,   1 ,  -1 }, 0xff0000ff },
-	//	{ { -1 , 1 ,  -1 }, 0xffffff00 },
+	//	{ { -1 , 1 , 1 }, 0x09fb300 } ,
+	//	{ { 1 , 1 , 1 },0x09fb300 } ,
+	//	{ { 1 ,   1 ,  -1 }, 0x09fb300 },
+	//	{ { -1 , 1 ,  -1 }, 0x09fb300 },
 
-	//	{ { -1 , -1 , 1 }, 0xff00ffff } ,
-	//	{ { 1 , -1 , 1 }, 0xffff00ff } ,
-	//	{ { 1 , -1 ,  -1 }, 0xff000000 },
-	//	{ { -1 , -1 ,  -1 }, 0xffffffff },
+	//	{ { -1 , -1 , 1 }, 0x09fb300 } ,
+	//	{ { 1 , -1 , 1 }, 0x09fb300 } ,
+	//	{ { 1 , -1 ,  -1 }, 0x09fb300 },
+	//	{ { -1 , -1 ,  -1 }, 0x09fb300 },
 	//};
 
 	//CUSTOMINDEX indeices[] =
@@ -45,16 +45,22 @@ void GameFrame::Init()
 	//	{0,4,5},{0,5,1}//µÞ¸é
 	//};
 
-	//p.InitVB(vertices, sizeof(vertices), 8);
-	//p.InitIB(indeices, sizeof(indeices), 12);
-
+	//tank.Init();
+	//tank.InitVB(cannonVertices, sizeof(vertices), 8);
+	//tank.InitIB(indeices, sizeof(indeices), 12);
+	tank.Init();
+	D3DXVECTOR3 vPos(30.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 vLookatPt(1.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 vUp(0.0f, 1.0f, 0.0f);
+	tank.SetPos(&vPos, &vLookatPt, &vUp);
 
 	//tiger.InitGeometry("Models\\Ezreal.X");
 
-	const char*	tex[256] = { "tile2.tga", "", "", "" };
+	//const char*	tex[256] = { "Stone_wall_tile_B_diffuse.tga", "lightmap.tga", "", "" };
+	const char*	tex[256] = { "Stone_wall_tile_B_diffuse.tga", "", "", "" };
 	D3DXVECTOR3	vScale;
 
-	vScale.x = vScale.z = 2.0f; vScale.y = 0.2f;
+	vScale.x = vScale.z = 1.0f; vScale.y = 0.1f;
 	terrain = new Terrain();
 	terrain->Create(DXDEVICE, &vScale, 0.05f, BMP_HEIGHTMAP, tex);
 }
@@ -66,12 +72,11 @@ void GameFrame::Update()
 
 void GameFrame::Render()
 {
-	//GRAPHIC_SYSTEM->DrawMesh(p.GetVB(), p.GetIB(), 8 , 12);
-
-	//GRAPHIC_SYSTEM->DrawMesh(tiger.GetMesh(), tiger.GetMeshMaterials(), tiger.GetMeshTextures(), tiger.GetNumMaterials());
-
 	terrain->Draw(FRUSTUM);
-	
+	GRAPHIC_SYSTEM->DrawMesh(tank.GetMatTrans() ,tank.GetVB(), tank.GetIB(), 8 , 12);
+	//GRAPHIC_SYSTEM->DrawMesh(tank.GetMatTrans() ,tank.cannonVB, tank.cannonIB, 8 , 12);
+
+	//GRAPHIC_SYSTEM->DrawMesh(tiger.GetMesh(), tiger.GetMeshMaterials(), tiger.GetMeshTextures(), tiger.GetNumMaterials());	
 }
 
 void GameFrame::Release()

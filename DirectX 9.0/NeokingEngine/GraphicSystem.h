@@ -33,9 +33,10 @@ public:
 	void InitMatrix();
 	void Render();
 	void Release();
-	void DrawMesh(LPDIRECT3DVERTEXBUFFER9 vertextBuffer, LPDIRECT3DINDEXBUFFER9 indexBuffer, int vertexNum, int primeCount);
+	void DrawMesh(D3DXMATRIXA16* matTrans,LPDIRECT3DVERTEXBUFFER9 vertextBuffer, LPDIRECT3DINDEXBUFFER9 indexBuffer, int vertexNum, int primeCount);
 	void DrawMesh(LPD3DXMESH mesh, D3DMATERIAL9* meshMaterials, LPDIRECT3DTEXTURE9* meshTextures, int numMaterials);
 	void SetupMareices();
+	void SetupLight();
 
 	LPDIRECT3DDEVICE9 GetDevice()
 	{
@@ -55,7 +56,5 @@ public:
 	{
 		SAFE_DELETE(instance);
 	}
-
-
 };
 

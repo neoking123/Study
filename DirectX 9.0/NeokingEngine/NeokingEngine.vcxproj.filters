@@ -93,6 +93,9 @@
     <ClInclude Include="GlobalFunc.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="Tank.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreEngine.cpp">
@@ -145,6 +148,9 @@
     </ClCompile>
     <ClCompile Include="GlobalFunc.cpp">
       <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Tank.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

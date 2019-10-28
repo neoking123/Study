@@ -1,4 +1,5 @@
 #include "Terrain.h"
+#include "GraphicSystem.h"
 #include "Dib.h"
 
 Terrain::Terrain()
@@ -24,6 +25,9 @@ Terrain::~Terrain()
 
 HRESULT Terrain::Create(LPDIRECT3DDEVICE9 pDev, D3DXVECTOR3 * pvfScale, float fLODRatio, const char * lpBMPFilename, const char * lpTexFilename[MAX_TERRAIN_TEX])
 {
+	vPos = { 0.0f , 0.0f, 0.0f };
+	D3DXMatrixTranslation(&matTrans, vPos.x, vPos.y, vPos.z);
+
 	d3dDevice = pDev;
 	scale = *pvfScale;
 	LODRatio = fLODRatio;
@@ -161,6 +165,7 @@ HRESULT Terrain::CreateVIB()
 
 HRESULT Terrain::Render()
 {
+	DXDEVICE->SetTransform(D3DTS_WORLD, &matTrans);
 	//d3dDevice->SetTexture(0, texture[0]);								// 0번 텍스쳐 스테이지에 텍스쳐 고정(색깔맵)
 	//d3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);	// 0번 텍스처 스테이지의 확대 필터
 	//d3dDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0);		// 0번 텍스처 : 0번 텍스처 인덱스 사용

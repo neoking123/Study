@@ -12,8 +12,21 @@ GameObject::~GameObject()
 
 }
 
+void GameObject::Init()
+{
+	D3DXVECTOR3	pos(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3	lookat(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3	up(0.0f, 1.0f, 0.0f);
+	D3DXMatrixIdentity(&matTrans);
+	SetPos(&pos, &lookat, &up);
+}
+
 void GameObject::InitVB(CUSTOMVERTEX vertexes[], int size, int len)
 {
+	D3DXMatrixIdentity(&matScale);
+	D3DXMatrixIdentity(&matTrans);
+	D3DXMatrixIdentity(&matRotation);
+
 	memcpy(this->vertexes, vertexes, size);
 
 	DXDEVICE->CreateVertexBuffer(len * sizeof(CUSTOMVERTEX), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &vertextBuffer, NULL);
@@ -73,4 +86,93 @@ void GameObject::Release()
 	}
 
 	SAFE_RELEASE(mesh);
+}
+
+D3DXMATRIXA16 * GameObject::SetPos(D3DXVECTOR3 * vPos, D3DXVECTOR3 * vLookat, D3DXVECTOR3 * vUp)
+{
+	this->vPos = *vPos;
+	this->vLookat = *vLookat;
+	this->vUp = *vUp;
+	D3DXVec3Normalize(&vForward, &(this->vLookat - this->vPos));
+	D3DXVec3Cross(&vCross, &this->vUp, &vForward);
+
+	D3DXMatrixLookAtLH(&matTrans, &this->vPos, &this->vLookat, &this->vUp);
+
+	D3DXMATRIXA16 matMove;
+	D3DXMatrixTranslation(&matMove, this->vPos.x, this->vPos.y, this->vPos.z);
+	matTrans = matMove;
+	DXDEVICE->SetTransform(D3DTS_WORLD, &matTrans);
+
+	/*D3DXMatrixInverse(&matBill, NULL, &matView);
+	matBill._41 = 0.0f;
+	matBill._42 = 0.0f;
+	matBill._43 = 0.0f;*/
+
+	return &matTrans;
+}
+
+void GameObject::MoveLocalX(float dist)
+{
+	/*D3DXVECTOR3 vNewPos = vPos;
+	D3DXVECTOR3 vNewLootat = vLookat;
+
+	D3DXVECTOR3 vMove;
+	D3DXVec3Normalize(&vMove, &vCross);
+	vMove *= dist;
+	vNewPos += vMove;
+	vNewLootat += vMove;
+
+	return SetPos(&vNewPos, &vNewLootat, &vUp);*/
+
+	vPos.x += 1.0f * dist;
+
+	D3DXMATRIXA16 matMove;
+	D3DXMatrixTranslation(&matMove, vPos.x, vPos.y, vPos.z);
+
+	matTrans = matMove;
+	DXDEVICE->SetTransform(D3DTS_WORLD, &matTrans);
+}
+
+void GameObject::MoveLocalY(float dist)
+{
+	/*D3DXVECTOR3 vNewPos = vPos;
+	D3DXVECTOR3 vNewLootat = vLookat;
+
+	D3DXVECTOR3 vMove;
+	D3DXVec3Normalize(&vMove, &vUp);
+	vMove *= dist;
+	vNewPos += vMove;
+	vNewLootat += vMove;
+
+	return SetPos(&vNewPos, &vNewLootat, &vUp);*/
+
+	vPos.y += 1.0f * dist;
+
+	D3DXMATRIXA16 matMove;
+	D3DXMatrixTranslation(&matMove, vPos.x, vPos.y, vPos.z);
+
+	matTrans = matMove;
+	DXDEVICE->SetTransform(D3DTS_WORLD, &matTrans);
+}
+
+void GameObject::MoveLocalZ(float dist)
+{
+	/*D3DXVECTOR3 vNewPos = vPos;
+	D3DXVECTOR3 vNewLootat = vLookat;
+
+	D3DXVECTOR3 vMove;
+	D3DXVec3Normalize(&vMove, &vForward);
+	vMove *= dist;
+	vNewPos += vMove;
+	vNewLootat += vMove;
+
+	return SetPos(&vNewPos, &vNewLootat, &vUp);*/
+
+	vPos.z += 1.0f * dist;
+
+	D3DXMATRIXA16 matMove;
+	D3DXMatrixTranslation(&matMove, vPos.x, vPos.y, vPos.z);
+
+	matTrans = matMove;
+	DXDEVICE->SetTransform(D3DTS_WORLD, &matTrans);
 }
