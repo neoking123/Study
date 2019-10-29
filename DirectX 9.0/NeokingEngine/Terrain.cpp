@@ -178,12 +178,12 @@ HRESULT Terrain::Render()
 	//d3dDevice->SetIndices(indexBuffer);
 	//d3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, cxDIB * czDIB, 0, trianglesNum);
 
-	d3dDevice->SetTexture(0, texture[0]);								// 0번 텍스쳐 스테이지에 텍스쳐 고정(색깔맵)
-	d3dDevice->SetTexture(1, texture[1]);								// 1번 텍스쳐 스테이지에 텍스쳐 고정(음영맵)
-	d3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);	// 0번 텍스처 스테이지의 확대 필터
-	d3dDevice->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);	// 0번 텍스처 스테이지의 확대 필터
-	d3dDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0);		// 0번 텍스처 : 0번 텍스처 인덱스 사용
-	d3dDevice->SetTextureStageState(1, D3DTSS_TEXCOORDINDEX, 0);		// 1번 텍스처 : 0번 텍스처 인덱스 사용
+	d3dDevice->SetTexture(0, texture[0]);										// 0번 텍스쳐 스테이지에 텍스쳐 고정(색깔맵)
+	d3dDevice->SetTexture(1, texture[1]);										// 1번 텍스쳐 스테이지에 텍스쳐 고정(음영맵)
+	d3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);			// 0번 텍스처 스테이지의 확대 필터
+	d3dDevice->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);			// 0번 텍스처 스테이지의 확대 필터
+	d3dDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0);				// 0번 텍스처 : 0번 텍스처 인덱스 사용
+	d3dDevice->SetTextureStageState(1, D3DTSS_TEXCOORDINDEX, 0);		 		// 1번 텍스처 : 0번 텍스처 인덱스 사용
 
 	d3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);		// MODULATE로 섞는다.
 	d3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);		// 텍스처

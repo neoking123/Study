@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{9F462EDA-C868-4BF2-9E5E-7FB33E65C070}</ProjectGuid>
+    <ProjectGuid>{704DE6BE-508A-4CA0-84A5-86196FBFB8FD}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>My15LodFix</RootNamespace>
+    <RootNamespace>My15ASEParser</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -59,16 +59,19 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\DirectX32_Debug.props" />
+    <Import Project="..\DirectX32_Debug\DirectX32_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\DirectX32_Debug\DirectX32_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\DirectX32_Debug\DirectX32_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\DirectX32_Debug\DirectX32_Debug.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -140,25 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Common\Dib.cpp" />
-    <ClCompile Include="15_Main.cpp" />
-    <ClCompile Include="GlobalFunc.cpp" />
-    <ClCompile Include="ZCamera.cpp" />
-    <ClCompile Include="ZFLog.cpp" />
-    <ClCompile Include="ZFrustum.cpp" />
-    <ClCompile Include="ZQuadTree.cpp" />
-    <ClCompile Include="ZTerrain.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\Common\define.h" />
-    <ClInclude Include="..\Common\Dib.h" />
-    <ClInclude Include="..\Common\SAFE_DELETE.h" />
-    <ClInclude Include="GlobalFunc.h" />
-    <ClInclude Include="ZCamera.h" />
-    <ClInclude Include="ZFLog.h" />
-    <ClInclude Include="ZFrustum.h" />
-    <ClInclude Include="ZQuadTree.h" />
-    <ClInclude Include="ZTerrain.h" />
+    <ClCompile Include="15_main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

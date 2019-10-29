@@ -5,8 +5,9 @@ using namespace std;
 
 class GameObject
 {
-protected:
+public:
 	D3DXVECTOR3		vPos;			// 물체의 현재 위치
+protected:
 	D3DXVECTOR3		vLookat;		// 물체의 시선 위치
 	D3DXVECTOR3		vUp;			// 물체의 상방벡터
 
@@ -37,10 +38,10 @@ public:
 	void InitGeometry(string fileName);
 	void Release();
 
-	D3DXMATRIXA16*	SetPos(D3DXVECTOR3* vPos, D3DXVECTOR3* vLookat, D3DXVECTOR3* vUp);
-	void			MoveLocalX(float dist);
-	void			MoveLocalY(float dist);
-	void			MoveLocalZ(float dist);
+	virtual D3DXMATRIXA16*	SetPos(D3DXVECTOR3* vPos, D3DXVECTOR3* vLookat, D3DXVECTOR3* vUp);
+	virtual void			MoveLocalX(float dist);
+	virtual	void			MoveLocalY(float dist);
+	virtual void			MoveLocalZ(float dist);
 
 	D3DXMATRIXA16* GetMatTrans()
 	{

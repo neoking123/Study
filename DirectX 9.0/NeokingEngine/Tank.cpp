@@ -14,7 +14,12 @@ void Tank::Init()
 	D3DXVECTOR3	pos(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3	lookat(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3	up(0.0f, 1.0f, 0.0f);
+	vCannonRotation = { 0.0f, 0.0f, 0.0f };
+	D3DXMatrixIdentity(&matScale);
 	D3DXMatrixIdentity(&matTrans);
+	D3DXMatrixIdentity(&matRotation);
+	D3DXMatrixIdentity(&matCannonTrans);
+	D3DXMatrixIdentity(&matCannonRotation);
 	SetPos(&pos, &lookat, &up);
 
 	CUSTOMVERTEX vertices[] =
@@ -24,10 +29,10 @@ void Tank::Init()
 		{ { 1 ,   1 ,  -1 }, 0x09fb300 },
 		{ { -1 , 1 ,  -1 }, 0x09fb300 },
 
-		{ { -1 , -1 , 1 }, 0x09fb300 } ,
-		{ { 1 , -1 , 1 }, 0x09fb300 } ,
-		{ { 1 , -1 ,  -1 }, 0x09fb300 },
-		{ { -1 , -1 ,  -1 }, 0x09fb300 },
+		{ { -1 , -1 , 1 }, 0x038610b } ,
+		{ { 1 , -1 , 1 }, 0x038610b } ,
+		{ { 1 , -1 ,  -1 }, 0x038610b },
+		{ { -1 , -1 ,  -1 }, 0x038610b },
 	};
 
 	CUSTOMINDEX indeices[] =
@@ -47,16 +52,16 @@ void Tank::Init()
 		{ { 0.125f ,   1.5f ,  0 }, 0x09fb300 },
 		{ { -0.125f , 1.5f ,  0 }, 0x09fb300 },
 
-		{ { -0.125f , 1 , 2 }, 0x09fb300 } ,
-		{ { 0.125f , 1 , 2 }, 0x09fb300 } ,
-		{ { 0.125f , 1 ,  0 }, 0x09fb300 },
-		{ { -0.125f , 1 ,  0 }, 0x09fb300 },
+		{ { -0.125f , 1 , 2 }, 0x038610b } ,
+		{ { 0.125f , 1 , 2 }, 0x038610b } ,
+		{ { 0.125f , 1 ,  0 }, 0x038610b },
+		{ { -0.125f , 1 ,  0 }, 0x038610b },
 	};
 
 	InitVB(vertices, sizeof(vertices), 8);
 	InitIB(indeices, sizeof(indeices), 12);
 
-	/*memcpy(cannonVB, cannonVertices, sizeof(cannonVertices));
+	memcpy(cannonvertexes, cannonVertices, sizeof(cannonVertices));
 	DXDEVICE->CreateVertexBuffer(8 * sizeof(CUSTOMVERTEX), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &cannonVB, NULL);
 
 	void* pVertices;
@@ -64,11 +69,60 @@ void Tank::Init()
 	memcpy(pVertices, cannonVertices, sizeof(cannonVertices));
 	cannonVB->Unlock();
 
-	memcpy(cannonIB, indeices, sizeof(indeices));
+	memcpy(cannonIndexes, indeices, sizeof(indeices));
 	DXDEVICE->CreateIndexBuffer(12 * sizeof(CUSTOMINDEX), 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &cannonIB, NULL);
 
 	void* pIndices;
 	cannonIB->Lock(0, sizeof(indeices), (void**)&pIndices, 0);
 	memcpy(pIndices, indexes, sizeof(indeices));
-	cannonIB->Unlock();*/
+	cannonIB->Unlock();
+}
+
+void Tank::Update(float height)
+{
+	vPos = { vPos.x, height, vPos.z };
+	SetPos(&vPos, &vLookat, &vUp);
+}
+
+void Tank::Render()
+{
+	GRAPHIC_SYSTEM->DrawMesh(&matTrans, vertextBuffer, indexBuffer, 8, 12);
+	GRAPHIC_SYSTEM->DrawMesh(&matCannonTrans, cannonVB, cannonIB, 8, 12);
+}
+
+void Tank::RotateCannonX(float angle)
+{
+	//D3DXMATRIXA16 matRotate;
+
+	D3DXMatrixRotationX(&matCannonRotation, angle);
+	matCannonTrans = matCannonRotation * matCannonTrans;
+	//D3DXMatrixTranslation(&matRotate, vCannonRotation.x, vCannonRotation.y, vCannonRotation.z);
+	//matTrans = matRotate;
+	//DXDEVICE->SetTransform(D3DTS_WORLD, &matTrans);
+}
+
+D3DXMATRIXA16 * Tank::SetPos(D3DXVECTOR3 * vPos, D3DXVECTOR3 * vLookat, D3DXVECTOR3 * vUp)
+{
+	GameObject::SetPos(vPos, vLookat, vUp);
+	matCannonTrans = matTrans;
+
+	return &matTrans;
+}
+
+void Tank::MoveLocalX(float dist)
+{
+	GameObject::MoveLocalX(dist);
+	matCannonTrans = matTrans;
+}
+
+void Tank::MoveLocalY(float dist)
+{
+	GameObject::MoveLocalY(dist);
+	matCannonTrans = matTrans;
+}
+
+void Tank::MoveLocalZ(float dist)
+{
+	GameObject::MoveLocalZ(dist);
+	matCannonTrans = matTrans;
 }

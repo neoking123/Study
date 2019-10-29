@@ -92,6 +92,11 @@ void InputSystem::ProcessKey()
 		//CAMERA->MoveLocalX(cameraMoveForce);	// 카메라 왼쪽 이동!
 		GAME_FRAME->GetTank()->MoveLocalX(moveForce);
 
+	if (KEYDOWN('O'))
+		GAME_FRAME->GetTank()->RotateCannonX(-0.1f);
+	if (KEYDOWN('P'))
+		GAME_FRAME->GetTank()->RotateCannonX(0.1f);
+
 	if (KEYDOWN(VK_UP))
 		CAMERA->MoveLocalZ(cameraMoveForce);	// 카메라 전진!
 	if (KEYDOWN(VK_DOWN))

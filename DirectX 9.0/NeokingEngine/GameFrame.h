@@ -14,7 +14,7 @@ private:
 	static GameFrame* instance;
 	//Object3D::Polygon p;
 	//GameObject tiger;
-	//GameObject tank;
+	GameObject ez;
 	Terrain* terrain;
 	Tank tank;
 
@@ -41,7 +41,7 @@ public:
 		SAFE_DELETE(instance);
 	}
 
-	GameObject* GetTank()
+	Tank* GetTank()
 	{
 		return &tank;
 	}

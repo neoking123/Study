@@ -24,8 +24,9 @@ void GraphicSystem::InitD3D(HWND hWnd)
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 
 	// 깊이 버퍼 생성
-	//d3dpp.EnableAutoDepthStencil = TRUE;
-	//d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+	d3dpp.EnableAutoDepthStencil = TRUE;
+	d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+	//d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
 
 	D3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &D3DDevice);
 	
@@ -34,7 +35,7 @@ void GraphicSystem::InitD3D(HWND hWnd)
 	// Z버퍼기능을 켠다.
 	D3DDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 	
-	//D3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	//D3DDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 }
 
 void GraphicSystem::InitMatrix()
@@ -68,7 +69,7 @@ void GraphicSystem::Render()
 		return;
 
 	// 후면버퍼와 Z버퍼 초기화
-	D3DDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(200, 200, 200), 1.0f, 0);
+	D3DDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(200, 200, 200), 1.0f, 0);
 	D3DDevice->SetRenderState(D3DRS_FILLMODE, bWireframe ? D3DFILL_WIREFRAME : D3DFILL_SOLID);
 
 	SetupLight();

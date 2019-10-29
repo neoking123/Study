@@ -67,6 +67,8 @@ public:
 	// x, z위치의 높이(y)값만 얻어내다.
 	float		GetHeight(int x, int z) { return (GetVertex(x, z))->p.y; }
 
+	//D3DXVECTOR3 GetNormal(int x, int y) { return D3DXVECTOR3(0, 0, GetVertex(x, z))}
+
 	// 높이맵 BMP파일의 가로픽셀수
 	int			GetCXDIB() { return cxDIB; }
 

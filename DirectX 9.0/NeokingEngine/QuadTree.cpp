@@ -19,7 +19,8 @@ int QuadTree::IsInFrustum(TERRAINVERTEX * pHeightMap, Frustum * pFrustum)
 	// 경계구안에 있는가?
 //	if( m_fRadius == 0.0f ) g_pLog->Log( "Index:[%d], Radius:[%f]",m_nCenter, m_fRadius );
 	bInSphere = pFrustum->IsInSphere((D3DXVECTOR3*)(pHeightMap + center), radius);
-	if (!bInSphere) return FRUSTUM_OUT;	// 경계구 안에 없으면 점단위의 프러스텀 테스트 생략
+	if (!bInSphere) 
+		return FRUSTUM_OUT;	// 경계구 안에 없으면 점단위의 프러스텀 테스트 생략
 
 	// 쿼드트리의 4군데 경계 프러스텀 테스트
 	b[0] = pFrustum->IsIn((D3DXVECTOR3*)(pHeightMap + corner[0]));
@@ -43,7 +44,7 @@ void QuadTree::FrustumCull(TERRAINVERTEX * pHeightMap, Frustum * pFrustum)
 	ret = IsInFrustum(pHeightMap, pFrustum);
 	switch (ret)
 	{
-	case FRUSTUM_COMPLETELY_IN:	// 프러스텀에 완전포함, 하위노드 검색 필요없음
+	case FRUSTUM_COMPLETELY_IN:		// 프러스텀에 완전포함, 하위노드 검색 필요없음
 		AllInFrustum();
 		return;
 	case FRUSTUM_PARTIALLY_IN:		// 프러스텀에 일부포함, 하위노드 검색 필요함
