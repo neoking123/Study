@@ -11,6 +11,9 @@ Tank::~Tank()
 
 void Tank::Init()
 {
+	testMesh = GRAPHIC_SYSTEM->LoadModel("Models\\Ezreal.X", numMaterials);
+	testTexture = GRAPHIC_SYSTEM->LoadTexture("Ezreal.bmp");
+
 	D3DXVECTOR3	pos(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3	lookat(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3	up(0.0f, 1.0f, 0.0f);
@@ -78,6 +81,12 @@ void Tank::Init()
 	cannonIB->Unlock();
 }
 
+void Tank::Release()
+{
+	SAFE_RELEASE(testMesh);
+	SAFE_RELEASE(testTexture);
+}
+
 void Tank::Update(float height)
 {
 	vPos = { vPos.x, height, vPos.z };
@@ -86,8 +95,16 @@ void Tank::Update(float height)
 
 void Tank::Render()
 {
-	GRAPHIC_SYSTEM->DrawMesh(&matTrans, vertextBuffer, indexBuffer, 8, 12);
-	GRAPHIC_SYSTEM->DrawMesh(&matCannonTrans, cannonVB, cannonIB, 8, 12);
+	//GRAPHIC_SYSTEM->DrawMesh(&matTrans, vertextBuffer, indexBuffer, 8, 12);
+	//GRAPHIC_SYSTEM->DrawMesh(&matCannonTrans, cannonVB, cannonIB, 8, 12);
+}
+
+void Tank::RenderShader()
+{
+	for (int i = 0; i < numMaterials; i++)
+	{
+		testMesh->DrawSubset(i);
+	}
 }
 
 void Tank::RotateCannonX(float angle)

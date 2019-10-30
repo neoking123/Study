@@ -22,6 +22,11 @@ void GraphicSystem::InitD3D(HWND hWnd)
 	d3dpp.Windowed = TRUE;
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
+	d3dpp.MultiSampleQuality = 0;
+	d3dpp.Flags = D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL;
+	d3dpp.FullScreen_RefreshRateInHz = 0;
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 
 	// 깊이 버퍼 생성
 	d3dpp.EnableAutoDepthStencil = TRUE;
@@ -36,6 +41,9 @@ void GraphicSystem::InitD3D(HWND hWnd)
 	D3DDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 	
 	//D3DDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
+
+	//셰이더 로드
+	LoadAssets();
 }
 
 void GraphicSystem::InitMatrix()
@@ -57,6 +65,8 @@ void GraphicSystem::InitMatrix()
 
 	// 프러스텀 컬링용 프로젝션 행렬
 	D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI / 4, 1.0f, 1.0f, 200.0f);
+
+	worldLightPos = { 500.0f, 500.0f, -500.0f, 1.0f };
 
 	// 카메라 초기화
 	CAMERA->Init();
@@ -86,7 +96,10 @@ void GraphicSystem::Render()
 	{
 		//SetupMareices();
 
+		RenderShader();
+
 		// Print
+		//GameFrame::GetInstance()->Render();
 		GameFrame::GetInstance()->Render();
 
 		// 프러스텀 컬링
@@ -103,6 +116,7 @@ void GraphicSystem::Render()
 
 void GraphicSystem::Release()
 {
+	SAFE_RELEASE(lightShader);
 	SAFE_RELEASE(D3DDevice);
 	SAFE_RELEASE(D3D);
 }
@@ -165,4 +179,108 @@ void GraphicSystem::SetupLight()
 	D3DDevice->SetRenderState(D3DRS_LIGHTING, FALSE);			// 광원설정을 켠다
 
 	D3DDevice->SetRenderState(D3DRS_AMBIENT, 0xffffffff);		// 환경광원(ambient light)의 값 설정
+}
+
+bool GraphicSystem::LoadAssets()
+{
+	//셰이더 로딩
+	lightShader = LoadShader("Shader\\Lighting.fx");
+	if (!lightShader)
+		return false;
+
+	/*g_pSphere = LoadModel("sphere.x");
+	if (!g_pSphere)
+		return false;*/
+
+	return true;
+}
+
+void GraphicSystem::RenderShader()
+{
+	D3DXMATRIXA16 matWorld = this->matWorld;
+
+	D3DXMATRIXA16 matView = *CAMERA->GetViewMatrix();
+
+	D3DXMATRIXA16 matProj = this->matProj;
+
+	D3DXVECTOR4 worldCameraPos = { CAMERA->GetEye()->x, CAMERA->GetEye()->y, CAMERA->GetEye()->z, 1.0f };
+
+	LPDIRECT3DTEXTURE9 texture = *GAME_FRAME->GetTank()->GetTexture();
+
+	lightShader->SetMatrix("WorldMatrix", &matWorld);
+	lightShader->SetMatrix("ViewMatrix", &matView);
+	lightShader->SetMatrix("ProjectionMatrix", &matProj);
+	lightShader->SetVector("WorldLightPosition", &worldLightPos);
+	lightShader->SetVector("WorldCameraPosition", &worldCameraPos);
+	lightShader->SetTexture("DiffuseMap_Tex", texture);
+
+	UINT numPasses = 0;
+	lightShader->Begin(&numPasses, NULL);
+
+	for (UINT i = 0; i < numPasses; i++)
+	{
+		lightShader->BeginPass(i);
+
+		//g_pSphere->DrawSubset(0);
+		GameFrame::GetInstance()->RenderShader();
+
+		lightShader->EndPass();
+	}
+
+	lightShader->End();
+}
+
+LPD3DXEFFECT GraphicSystem::LoadShader(const char * fileName)
+{
+	LPD3DXEFFECT ret = NULL;
+	LPD3DXBUFFER pError = NULL;
+	DWORD dwShaderFlag = 0;
+
+#if _DEBUG
+	dwShaderFlag |= D3DXSHADER_DEBUG;
+#endif
+
+	D3DXCreateEffectFromFile(D3DDevice, fileName, NULL, NULL, dwShaderFlag, NULL, &ret, &pError);
+
+	if (!ret && pError)
+	{
+		int size = pError->GetBufferSize();
+		void *ack = pError->GetBufferPointer();
+
+		if (ack)
+		{
+			char* str = new char[size];
+			sprintf(str, (const char*)ack, size);
+			OutputDebugString(str);
+			delete[] str;
+		}
+	}
+
+	return ret;
+}
+
+LPDIRECT3DTEXTURE9 GraphicSystem::LoadTexture(const char * fileName)
+{
+	LPDIRECT3DTEXTURE9 ret = NULL;
+	if (FAILED(D3DXCreateTextureFromFile(D3DDevice, fileName, &ret)))
+	{
+		OutputDebugString("텍스쳐 로딩 실패 : ");
+		OutputDebugString(fileName);
+		OutputDebugString("\n");
+	}
+	return ret;
+}
+
+LPD3DXMESH GraphicSystem::LoadModel(const char * fileName, DWORD& g_dwNumMaterials)
+{
+	LPD3DXMESH ret = NULL;
+	if (FAILED(D3DXLoadMeshFromX(fileName, D3DXMESH_SYSTEMMEM, D3DDevice,
+		NULL, NULL, NULL, &g_dwNumMaterials, &ret)))
+	{
+		OutputDebugString("모델 로딩 실패 : ");
+		OutputDebugString(fileName);
+		OutputDebugString("\n");
+	}
+
+	return ret;
 }

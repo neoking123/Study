@@ -36,7 +36,7 @@ public:
 	void InitVB(CUSTOMVERTEX vertexes[], int size, int len);
 	void InitIB(CUSTOMINDEX indexes[], int size, int len);
 	void InitGeometry(string fileName);
-	void Release();
+	virtual void Release();
 
 	virtual D3DXMATRIXA16*	SetPos(D3DXVECTOR3* vPos, D3DXVECTOR3* vLookat, D3DXVECTOR3* vUp);
 	virtual void			MoveLocalX(float dist);

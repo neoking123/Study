@@ -49,6 +49,11 @@ void GameFrame::Render()
 	//GRAPHIC_SYSTEM->DrawMesh(ez.GetMesh(), ez.GetMeshMaterials(), ez.GetMeshTextures(), ez.GetNumMaterials());	
 }
 
+void GameFrame::RenderShader()
+{
+	tank.RenderShader();
+}
+
 void GameFrame::Release()
 {
 	SAFE_DELETE(terrain);

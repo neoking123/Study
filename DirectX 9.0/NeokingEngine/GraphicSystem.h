@@ -19,6 +19,9 @@ private:
 	D3DXMATRIXA16 matView;
 	D3DXMATRIXA16 matProj;
 
+	LPD3DXEFFECT lightShader = NULL;
+	D3DXVECTOR4 worldLightPos;
+
 	GraphicSystem();
 
 public:
@@ -37,6 +40,11 @@ public:
 	void DrawMesh(LPD3DXMESH mesh, D3DMATERIAL9* meshMaterials, LPDIRECT3DTEXTURE9* meshTextures, int numMaterials);
 	void SetupMareices();
 	void SetupLight();
+	bool LoadAssets();
+	void RenderShader();
+	LPD3DXEFFECT LoadShader(const char* fileName);
+	LPDIRECT3DTEXTURE9 LoadTexture(const char* fileName);
+	LPD3DXMESH LoadModel(const char* fileName, DWORD& g_dwNumMaterials);
 
 	LPDIRECT3DDEVICE9 GetDevice()
 	{

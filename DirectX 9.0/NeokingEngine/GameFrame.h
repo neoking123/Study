@@ -25,6 +25,7 @@ public:
 	void Init();
 	void Update();
 	void Render();
+	void RenderShader();
 	void Release();
 
 	static GameFrame* GetInstance()
